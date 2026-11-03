@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Sistema Circulatorio - Cepa Cero</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Chakra Petch -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para Efectos de Audio Sintético -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        :root {
+            --cyan: #00F2FF;
+            --magenta: #FF00E5;
+            --dark: #030712;
+            --success: #00FF66;
+            --danger: #FF0055;
+            --warning: #FFB700;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.3) 50%,
+                rgba(0,0,0,0.3)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .neon-border-cyan {
+            border: 1px solid var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+        }
+
+        .btn-option {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid #1f2937;
+            transition: all 0.15s ease-in-out;
+            text-transform: uppercase;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            border-color: var(--cyan);
+            background: rgba(0, 242, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .correct-opt {
+            border-color: var(--success) !important;
+            background: rgba(0, 255, 102, 0.15) !important;
+            color: var(--success) !important;
+            font-weight: 800 !important;
+        }
+
+        .incorrect-opt {
+            border-color: var(--danger) !important;
+            background: rgba(255, 0, 85, 0.15) !important;
+            color: var(--danger) !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col items-center justify-center p-3 sm:p-6">
+
+    <div class="scanlines"></div>
+
+    <main class="w-full max-w-4xl bg-[#0b132b] neon-border-cyan rounded-lg p-5 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl">
+        
+        <!-- ENCABEZADO TÁCTICO -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-3">
+            <div>
+                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors mb-1 font-semibold">
+                    ← VOLVER A CENTRAL DE OPERACIONES
+                </a>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wider text-[var(--cyan)] uppercase">
+                    FASE 01 /// CEPA CERO: FUNDAMENTOS
+                </h1>
+                <p class="text-xs text-gray-400 uppercase">MÓDULO: SISTEMA CIRCULATORIO // EVALUACIÓN DE DIAGNÓSTICO (NIVEL FÁCIL)</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="bg-[#111d4a] px-3 py-2 rounded border border-gray-700 text-center">
+                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">TIEMPO</span>
+                    <span id="timer-display" class="text-base font-bold text-[var(--warning)] font-mono">60s</span>
+                </div>
+
+                <div class="bg-[#111d4a] px-4 py-2 rounded border border-gray-700 text-right">
+                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">ACIERTOS</span>
+                    <span id="score-display" class="text-base font-bold text-[var(--success)]">00 / 10</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- BARRA DE PROGRESO -->
+        <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+                <span id="question-number" class="text-[var(--cyan)] uppercase">PREGUNTA 01 / 10</span>
+                <span id="difficulty-tag" class="px-2 py-0.5 rounded text-[10px] bg-green-950 text-green-400 border border-green-700 uppercase font-bold">FÁCIL</span>
+            </div>
+            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
+                <div id="progress-bar" class="bg-[var(--cyan)] h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- TARJETA DE PREGUNTA -->
+        <section id="quiz-container" class="space-y-6">
+            <div class="bg-[#1c2541] p-5 rounded-lg border border-gray-800 shadow-inner">
+                <h2 id="question-text" class="text-base sm:text-lg font-bold text-gray-100 leading-relaxed uppercase">
+                    CARGANDO REACTIVO EVALUATIVO...
+                </h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+
+            <div id="feedback-panel" class="hidden bg-[#0d1b2a] border-l-4 border-[var(--cyan)] p-4 rounded text-sm space-y-3">
+                <div>
+                    <span id="feedback-title" class="text-xs font-bold uppercase tracking-widest text-[var(--cyan)] block mb-1">>>> RETROALIMENTACIÓN TÁCTICA</span>
+                    <p id="explanation-text" class="text-gray-300 leading-normal font-medium"></p>
+                </div>
+                <button id="next-btn" onclick="siguientePregunta()" class="w-full sm:w-auto px-6 py-2.5 bg-[var(--cyan)] text-black font-bold text-sm tracking-wider uppercase rounded hover:bg-white transition-colors">
+                    Siguiente Reactivo →
+                </button>
+            </div>
+        </section>
+
+        <!-- PANTALLA FINAL DE RESULTADOS -->
+        <section id="results-screen" class="hidden flex-col items-center justify-center space-y-6 py-8 text-center">
+            <div id="badge-icon" class="text-6xl">🧪</div>
+            <div>
+                <h2 id="results-title" class="text-2xl font-bold text-[var(--cyan)] uppercase">EVALUACIÓN CONCLUIDA</h2>
+                <p id="results-subtitle" class="text-sm text-gray-400 mt-1">Sincronización de datos completada.</p>
+            </div>
+
+            <div class="bg-[#1c2541] p-6 rounded-lg border border-gray-800 max-w-sm w-full space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Aciertos Totales:</span>
+                    <span id="final-score" class="font-bold text-white">0 / 10</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Efectividad Operativa:</span>
+                    <span id="final-percent" class="font-bold text-[var(--cyan)]">0%</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Estado de Fase 2:</span>
+                    <span id="unlock-status" class="font-bold text-[var(--danger)]">BLOQUEADO</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <a href="../index.html" class="flex-1 py-3 bg-[var(--cyan)] text-black font-bold text-xs uppercase tracking-wider rounded text-center hover:bg-white transition-colors">
+                    Volver a Central
+                </a>
+                <button onclick="reiniciarEvaluacion()" class="flex-1 py-3 bg-gray-800 border border-gray-700 text-gray-200 font-bold text-xs uppercase tracking-wider rounded hover:bg-gray-700 transition-colors">
+                    Reintentar Fase
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const preguntas = [
+            {
+                nivel: "FÁCIL",
+                pregunta: "1. ¿QUÉ UBICACIÓN OCUPA EL CORAZÓN EN EL TÓRAX?",
+                opciones: [
+                    "A) MEDIASTINO MEDIO",
+                    "B) MEDIASTINO INFERIOR",
+                    "C) MEDIASTINO SUPERIOR",
+                    "D) MEDIASTINO ANTERIOR",
+                    "E) MEDIASTINO POSTERIOR"
+                ],
+                correcta: 0,
+                explicacion: "El mediastino medio es el espacio entre los pulmones ocupado por el corazón."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "2. ¿CÓMO SE LLAMAN LAS CAVIDADES SUPERIORES DEL CORAZÓN?",
+                opciones: [
+                    "A) VENTRÍCULOS",
+                    "B) AURÍCULAS",
+                    "C) PLEURAS",
+                    "D) MEDIASTINOS",
+                    "E) TRICÚSPIDES"
+                ],
+                correcta: 1,
+                explicacion: "Las aurículas (derecha e izquierda) son las cavidades superiores del corazón."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "3. ¿CUÁL ES LA VÁLVULA QUE SE ENCUENTRA ENTRE AURÍCULA Y VENTRÍCULO DERECHOS?",
+                opciones: [
+                    "A) PULMONAR",
+                    "B) BICÚSPIDE",
+                    "C) AÓRTICA",
+                    "D) MITRAL",
+                    "E) TRICÚSPIDE"
+                ],
+                correcta: 4,
+                explicacion: "La válvula tricúspide comunica la aurícula derecha con el ventrículo derecho."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "4. ¿CÓMO SE DENOMINAN LOS VASOS MICROSCÓPICOS CON PAREDES MUY DELGADAS FACILITANDO EL INTERCAMBIO DE SUSTANCIAS?",
+                opciones: [
+                    "A) VÉNULAS",
+                    "B) ARTERIAS",
+                    "C) CAPILARES",
+                    "D) VENAS",
+                    "E) ARTERIOLAS"
+                ],
+                correcta: 2,
+                explicacion: "A través de los capilares es que sucede el intercambio de sustancias."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "5. ¿QUÉ TIPO DE TEJIDO ES LA SANGRE?",
+                opciones: [
+                    "A) LÍQUIDO",
+                    "B) ADIPOSO",
+                    "C) MUSCULAR",
+                    "D) CONECTIVO",
+                    "E) EPITELIAL"
+                ],
+                correcta: 3,
+                explicacion: "La sangre es un tejido de tipo conjuntivo (conectivo)."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "6. TIENEN PAREDES GRUESAS, ELÁSTICAS Y RESISTENTES A LA PRESIÓN:",
+                opciones: [
+                    "A) VÉNULAS",
+                    "B) ARTERIAS",
+                    "C) CAPILARES",
+                    "D) VENAS",
+                    "E) ARTERIOLAS"
+                ],
+                correcta: 1,
+                explicacion: "Las arterias poseen paredes gruesas para soportar el flujo de sangre a altas presiones."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "7. ¿CÓMO SE DENOMINA A LA DILATACIÓN ANORMAL DE LAS VENAS?",
+                opciones: [
+                    "A) VARICOCELE",
+                    "B) ANEURISMA",
+                    "C) TELANGIECTASIA",
+                    "D) VÁRICE",
+                    "E) ATELECTASIA"
+                ],
+                correcta: 3,
+                explicacion: "Las várices son venas inflamadas, dilatadas y retorcidas que se acumulan de sangre debido a un mal funcionamiento de las válvulas cardíacas o venosas."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "8. TIENEN PAREDES DELGADAS Y POSEEN VÁLVULAS EN TODO SU TRAYECTO PARA EVITAR EL RETROCESO DE SANGRE:",
+                opciones: [
+                    "A) VÉNULAS",
+                    "B) ARTERIAS",
+                    "C) CAPILARES",
+                    "D) VENAS",
+                    "E) ARTERIOLAS"
+                ],
+                correcta: 3,
+                explicacion: "Las venas poseen válvulas en todo su trayecto para evitar el retroceso de sangre."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "9. ¿CÓMO SE DENOMINA A LA DILATACIÓN ANORMAL DE LAS ARTERIAS?",
+                opciones: [
+                    "A) VARICOCELE",
+                    "B) ANEURISMA",
+                    "C) TELANGIECTASIA",
+                    "D) VÁRICE",
+                    "E) ATELECTASIA"
+                ],
+                correcta: 1,
+                explicacion: "Un aneurisma es una dilatación anormal o protuberancia en la pared de una arteria, causada por el debilitamiento de su estructura, que corre el riesgo de romperse y provocar una hemorragia grave."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "10. ¿CUÁL ES LA VÁLVULA QUE SE ENCUENTRA ENTRE AURÍCULA Y VENTRÍCULO IZQUIERDOS?",
+                opciones: [
+                    "A) PULMONAR",
+                    "B) SIGMOIDEA",
+                    "C) AÓRTICA",
+                    "D) MITRAL",
+                    "E) TRICÚSPIDE"
+                ],
+                correcta: 3,
+                explicacion: "La válvula bicúspide, también llamada mitral, se encuentra en el corazón izquierdo."
+            }
+        ];
+
+        let indiceActual = 0;
+        let puntaje = 0;
+        let respondido = false;
+        let tiempoRestante = 60;
+        let timerInterval = null;
+
+        function playSound(type) {
+            try {
+                if (typeof Tone === 'undefined') return;
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+
+                if (type === 'correct') {
+                    const synthAcc = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synthAcc.set({
+                        oscillator: { type: "triangle" },
+                        envelope: { attack: 0.005, decay: 0.08, sustain: 0.05, release: 0.3 }
+                    });
+                    
+                    const now = Tone.now();
+                    synthAcc.triggerAttackRelease("C5", "16n", now);
+                    synthAcc.triggerAttackRelease("E5", "16n", now + 0.06);
+                    synthAcc.triggerAttackRelease("G5", "16n", now + 0.12);
+                    synthAcc.triggerAttackRelease("C6", "8n", now + 0.18);
+                } else if (type === 'incorrect') {
+                    const synthErr = new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
+                    }).toDestination();
+
+                    const now = Tone.now();
+                    synthErr.triggerAttackRelease("F3", "16n", now);
+                    synthErr.triggerAttackRelease("C3", "8n", now + 0.08);
+                } else if (type === 'victory') {
+                    const synthVic = new Tone.PolySynth(Tone.Synth).toDestination();
+                    const now = Tone.now();
+                    synthVic.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+                    synthVic.triggerAttackRelease(["G4", "B4", "D5"], "8n", now + 0.2);
+                    synthVic.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now + 0.4);
+                }
+            } catch (e) {}
+        }
+
+        function iniciarTemporizador() {
+            clearInterval(timerInterval);
+            tiempoRestante = 60;
+            actualizarTimerUI();
+
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                actualizarTimerUI();
+
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    manejarTiempoAgotado();
+                }
+            }, 1000);
+        }
+
+        function actualizarTimerUI() {
+            const timerEl = document.getElementById('timer-display');
+            if (!timerEl) return;
+            timerEl.textContent = `${tiempoRestante}s`;
+            if (tiempoRestante <= 15) {
+                timerEl.className = "text-base font-bold text-[var(--danger)] font-mono animate-pulse";
+            } else {
+                timerEl.className = "text-base font-bold text-[var(--warning)] font-mono";
+            }
+        }
+
+        function manejarTiempoAgotado() {
+            if (respondido) return;
+            respondido = true;
+
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            botones[q.correcta].classList.add('correct-opt');
+            playSound('incorrect');
+
+            for (let btn of botones) {
+                btn.disabled = true;
+            }
+
+            document.getElementById('feedback-title').textContent = ">>> TIEMPO AGOTADO SECTORIAL (60s)";
+            document.getElementById('explanation-text').textContent = `Se agotó el tiempo para responder este reactivo. ${q.explicacion}`;
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
+
+        function cargarPregunta() {
+            respondido = false;
+            const q = preguntas[indiceActual];
+
+            document.getElementById('question-number').textContent = `PREGUNTA ${String(indiceActual + 1).padStart(2, '0')} / ${preguntas.length}`;
+            document.getElementById('progress-bar').style.width = `${((indiceActual) / preguntas.length) * 100}%`;
+            document.getElementById('question-text').textContent = q.pregunta;
+            
+            document.getElementById('feedback-panel').classList.add('hidden');
+            document.getElementById('feedback-title').textContent = ">>> RETROALIMENTACIÓN TÁCTICA";
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.opciones.forEach((opcion, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option p-3.5 rounded text-left text-sm font-semibold text-gray-200 w-full flex justify-between items-center uppercase';
+                btn.textContent = opcion;
+                btn.onclick = () => seleccionarOpcion(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            iniciarTemporizador();
+        }
+
+        function seleccionarOpcion(indexSeleccionado) {
+            if (respondido) return;
+            respondido = true;
+            clearInterval(timerInterval);
+
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            if (indexSeleccionado === q.correcta) {
+                botones[indexSeleccionado].classList.add('correct-opt');
+                puntaje++;
+                playSound('correct');
+            } else {
+                botones[indexSeleccionado].classList.add('incorrect-opt');
+                botones[q.correcta].classList.add('correct-opt');
+                playSound('incorrect');
+            }
+
+            for (let btn of botones) {
+                btn.disabled = true;
+            }
+
+            document.getElementById('score-display').textContent = `${String(puntaje).padStart(2, '0')} / ${preguntas.length}`;
+            document.getElementById('explanation-text').textContent = q.explicacion;
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
+
+        function siguientePregunta() {
+            clearInterval(timerInterval);
+            indiceActual++;
+            if (indiceActual < preguntas.length) {
+                cargarPregunta();
+            } else {
+                finalizarEvaluacion();
+            }
+        }
+
+        function finalizarEvaluacion() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('flex');
+
+            const porcentaje = Math.round((puntaje / preguntas.length) * 100);
+            
+            document.getElementById('final-score').textContent = `${puntaje} / ${preguntas.length}`;
+            document.getElementById('final-percent').textContent = `${porcentaje}%`;
+
+            const unlockStatus = document.getElementById('unlock-status');
+            
+            if (porcentaje >= 70) {
+                localStorage.setItem('krebs_circulatorio_fase2_unlocked', 'true');
+
+                unlockStatus.textContent = "DESBLOQUEADO ✔";
+                unlockStatus.className = "font-bold text-[var(--success)]";
+                document.getElementById('results-title').textContent = "FASE 01 SUPERADA";
+                document.getElementById('results-subtitle').textContent = "Fase 2 (Brote Mutante) desbloqueada en la Central de Operaciones.";
+                document.getElementById('badge-icon').textContent = "☣️";
+                playSound('victory');
+            } else {
+                unlockStatus.textContent = "BLOQUEADO (Mínimo 7/10)";
+                unlockStatus.className = "font-bold text-[var(--danger)]";
+                document.getElementById('results-title').textContent = "EVALUACIÓN INSUFICIENTE";
+                document.getElementById('results-subtitle').textContent = "Se requiere al menos 7 aciertos para habilitar el siguiente nivel.";
+                document.getElementById('badge-icon').textContent = "🔒";
+            }
+        }
+
+        function reiniciarEvaluacion() {
+            indiceActual = 0;
+            puntaje = 0;
+            document.getElementById('score-display').textContent = `00 / ${preguntas.length}`;
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('flex');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            cargarPregunta();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cargarPregunta);
+        } else {
+            cargarPregunta();
+        }
+    </script>
+</body>
+</html>

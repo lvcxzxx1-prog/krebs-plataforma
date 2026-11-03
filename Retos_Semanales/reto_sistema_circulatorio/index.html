@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Reto Proyectable - Sistema Circulatorio</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tone.js para Audio Sintético -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            user-select: none;
+        }
+
+        .card-option {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .card-option:hover:not(:disabled) {
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .correct-opt {
+            border-color: #16a34a !important;
+            background: #f0fdf4 !important;
+            color: #15803d !important;
+            font-weight: 800 !important;
+        }
+
+        .incorrect-opt {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col items-center justify-between p-4 sm:p-8">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-10 flex flex-col justify-between my-auto space-y-6">
+        
+        <!-- CABECERA DE AULA -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-slate-100 pb-4 gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-900 text-white font-black text-lg px-3 py-1.5 rounded-lg shadow">
+                    HK
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-sky-600 tracking-widest uppercase block">HIJOS DE KREBS /// CÁTEDRA DE ANATOMÍA Y FISIOLOGÍA</span>
+                    <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">RETO PROYECTABLE: SISTEMA CIRCULATORIO</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 self-end sm:self-auto">
+                <div class="bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-xl text-center shadow-sm">
+                    <span class="block text-[9px] font-extrabold text-amber-700 uppercase tracking-wider">TIEMPO</span>
+                    <span id="timer-display" class="text-lg font-black text-amber-600 font-mono">60s</span>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 px-4 py-1.5 rounded-xl text-right shadow-sm">
+                    <span class="block text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider">ACIERTOS</span>
+                    <span id="score-display" class="text-lg font-black text-emerald-600">00 / 10</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- BARRA DE PROGRESO -->
+        <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs font-bold tracking-wider">
+                <span id="question-number" class="text-sky-600">PREGUNTA 01 / 10</span>
+                <span id="difficulty-tag" class="px-2.5 py-0.5 rounded-full text-[10px] uppercase">DIFICULTAD</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+                <div id="progress-bar" class="bg-sky-600 h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE EVALUACIÓN -->
+        <section id="quiz-container" class="space-y-6">
+            <!-- ENUNCIADO DE ALTA VISIBILIDAD -->
+            <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-inner">
+                <h2 id="question-text" class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug uppercase tracking-tight">
+                    CARGANDO REACTIVO EVALUATIVO...
+                </h2>
+            </div>
+
+            <!-- CONTENEDOR DE ALTERNATIVAS -->
+            <div id="options-container" class="grid grid-cols-1 gap-3.5">
+                <!-- Generado dinámicamente -->
+            </div>
+
+            <!-- RETROALIMENTACIÓN Y BOTÓN SIGUIENTE -->
+            <div id="feedback-panel" class="hidden bg-sky-50 border-l-8 border-sky-600 p-5 rounded-xl space-y-3">
+                <div>
+                    <span id="feedback-title" class="text-xs font-black uppercase tracking-wider text-sky-800 block mb-1">>>> RETROALIMENTACIÓN CÁTEDRA</span>
+                    <p id="explanation-text" class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed"></p>
+                </div>
+                <button id="next-btn" onclick="siguientePregunta()" class="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white font-extrabold text-sm tracking-wider uppercase rounded-xl hover:bg-sky-600 transition-colors shadow-lg">
+                    Siguiente Reactivo →
+                </button>
+            </div>
+        </section>
+
+        <!-- PANTALLA FINAL DE RESULTADOS CON CALL TO ACTION -->
+        <section id="results-screen" class="hidden flex-col items-center justify-center space-y-6 py-6 text-center">
+            <div id="badge-icon" class="text-6xl animate-bounce">🫀</div>
+            
+            <div>
+                <h2 id="results-title" class="text-3xl font-black text-slate-900 tracking-tight uppercase">RETO CONCLUIDO</h2>
+                <p id="results-subtitle" class="text-base text-slate-600 font-medium mt-1">Evaluación presencial de Sistema Circulatorio completada.</p>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 max-w-md w-full shadow-sm space-y-3">
+                <div class="flex justify-between items-center text-base font-bold">
+                    <span class="text-slate-500">Aciertos Totales:</span>
+                    <span id="final-score" class="text-slate-900 text-xl font-black">0 / 10</span>
+                </div>
+                <div class="flex justify-between items-center text-base font-bold">
+                    <span class="text-slate-500">Rendimiento Operativo:</span>
+                    <span id="final-percent" class="text-sky-600 text-xl font-black">0%</span>
+                </div>
+            </div>
+
+            <!-- BANNER DE CONVERSIÓN Y ACCESO A BÓVEDA MAESTRA -->
+            <div class="bg-gradient-to-r from-sky-900 to-slate-900 text-white p-6 rounded-2xl max-w-md w-full shadow-xl space-y-4 text-left">
+                <div>
+                    <span class="bg-sky-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider">MÁS RECURSOS DE ESTUDIO</span>
+                    <h3 class="text-lg font-black mt-2">¿QUIERES ACCESO A LA BÓVEDA MAESTRA?</h3>
+                    <p class="text-xs text-sky-200 mt-1 leading-relaxed">
+                        Accede a simuladores interactivos, bancos explicados en video y carpetas de trabajo con el Maestro Antonio.
+                    </p>
+                </div>
+                
+                <a href="https://wa.me/51941071347?text=Hola,%20Maestro%20Antonio.%20Particip%C3%A9%20en%20el%20Reto%20de%20Sistema%20Circulatorio%20y%20quiero%20solicitar%20acceso%20a%20la%20B%C3%B3veda%20Maestra." 
+                   target="_blank" 
+                   class="block w-full py-3.5 bg-emerald-500 text-slate-950 font-black text-center text-xs uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/30">
+                    📲 SOLICITAR ACCESO EN WHATSAPP
+                </a>
+            </div>
+
+            <div class="flex gap-4 w-full max-w-md">
+                <button onclick="reiniciarEvaluacion()" class="w-full py-3 bg-slate-200 text-slate-800 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-300 transition-colors">
+                    Reiniciar Reto de Aula
+                </button>
+            </div>
+        </section>
+
+        <!-- FOOTER DE CÁTEDRA -->
+        <footer class="border-t border-slate-100 pt-3 flex justify-between items-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span>Cátedra de Biología y Anatomía • Doc. Antonio</span>
+            <span>Hijos de Krebs</span>
+        </footer>
+
+    </main>
+
+    <script>
+        // BANCO DE 10 PREGUNTAS EN MAYÚSCULAS
+        const preguntas = [
+            {
+                nivel: "FÁCIL",
+                pregunta: "1. ¿CUÁL ES EL COMPONENTE LÍQUIDO EXTRACELULAR DE LA SANGRE QUE TRANSPORTA AGUA, NUTRIENTES, HORMONAS, ELECTROLITOS Y DESECHOS METABÓLICOS A TRAVÉS DE TODO EL SISTEMA CIRCULATORIO?",
+                opciones: [
+                    "A) EL PLASMA SANGUÍNEO",
+                    "B) EL CITOSOL",
+                    "C) LA LINFA HISTOLÓGICA",
+                    "D) EL LÍQUIDO CEFALORRAQUÍDEO",
+                    "E) EL LÍQUIDO SINOVIAL"
+                ],
+                correcta: 0,
+                explicacion: "El plasma sanguíneo constituye la fracción líquida de la sangre en la que se encuentran suspendidos los elementos figurados y disueltos los nutrientes, gases y desechos metabólicos."
+            },
+            {
+                nivel: "INTERMEDIO",
+                pregunta: "2. ¿QUÉ TIPO DE VASOS SANGUÍNEOS DE CALIBRE MICROSCÓPICO POSEEN UNA PARED EXTREMADAMENTE DELGADA QUE FACILITA EL INTERCAMBIO DE GASES Y NUTRIENTES ENTRE LA SANGRE Y LOS TEJIDOS TISULARES?",
+                opciones: [
+                    "A) LAS ARTERIAS ELÁSTICAS",
+                    "B) LOS CAPILARES SANGUÍNEOS",
+                    "C) LAS VENAS DE GRAN CALIBRE",
+                    "D) LOS CONDUCTOS DEFERENTES",
+                    "E) LAS ARTERIAS CORONARIAS"
+                ],
+                correcta: 1,
+                explicacion: "Los capilares sanguíneos son vasos microscópicos caracterizados por paredes delgadas que permiten la difusión e intercambio eficiente de gases, agua y solutos entre el plasma y los tejidos."
+            },
+            {
+                nivel: "DIFÍCIL",
+                pregunta: "3. DURANTE UNA RESPUESTA DE ALERTA O ESTRÉS, EL SISTEMA NERVIOSO AUTÓNOMO SIMPÁTICO ACTÚA SOBRE EL SISTEMA CARDIOVASCULAR. ¿QUÉ EFECTO FISIOLÓGICO ESPECÍFICO PROVOCA ESTA ESTIMULACIÓN SOBRE LA DINÁMICA CARDÍACA?",
+                opciones: [
+                    "A) DISMINUCIÓN DE LA FRECUENCIA CARDÍACA Y BRONCOCONSTRICCIÓN",
+                    "B) PARÁLISIS DEL MÚSCULO DETRUSOR CARDÍACO",
+                    "C) INCREMENTO DE LA FRECUENCIA CARDÍACA Y DEL GASTO CARDÍACO",
+                    "D) BLOQUEO COMPLETO DE LA PERFUSIÓN CAPILAR EN LOS MÚSCULOS",
+                    "E) REDUCCIÓN DE LA SÍNTESIS DE HEMOGLOBINA EN EL MIOCARDIO"
+                ],
+                correcta: 2,
+                explicacion: "La estimulación del sistema nervioso simpático incrementa la frecuencia cardíaca y la fuerza de contracción del corazón para optimizar el aporte sanguíneo durante situaciones de emergencia."
+            },
+            {
+                nivel: "INTERMEDIO",
+                pregunta: "4. ¿CUÁL ES LA PROTEÍNA CUATERNARIA PRESENTE EN LOS ERITROCITOS ENCARGADA DE UNIRSE DE MANERA REVERSIBLE AL OXÍGENO MOLECULAR PARA SU TRANSPORTE SISTÉMICO?",
+                opciones: [
+                    "A) LA MIOGLOBINA",
+                    "B) LA ANHIDRASA CARBÓNICA",
+                    "C) LA ALBÚMINA",
+                    "D) LA HEMOGLOBINA",
+                    "E) LA PROLACTINA"
+                ],
+                correcta: 3,
+                explicacion: "La hemoglobina es la proteína contenida en los glóbulos rojos que fija de forma reversible las moléculas de O₂ para distribuirlas desde los alvéolos hacia los tejidos."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "5. LOS ELEMENTOS FIGURADOS DE LA SANGRE ESPECIALIZADOS EN LA DEFENSA ESTRUCTURAL DEL ORGANISMO CONTRA INFECCIONES Y PATÓGENOS SE DENOMINAN:",
+                opciones: [
+                    "A) ERITROCITOS",
+                    "B) NEUMOCITOS TIPO I",
+                    "C) TROMBOCITOS",
+                    "D) ASTROCITOS",
+                    "E) LEUCOCITOS"
+                ],
+                correcta: 4,
+                explicacion: "Los leucocitos o glóbulos blancos son las células sanguíneas encargadas de ejecutar los mecanismos de defensa e inmunidad."
+            },
+            {
+                nivel: "DIFÍCIL",
+                pregunta: "6. EN EL SISTEMA NERVIOSO CENTRAL, ¿EN QUÉ ESTRUCTURA DEL TRONCO ENCEFÁLICO SE LOCALIZAN LOS CENTROS REFLEJOS VITALES ENCARGADOS DE LA REGULACIÓN CARDIOVASCULAR Y LA PRESIÓN ARTERIAL?",
+                opciones: [
+                    "A) EN EL BULBO RAQUÍDEO",
+                    "B) EN EL CEREBELO",
+                    "C) EN EL LÓBULO FRONTAL",
+                    "D) EN EL CUERPO CALLOSO",
+                    "E) EN LA HIPÓFISIS ANTERIOR"
+                ],
+                correcta: 0,
+                explicacion: "El bulbo raquídeo (o médula oblonga) en el tronco encefálico contiene los centros reguladores autónomos esenciales para el control cardíaco y de la presión vascular."
+            },
+            {
+                nivel: "INTERMEDIO",
+                pregunta: "7. ¿CÓMO SE DENOMINA EL PROCESO FISIOLÓGICO DE DESTRUCCIÓN Y ELIMINACIÓN DE ERITROCITOS VIEJOS O DESTRUCTURADOS QUE TIENE LUGAR EN LA PULPA ROJA DEL BAZO?",
+                opciones: [
+                    "A) HEMATALGESIA",
+                    "B) HEMOCATÉRESIS",
+                    "C) ERITROPOYESIS",
+                    "D) OPSONIZACIÓN",
+                    "E) HEMOSTASIA"
+                ],
+                correcta: 1,
+                explicacion: "La hemocatéresis es la eliminación y degradación de los glóbulos rojos envejecidos realizada por los macrófagos en la pulpa roja del bazo."
+            },
+            {
+                nivel: "FÁCIL",
+                pregunta: "8. ¿QUÉ HORMONA SECRETADA POR EL RIÑÓN ANTE LA DISMINUCIÓN DE OXÍGENO EN LOS TEJIDOS ESTIMULA LA SÍNTESIS DE NUEVOS ERITROCITOS EN LA MÉDULA ÓSEA ROJA?",
+                opciones: [
+                    "A) LA INSULINA",
+                    "B) LA ANGIOTENSINA",
+                    "C) LA ERITROPOYETINA",
+                    "D) LA VASOPRESINA",
+                    "E) LA TIROXINA"
+                ],
+                correcta: 2,
+                explicacion: "La eritropoyetina (EPO) es la hormona renal que estimula la eritropoyesis en la médula ósea roja para mantener la producción adecuada de glóbulos rojos."
+            },
+            {
+                nivel: "DIFÍCIL",
+                pregunta: "9. EN LA FISIOLOGÍA RENAL, LA SANGRE INGRESA AL CORPÚSCULO RENAL PARA SER FILTRADA A TRAVÉS DE UN OVILLO DE CAPILARES DE ALTA PRESIÓN DENOMINADO:",
+                opciones: [
+                    "A) TÚBULO CONTORNEADO DISTAL",
+                    "B) CONDUCTO COLECTOR",
+                    "C) ASA DE HENLE",
+                    "D) GLOMÉRULO RENAL",
+                    "E) URÉTER RETROPERITONEAL"
+                ],
+                correcta: 3,
+                explicacion: "El glomérulo renal es la red capilar fenestrada contenida en la cápsula de Bowman donde se ejerce la presión hidrostática para la filtración del plasma."
+            },
+            {
+                nivel: "INTERMEDIO",
+                pregunta: "10. ¿QUÉ COMPONENTES CELULARES O FRAGMENTOS CITOPLASMÁTICOS DE LA SANGRE PARTICIPAN DIRECTAMENTE EN LOS MECANISMOS DE COAGULACIÓN Y HEMOSTASIA PARA EVITAR PÉRDIDAS SANGUÍNEAS?",
+                opciones: [
+                    "A) LOS NEUTRÓFILOS",
+                    "B) LOS MONOCITOS",
+                    "C) LOS LINFOCITOS T CD8⁺",
+                    "D) LOS EOSINÓFILOS",
+                    "E) TROMBOCITOS"
+                ],
+                correcta: 4,
+                explicacion: "Las plaquetas (o trombocitos) son fragmentos celulares fundamentales en la formación del tapón hemostático y la cascada de coagulación sanguínea."
+            }
+        ];
+
+        // ESTADO Y TEMPORIZADOR
+        let indiceActual = 0;
+        let puntaje = 0;
+        let respondido = false;
+        let tiempoRestante = 60;
+        let timerInterval = null;
+
+        // EFECTOS SINTÉTICOS CON PROTECCIÓN OFFLINE
+        function playSound(type) {
+            try {
+                if (typeof Tone === 'undefined') return;
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+
+                if (type === 'correct') {
+                    const synthAcc = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synthAcc.set({
+                        oscillator: { type: "triangle" },
+                        envelope: { attack: 0.005, decay: 0.08, sustain: 0.05, release: 0.3 }
+                    });
+                    
+                    const now = Tone.now();
+                    synthAcc.triggerAttackRelease("C5", "16n", now);
+                    synthAcc.triggerAttackRelease("E5", "16n", now + 0.06);
+                    synthAcc.triggerAttackRelease("G5", "16n", now + 0.12);
+                    synthAcc.triggerAttackRelease("C6", "8n", now + 0.18);
+                } else if (type === 'incorrect') {
+                    const synthErr = new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
+                    }).toDestination();
+
+                    const now = Tone.now();
+                    synthErr.triggerAttackRelease("F3", "16n", now);
+                    synthErr.triggerAttackRelease("C3", "8n", now + 0.08);
+                } else if (type === 'victory') {
+                    const synthVic = new Tone.PolySynth(Tone.Synth).toDestination();
+                    const now = Tone.now();
+                    synthVic.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+                    synthVic.triggerAttackRelease(["G4", "B4", "D5"], "8n", now + 0.2);
+                    synthVic.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now + 0.4);
+                }
+            } catch (e) {
+                // Silencioso si falla el audio
+            }
+        }
+
+        function iniciarTemporizador() {
+            clearInterval(timerInterval);
+            tiempoRestante = 60;
+            actualizarTimerUI();
+
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                actualizarTimerUI();
+
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    manejarTiempoAgotado();
+                }
+            }, 1000);
+        }
+
+        function actualizarTimerUI() {
+            const timerEl = document.getElementById('timer-display');
+            if (!timerEl) return;
+            timerEl.textContent = `${tiempoRestante}s`;
+            if (tiempoRestante <= 15) {
+                timerEl.className = "text-lg font-black text-red-600 font-mono animate-pulse";
+            } else {
+                timerEl.className = "text-lg font-black text-amber-600 font-mono";
+            }
+        }
+
+        function manejarTiempoAgotado() {
+            if (respondido) return;
+            respondido = true;
+
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            botones[q.correcta].classList.add('correct-opt');
+            playSound('incorrect');
+
+            for (let btn of botones) {
+                btn.disabled = true;
+            }
+
+            document.getElementById('feedback-title').textContent = ">>> TIEMPO AGOTADO (60s)";
+            document.getElementById('explanation-text').textContent = `Se agotó el tiempo para responder este reactivo. ${q.explicacion}`;
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
+
+        function cargarPregunta() {
+            respondido = false;
+            const q = preguntas[indiceActual];
+
+            document.getElementById('question-number').textContent = `PREGUNTA ${String(indiceActual + 1).padStart(2, '0')} / ${preguntas.length}`;
+            
+            const tag = document.getElementById('difficulty-tag');
+            tag.textContent = q.nivel;
+            if (q.nivel === "FÁCIL") {
+                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-extrabold";
+            } else if (q.nivel === "INTERMEDIO") {
+                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-extrabold";
+            } else {
+                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-red-100 text-red-800 font-extrabold";
+            }
+
+            document.getElementById('progress-bar').style.width = `${((indiceActual) / preguntas.length) * 100}%`;
+            document.getElementById('question-text').textContent = q.pregunta;
+            
+            document.getElementById('feedback-panel').classList.add('hidden');
+            document.getElementById('feedback-title').textContent = ">>> RETROALIMENTACIÓN CÁTEDRA";
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.opciones.forEach((opcion, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'card-option p-4 rounded-xl text-left text-sm sm:text-base font-extrabold text-slate-800 w-full flex justify-between items-center shadow-sm uppercase';
+                btn.textContent = opcion;
+                btn.onclick = () => seleccionarOpcion(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            iniciarTemporizador();
+        }
+
+        function seleccionarOpcion(indexSeleccionado) {
+            if (respondido) return;
+            respondido = true;
+            clearInterval(timerInterval);
+
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            if (indexSeleccionado === q.correcta) {
+                botones[indexSeleccionado].classList.add('correct-opt');
+                puntaje++;
+                playSound('correct');
+            } else {
+                botones[indexSeleccionado].classList.add('incorrect-opt');
+                botones[q.correcta].classList.add('correct-opt');
+                playSound('incorrect');
+            }
+
+            for (let btn of botones) {
+                btn.disabled = true;
+            }
+
+            document.getElementById('score-display').textContent = `${String(puntaje).padStart(2, '0')} / ${preguntas.length}`;
+            document.getElementById('explanation-text').textContent = q.explicacion;
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
+
+        function siguientePregunta() {
+            clearInterval(timerInterval);
+            indiceActual++;
+            if (indiceActual < preguntas.length) {
+                cargarPregunta();
+            } else {
+                finalizarEvaluacion();
+            }
+        }
+
+        function finalizarEvaluacion() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('flex');
+
+            const porcentaje = Math.round((puntaje / preguntas.length) * 100);
+            
+            document.getElementById('final-score').textContent = `${puntaje} / ${preguntas.length}`;
+            document.getElementById('final-percent').textContent = `${porcentaje}%`;
+
+            if (porcentaje >= 70) {
+                document.getElementById('results-title').textContent = "RETO SUPERADO";
+                document.getElementById('results-subtitle').textContent = "Excelente desempeño en el dominio conceptual del Sistema Circulatorio.";
+                document.getElementById('badge-icon').textContent = "🏆";
+                playSound('victory');
+            } else {
+                document.getElementById('results-title').textContent = "RETO FINALIZADO";
+                document.getElementById('results-subtitle').textContent = "Buen intento. Revisa los conceptos explicados para afianzar tu preparación.";
+                document.getElementById('badge-icon').textContent = "🫀";
+            }
+        }
+
+        function reiniciarEvaluacion() {
+            indiceActual = 0;
+            puntaje = 0;
+            document.getElementById('score-display').textContent = `00 / ${preguntas.length}`;
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('flex');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            cargarPregunta();
+        }
+
+        // EJECUCIÓN INMEDIATA Y ROBUSTA
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cargarPregunta);
+        } else {
+            cargarPregunta();
+        }
+    </script>
+</body>
+</html>
