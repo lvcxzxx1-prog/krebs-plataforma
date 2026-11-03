@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Fase 2: Brote Mutante</title>
+    <title>Hijos de Krebs | Aparato Digestivo - Brote Mutante</title>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuente Space Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para efectos de sonido -->
+    <!-- Google Fonts: Chakra Petch -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para Audio Sintético -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    
+
     <style>
         :root {
             --cyan: #00F2FF;
             --magenta: #FF00E5;
-            --dark: #050505;
-            --danger: #FF0040;
-            --success: #00FF00;
+            --dark: #030712;
+            --success: #00FF66;
+            --danger: #FF0055;
+            --warning: #FFB700;
         }
 
         body {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Chakra Petch', sans-serif;
             background-color: var(--dark);
             color: #ffffff;
             overflow-x: hidden;
+            user-select: none;
         }
 
         .scanlines {
@@ -34,362 +37,476 @@
                 to bottom,
                 rgba(255,255,255,0),
                 rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.25) 50%,
-                rgba(0,0,0,0.25)
+                rgba(0,0,0,0.3) 50%,
+                rgba(0,0,0,0.3)
             );
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 9999;
         }
 
-        .neon-border-cyan { border: 1px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-        .neon-text-cyan { text-shadow: 0 0 8px var(--cyan); }
-        .neon-text-magenta { text-shadow: 0 0 8px var(--magenta); color: var(--magenta); }
+        .neon-border-yellow {
+            border: 1px solid var(--warning);
+            box-shadow: 0 0 15px rgba(255, 183, 0, 0.2);
+        }
 
-        .option-btn {
-            background: rgba(17, 34, 64, 0.4);
-            border: 1px solid #112240;
-            transition: all 0.2s ease;
+        .btn-option {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid #1f2937;
+            transition: all 0.15s ease-in-out;
+            text-transform: uppercase;
         }
-        .option-btn:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 242, 255, 0.1);
-            transform: translateX(5px);
+
+        .btn-option:hover:not(:disabled) {
+            border-color: var(--warning);
+            background: rgba(255, 183, 0, 0.1);
+            transform: translateX(4px);
         }
-        .option-btn.selected-correct {
-            background: rgba(0, 255, 0, 0.2) !important;
+
+        .correct-opt {
             border-color: var(--success) !important;
-            color: var(--success);
-        }
-        .option-btn.selected-incorrect {
-            background: rgba(255, 0, 64, 0.2) !important;
-            border-color: var(--danger) !important;
-            color: var(--danger);
+            background: rgba(0, 255, 102, 0.15) !important;
+            color: var(--success) !important;
+            font-weight: 800 !important;
         }
 
-        .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .incorrect-opt {
+            border-color: var(--danger) !important;
+            background: rgba(255, 0, 85, 0.15) !important;
+            color: var(--danger) !important;
+        }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+<body class="min-h-screen w-full flex flex-col items-center justify-center p-3 sm:p-6">
 
     <div class="scanlines"></div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main id="app-container" class="w-full max-w-2xl bg-[#02050A] neon-border-cyan p-6 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl fade-in">
+    <main class="w-full max-w-4xl bg-[#0b132b] neon-border-yellow rounded-lg p-5 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl">
         
-        <!-- Cabecera -->
-        <header class="flex justify-between items-center border-b border-[#112240] pb-4">
+        <!-- ENCABEZADO TÁCTICO -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-3">
             <div>
-                <h1 class="text-xs sm:text-sm font-bold tracking-widest text-gray-400">HIJOS DE KREBS /// <span class="text-[var(--magenta)]">BROTE MUTANTE ☣️</span></h1>
-                <p id="progress-indicator" class="text-xs text-[var(--cyan)] mt-1">> INTERCEPCIÓN 1 / 11</p>
+                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--warning)] transition-colors mb-1 font-semibold">
+                    ← VOLVER A CENTRAL DE OPERACIONES
+                </a>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wider text-[var(--warning)] uppercase">
+                    FASE 02 /// BROTE MUTANTE: FISIOLOGÍA DIGESTIVA
+                </h1>
+                <p class="text-xs text-gray-400 uppercase">MÓDULO: APARATO DIGESTIVO // EVALUACIÓN INTERMEDIA (NIVEL INTERMEDIO)</p>
             </div>
-            <div class="text-right">
-                <p class="text-xs text-gray-400">XP TOTAL</p>
-                <p id="score-display" class="text-lg sm:text-xl font-bold text-[var(--cyan)]">0</p>
+            
+            <div class="flex items-center gap-3">
+                <div class="bg-[#111d4a] px-3 py-2 rounded border border-gray-700 text-center">
+                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">TIEMPO</span>
+                    <span id="timer-display" class="text-base font-bold text-[var(--warning)] font-mono">60s</span>
+                </div>
+
+                <div class="bg-[#111d4a] px-4 py-2 rounded border border-gray-700 text-right">
+                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">ACIERTOS</span>
+                    <span id="score-display" class="text-base font-bold text-[var(--success)]">00 / 10</span>
+                </div>
             </div>
         </header>
 
-        <!-- Barra de Tiempo y Estado -->
-        <div class="flex justify-between items-center text-xs text-gray-400 font-bold">
-            <span id="timer-text">> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">60s</span></span>
-            <span id="efficiency-bonus" class="text-[var(--magenta)]">AMENAZA ACTIVA</span>
-        </div>
-        <div class="w-full bg-gray-900 h-1.5 rounded overflow-hidden border border-[#112240]">
-            <div id="timer-bar" class="bg-[var(--magenta)] h-full w-full transition-all duration-1000"></div>
-        </div>
-
-        <!-- Pantalla de Pregunta -->
-        <div id="quiz-screen" class="space-y-6">
-            <h2 id="question-text" class="text-sm sm:text-base font-bold text-gray-200 leading-relaxed">
-                Analizando vector biológico...
-            </h2>
-
-            <div id="options-container" class="grid grid-cols-1 gap-3">
-                <!-- Opciones inyectadas por JS -->
+        <!-- BARRA DE PROGRESO -->
+        <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+                <span id="question-number" class="text-[var(--warning)] uppercase">PREGUNTA 01 / 10</span>
+                <span id="difficulty-tag" class="px-2 py-0.5 rounded text-[10px] bg-yellow-950 text-yellow-400 border border-yellow-700 uppercase font-bold">INTERMEDIO</span>
+            </div>
+            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
+                <div id="progress-bar" class="bg-[var(--warning)] h-full w-0 transition-all duration-300"></div>
             </div>
         </div>
 
-        <!-- Pantalla Final (Resultado) -->
-        <div id="result-screen" class="hidden text-center space-y-6 py-8">
-            <div id="result-icon" class="w-16 h-16 mx-auto flex items-center justify-center border-2 rounded-full text-2xl font-bold"></div>
-            <h2 id="result-title" class="text-xl sm:text-2xl font-bold tracking-wider"></h2>
-            <p id="result-desc" class="text-xs sm:text-sm text-gray-300 max-w-md mx-auto leading-relaxed"></p>
-            
-            <div id="action-container" class="pt-4">
-                <!-- Botón dinámico (WhatsApp o Reintentar) -->
+        <!-- TARJETA DE PREGUNTA -->
+        <section id="quiz-container" class="space-y-6">
+            <div class="bg-[#1c2541] p-5 rounded-lg border border-gray-800 shadow-inner">
+                <h2 id="question-text" class="text-base sm:text-lg font-bold text-gray-100 leading-relaxed uppercase">
+                    CARGANDO REACTIVO EVALUATIVO...
+                </h2>
             </div>
-        </div>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+
+            <div id="feedback-panel" class="hidden bg-[#0d1b2a] border-l-4 border-[var(--warning)] p-4 rounded text-sm space-y-3">
+                <div>
+                    <span id="feedback-title" class="text-xs font-bold uppercase tracking-widest text-[var(--warning)] block mb-1">>>> RETROALIMENTACIÓN TÁCTICA</span>
+                    <p id="explanation-text" class="text-gray-300 leading-normal font-medium"></p>
+                </div>
+                <button id="next-btn" onclick="siguientePregunta()" class="w-full sm:w-auto px-6 py-2.5 bg-[var(--warning)] text-black font-bold text-sm tracking-wider uppercase rounded hover:bg-white transition-colors">
+                    Siguiente Reactivo →
+                </button>
+            </div>
+        </section>
+
+        <!-- PANTALLA FINAL DE RESULTADOS -->
+        <section id="results-screen" class="hidden flex-col items-center justify-center space-y-6 py-8 text-center">
+            <div id="badge-icon" class="text-6xl">☣️</div>
+            <div>
+                <h2 id="results-title" class="text-2xl font-bold text-[var(--warning)] uppercase">EVALUACIÓN CONCLUIDA</h2>
+                <p id="results-subtitle" class="text-sm text-gray-400 mt-1">Sincronización de datos completada.</p>
+            </div>
+
+            <div class="bg-[#1c2541] p-6 rounded-lg border border-gray-800 max-w-sm w-full space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Aciertos Totales:</span>
+                    <span id="final-score" class="font-bold text-white">0 / 10</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Efectividad Operativa:</span>
+                    <span id="final-percent" class="font-bold text-[var(--warning)]">0%</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Estado de Fase 3:</span>
+                    <span id="unlock-status" class="font-bold text-[var(--danger)]">BLOQUEADO</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                <a href="../index.html" class="flex-1 py-3 bg-[var(--warning)] text-black font-bold text-xs uppercase tracking-wider rounded text-center hover:bg-white transition-colors">
+                    Volver a Central
+                </a>
+                <button onclick="reiniciarEvaluacion()" class="flex-1 py-3 bg-gray-800 border border-gray-700 text-gray-200 font-bold text-xs uppercase tracking-wider rounded hover:bg-gray-700 transition-colors">
+                    Reintentar Fase
+                </button>
+            </div>
+        </section>
 
     </main>
 
     <script>
-        // --- BASE DE DATOS: BROTE MUTANTE (APARATO DIGESTIVO) ---
-        const questions = [
+        const preguntas = [
             {
-                question: "¿A QUÉ COMPUESTO QUÍMICO SE DEBE PRINCIPALMENTE LA ACCIÓN BACTERICIDA Y LA DESTRUCCIÓN DE MICROORGANISMOS EN EL ESTÓMAGO?",
-                options: [
-                    "A) ÁCIDO CLORHÍDRICO",
-                    "B) JUGO GÁSTRICO TOTAL",
-                    "C) ENZIMAS ZIMÓGENAS",
-                    "D) PEPSINA",
-                    "E) FACTOR INTRÍNSECO"
+                nivel: "INTERMEDIO",
+                pregunta: "1. ¿QUÉ CÉLULAS DE LAS GLÁNDULAS GÁSTRICAS DEL ESTÓMAGO SON LAS RESPONSABLES DE SECRETAR EL PEPSINÓGENO, ZIMÓGENO INACTIVO QUE SE CONVIERTE EN PEPSINA?",
+                opciones: [
+                    "A) CÉLULAS PARIETALES (OXÍNTICAS)",
+                    "B) CÉLULAS G PRODUCTORAS DE GASTRINA",
+                    "C) CÉLULAS PRINCIPALES (CIMÓGENAS)",
+                    "D) CÉLULAS DE SERTOLI",
+                    "E) CÉLULAS CALICIFORMES DE LA MUCOSA"
                 ],
-                correct: 0
+                correcta: 2,
+                explicacion: "Las células principales o cimógenas del estómago secretan pepsinógeno, el cual se activa a pepsina por presencia del HCl gástrico."
             },
             {
-                question: "¿CUÁL ES LA PRINCIPAL HORMONA SINTETIZADA Y SECRETADA POR LA MUCOSA GÁSTRICA?",
-                options: [
-                    "A) AMILASA",
-                    "B) FACTOR INTRÍNSECO DE CASTLE",
-                    "C) GASTRINA",
-                    "D) PEPSINA",
-                    "E) COLECISTOQUININA"
+                nivel: "INTERMEDIO",
+                pregunta: "2. EN EL PÁNCREAS EXOCRINO, LOS ACINOS PANCREÁTICOS PRODUCEN EL JUGO PANCREÁTICO. ¿QUÉ COMPONENTE INORGÁNICO DE DICHO JUGO ESENCIAL NEUTRALIZA LA ACIDEZ DEL QUIMO PROVENIENTE DEL ESTÓMAGO?",
+                opciones: [
+                    "A) EL ÁCIDO CLORHÍDRICO",
+                    "B) EL CLORURO DE SODIO",
+                    "C) EL SULFATO DE MAGNESIO",
+                    "D) EL BICARBONATO DE SODIO (HCO₃⁻)",
+                    "E) EL FOSFATO DE CALCIO"
                 ],
-                correct: 2
+                correcta: 3,
+                explicacion: "El bicarbonato de sodio en el jugo pancreático eleva el pH del quimo ácido en el duodeno, protegiendo la mucosa y permitiendo la función de las enzimas digestivas."
             },
             {
-                question: "¿EN QUÉ PORCIÓN ESPECÍFICA DEL INTESTINO DELGADO SE LLEVA A CABO LA ABSORCIÓN DE LA VITAMINA B12?",
-                options: [
-                    "A) ESTÓMAGO",
-                    "B) ÍLEON TERMINAL",
-                    "C) YEYUNO PROXIMAL",
-                    "D) DUODENO",
-                    "E) COLON ASCENDENTE"
+                nivel: "INTERMEDIO",
+                pregunta: "3. ¿CUÁL ES LA FUNCIÓN DIGESTIVA PRINCIPAL DE LAS SALES BILIARES PRESENTES EN LA BILIS SECRETADA POR EL HÍGADO?",
+                opciones: [
+                    "A) HIDROLIZAR AMINOÁCIDOS EN PÉPTIDOS SIMPLES",
+                    "B) SINTETIZAR VITAMINA K Y COMPLEJO B",
+                    "C) ACTIVAR EL PEPSINÓGENO EN LA CAVIDAD BUCAL",
+                    "D) ABSORBER EL AGUA EN EL COLON TRANSVERSO",
+                    "E) EMULSIONAR LAS GRASAS EN PEQUEÑAS GOTITAS PARA FACILITAR LA ACCIÓN DE LA LIPASA"
                 ],
-                correct: 1
+                correcta: 4,
+                explicacion: "Las sales biliares no contienen enzimas digestivas; su función es actuar como detergentes emulgentes para disgregar las grasas en micelas accesibles a la lipasa."
             },
             {
-                question: "¿QUÉ TIPO DE CÉLULAS GÁSTRICAS SON LAS ENCARGADAS DE SINTETIZAR Y SECRETAR EL ÁCIDO CLORHÍDRICO?",
-                options: [
-                    "A) CÉLULAS GÁSTRICAS SUPERFICIALES",
-                    "B) CÉLULAS PARIETALES U OXÍNTICAS",
-                    "C) CÉLULAS PRINCIPALES O ZIMÓGENAS",
-                    "D) CÉLULAS ENTEROENDOCRINAS",
-                    "E) CÉLULAS MUCOSAS DEL CUELLO"
+                nivel: "INTERMEDIO",
+                pregunta: "4. ¿EN QUÉ ESTRUCTURA DEL INTESTINO DELGADO TIENE LUGAR LA MAYOR PARTE DE LA DIGESTIÓN QUÍMICA Y LA ABSORCIÓN DE LOS NUTRIENTES SIMPLES (GLUCOSA, AMINOÁCIDOS Y ÁCIDOS GRASOS)?",
+                opciones: [
+                    "A) EN EL DUODENO Y YEYUNO",
+                    "B) EN EL COLON SIGMOIDES",
+                    "C) EN EL CÉRVIX Y VAGINA",
+                    "D) EN EL FONDO ESTOMACAL",
+                    "E) EN EL APÉNDICE CECAL"
                 ],
-                correct: 1
+                correcta: 0,
+                explicacion: "El duodeno completa la digestión enzimática y junto con el yeyuno lleva a cabo la mayor parte de la absorción de monómeros nutritivos."
             },
             {
-                question: "¿CÓMO SE DENOMINAN LOS CONDUCTOS EXCRETORES PRINCIPAL Y ACCESORIO DEL PÁNCREAS, RESPECTIVAMENTE?",
-                options: [
-                    "A) SANTORINI Y WHARTON",
-                    "B) WIRSUNG Y SANTOTOMAS",
-                    "C) WIRSUNG Y SANTORINI",
-                    "D) SANTORINI Y WALTER",
-                    "E) STENON Y RIVINUS"
+                nivel: "INTERMEDIO",
+                pregunta: "5. TRAS COMPLETARSE LA DIGESTIÓN ENZIMÁTICA EN EL INTESTINO DELGADO, LA MEZCLA DE NUTRIENTES DIGERIDOS Y LÍQUIDO SE DENOMINA:",
+                opciones: [
+                    "A) BOLO ALIMENTICIO",
+                    "B) QUILO",
+                    "C) QUIMO ÁCIDO",
+                    "D) ZIMÓGENO",
+                    "E) CITORRUBIO"
                 ],
-                correct: 2
+                correcta: 1,
+                explicacion: "En el intestino delgado, la acción de los jugos pancreático, entérico y biliar transforma el quimo en quilo neutro o alcalino listo para absorberse."
             },
             {
-                question: "¿QUÉ ENZIMA SALIVAL PRESENTA PROPIEDADES ANTIMICROBIANAS CAPAZ DE DESTRUIR LA PARED BACTERIANA?",
-                options: [
-                    "A) PTIALINA",
-                    "B) PEPSINA",
-                    "C) LISOZIMA",
-                    "D) AMILASA",
-                    "E) LIPASA LINGUAL"
+                nivel: "INTERMEDIO",
+                pregunta: "6. ¿QUÉ TIPO DE NUTRIENTES SON ABSORBIDOS EN LAS VELLOSIDADES INTESTINALES E INGRESAN A LOS VASOS QUILÍFEROS (LINFÁTICOS) EN LUGAR DE LOS CAPILARES SANGUÍNEOS?",
+                opciones: [
+                    "A) LOS MONOSACÁRIDOS COMO LA GLUCOSA",
+                    "B) LOS AMINOÁCIDOS LIBRES",
+                    "C) LOS LÍPIDOS (ÁCIDOS GRASOS DE CADENA LARGA Y TRIGLICÉRIDOS EN QUILOMICRONES)",
+                    "D) LAS SALES MINERALES HIDROSOLUBLES",
+                    "E) LAS VITAMINAS DEL COMPLEJO B"
                 ],
-                correct: 2
+                correcta: 2,
+                explicacion: "Las grasas digeridas son reesterificadas en quilomicrones e ingresan a los vasos quilíferos del sistema linfático, mientras que la glucosa y los aminoácidos pasan a la sangre capilar."
             },
             {
-                question: "¿EN QUÉ ESTRUCTURA DEL SISTEMA NERVIOSO CENTRAL SE LOCALIZA EL CENTRO REGULADOR DE LA DEGLUCIÓN?",
-                options: [
-                    "A) CEREBELO",
-                    "B) TALLO CEREBRAL EN GENERAL",
-                    "C) BULBO RAQUÍDEO",
-                    "D) MÉDULA ESPINAL",
-                    "E) HIPOTÁLAMO"
+                nivel: "INTERMEDIO",
+                pregunta: "7. ¿QUÉ ENZIMA SECRETADA POR EL PÁNCREAS EXOCRINO SE ENCARGA DE HIDROLIZAR LOS TRIGLICÉRIDOS EMULSIONADOS EN ÁCIDOS GRASOS Y GLICEROL?",
+                opciones: [
+                    "A) LA PEPSINA GÁSTRICA",
+                    "B) LA TRIPSINA",
+                    "C) LA MALTASA",
+                    "D) LA LIPASA PANCREÁTICA",
+                    "E) LA ANHIDRASA CARBÓNICA"
                 ],
-                correct: 2
+                correcta: 3,
+                explicacion: "La lipasa pancreática es la principal enzima digestiva lipolítica que degrada los triglicéridos en los nutrientes componentes absorbibles."
             },
             {
-                question: "¿A QUÉ SE DEBE PRINCIPALMENTE LA ELEVADA DUREZA Y RESISTENCIA DEL ESMALTE DENTARIO?",
-                options: [
-                    "A) CONTIENE HIDROXIAPATITA DE POTASIO",
-                    "B) CONTIENE SOLAMENTE APATITA ORGÁNICA",
-                    "C) CONTIENE CRISTALES DE HIDROXIAPATITA DE MAGNESIO",
-                    "D) CONTIENE HIDROXIAPATITA DE CALCIO",
-                    "E) PRESENTA PROTEÍNAS COLÁGENAS DE TIPO II"
+                nivel: "INTERMEDIO",
+                pregunta: "8. LA CAPA DE LA PARED DEL TUBO DIGESTIVO RICA EN TEJIDO MUSCULAR LISO ENCARGADA DE GENERAR EL PERISTALTISMO Y LA MEZCLA DE ALIMENTOS SE CONOCE COMO:",
+                opciones: [
+                    "A) MUCOSA EPITELIAL",
+                    "B) SUBMUCOSA NERVIOSA",
+                    "C) SEROSA PERITONEAL",
+                    "D) ADVENTICIA FIBROSA",
+                    "E) TÚNICA MUSCULAR (MUSCULAR EXTERNA)"
                 ],
-                correct: 3
+                correcta: 4,
+                explicacion: "La túnica muscular (normalmente dispuesta en capas circular interna y longitudinal externa) es la responsable de las contracciones peristálticas."
             },
             {
-                question: "¿CUÁL ES LA ESTRUCTURA DENTARIA QUE SE LOCALIZA EXCLUSIVAMENTE A NIVEL DE LA RAÍZ DEL DIENTE?",
-                options: [
-                    "A) ESMALTE",
-                    "B) CEMENTO",
-                    "C) DENTINA",
-                    "D) PULPA",
-                    "E) CORONA"
+                nivel: "INTERMEDIO",
+                pregunta: "9. ¿QUÉ HORMONA SECRETADA POR LA MUCOSA DEL DUODENO ANTE LA LLEGADA DE GRASAS Y PROTEÍNAS ESTIMULA LA CONTRACCIÓN DE LA VESÍCULA BILIAR Y LA LIBERACIÓN DE ENZIMAS PANCREÁTICAS?",
+                opciones: [
+                    "A) LA COLECISTOCININA (CCK)",
+                    "B) LA INSULINA",
+                    "C) LA ALDOSTERONA",
+                    "D) LA ERITROPOYETINA",
+                    "E) LA PARATHORMONA"
                 ],
-                correct: 1
+                correcta: 0,
+                explicacion: "La colecistocinina (CCK) es una hormona entérica que estimula la evacuación de la vesícula biliar y la secreción de zimógenos pancreáticos."
             },
             {
-                question: "¿CUÁL ES LA FUNCIÓN ENZIMÁTICA PRINCIPAL DE LAS NUCLEASAS PRESENTES EN EL JUGO PANCREÁTICO?",
-                options: [
-                    "A) DEGRADACIÓN DE LÍPIDOS",
-                    "B) DEGRADACIÓN DE ÁCIDOS NUCLEICOS",
-                    "C) HIDRÓLISIS DE PROTEÍNAS",
-                    "D) DEGRADACIÓN DE CARBOHIDRATOS",
-                    "E) EMULSIFICACIÓN DE SALES BILIARES"
+                nivel: "INTERMEDIO",
+                pregunta: "10. ¿QUÉ ROL CUMPLE LA MICROBIOTA O FLORA BACTERIANA INTESTINAL PRESENTE EN EL INTESTINO GRUESO EN LA NUTRICIÓN Y SALUD HUMANA?",
+                opciones: [
+                    "A) SINTETIZAR ÁCIDO CLORHÍDRICO Y PEPSINA",
+                    "B) FERMENTAR RESIDUOS NO DIGERIDOS Y SINTETIZAR VITAMINAS COMO LA VITAMINA K Y COMPLEJO B",
+                    "C) PRODUCIR LA BILIS Y EL FACTOR INTRÍNSECO",
+                    "D) ABSORBER EL QUILO HACIA LOS VASOS QUILÍFEROS",
+                    "E) ELIMINAR LOS ERITROCITOS VIEJOS POR HEMOCATÉRESIS"
                 ],
-                correct: 1
-            },
-            {
-                question: "¿CUÁL ES EL EFECTO FISIOLÓGICO PRINCIPAL DE LA HORMONA GLUCAGÓN EN EL METABOLISMO GLUCÍDICO?",
-                options: [
-                    "A) DISMINUIR LOS NIVELES DE GLUCOSA EN SANGRE",
-                    "B) DISMINUIR LA GLUCOSA EXTRACELULAR EN LOS TEJIDOS",
-                    "C) AUMENTAR LOS NIVELES DE GLUCOSA EN SANGRE",
-                    "D) ESTIMULAR LA SÍNTESIS DE GLUCÓGENO HEPÁTICO",
-                    "E) INHIBIR LA SECRECIONES DE INSULINA"
-                ],
-                correct: 2
+                correcta: 1,
+                explicacion: "La microbiota colónica fermenta carbohidratos no digeribles (fibra) y sintetiza nutrientes esenciales como la vitamina K y algunas vitaminas B."
             }
         ];
 
-        let currentQuestion = 0;
-        let score = 0;
-        let timeLeft = 60;
-        let timerInterval;
-        let audioInit = false;
-        let synth;
+        let indiceActual = 0;
+        let puntaje = 0;
+        let respondido = false;
+        let tiempoRestante = 60;
+        let timerInterval = null;
 
-        function initAudio() {
-            if (!audioInit) {
-                synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                synth.volume.value = -12;
-                audioInit = true;
-            }
+        function playSound(type) {
+            try {
+                if (typeof Tone === 'undefined') return;
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+
+                if (type === 'correct') {
+                    const synthAcc = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synthAcc.set({
+                        oscillator: { type: "triangle" },
+                        envelope: { attack: 0.005, decay: 0.08, sustain: 0.05, release: 0.3 }
+                    });
+                    
+                    const now = Tone.now();
+                    synthAcc.triggerAttackRelease("E5", "16n", now);
+                    synthAcc.triggerAttackRelease("G#5", "16n", now + 0.06);
+                    synthAcc.triggerAttackRelease("B5", "16n", now + 0.12);
+                    synthAcc.triggerAttackRelease("E6", "8n", now + 0.18);
+                } else if (type === 'incorrect') {
+                    const synthErr = new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
+                    }).toDestination();
+
+                    const now = Tone.now();
+                    synthErr.triggerAttackRelease("F3", "16n", now);
+                    synthErr.triggerAttackRelease("C3", "8n", now + 0.08);
+                } else if (type === 'victory') {
+                    const synthVic = new Tone.PolySynth(Tone.Synth).toDestination();
+                    const now = Tone.now();
+                    synthVic.triggerAttackRelease(["E4", "G#4", "B4"], "8n", now);
+                    synthVic.triggerAttackRelease(["B4", "D#5", "F#5"], "8n", now + 0.2);
+                    synthVic.triggerAttackRelease(["E5", "G#5", "B5", "E6"], "4n", now + 0.4);
+                }
+            } catch (e) {}
         }
 
-        const sfx = {
-            click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
-            success: () => { if(audioInit) synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); },
-            error: () => { if(audioInit) synth.triggerAttackRelease(["C3", "F#2"], "4n"); }
-        };
-
-        function startTimer() {
-            timeLeft = 60;
-            document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
-            document.getElementById('timer-bar').style.width = '100%';
-            
+        function iniciarTemporizador() {
             clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
-                let percentage = (timeLeft / 60) * 100;
-                document.getElementById('timer-bar').style.width = percentage + '%';
+            tiempoRestante = 60;
+            actualizarTimerUI();
 
-                if (timeLeft <= 0) {
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                actualizarTimerUI();
+
+                if (tiempoRestante <= 0) {
                     clearInterval(timerInterval);
-                    handleAnswer(-1);
+                    manejarTiempoAgotado();
                 }
             }, 1000);
         }
 
-        function loadQuestion() {
-            if (currentQuestion >= questions.length) {
-                endQuiz();
-                return;
+        function actualizarTimerUI() {
+            const timerEl = document.getElementById('timer-display');
+            if (!timerEl) return;
+            timerEl.textContent = `${tiempoRestante}s`;
+            if (tiempoRestante <= 15) {
+                timerEl.className = "text-base font-bold text-[var(--danger)] font-mono animate-pulse";
+            } else {
+                timerEl.className = "text-base font-bold text-[var(--warning)] font-mono";
+            }
+        }
+
+        function manejarTiempoAgotado() {
+            if (respondido) return;
+            respondido = true;
+
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            botones[q.correcta].classList.add('correct-opt');
+            playSound('incorrect');
+
+            for (let btn of botones) {
+                btn.disabled = true;
             }
 
-            initAudio();
-            startTimer();
+            document.getElementById('feedback-title').textContent = ">>> TIEMPO AGOTADO SECTORIAL (60s)";
+            document.getElementById('explanation-text').textContent = `Se agotó el tiempo para responder este reactivo. ${q.explicacion}`;
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
 
-            const q = questions[currentQuestion];
-            document.getElementById('progress-indicator').innerText = `> INTERCEPCIÓN ${currentQuestion + 1} / ${questions.length}`;
-            document.getElementById('question-text').innerText = q.question;
+        function cargarPregunta() {
+            respondido = false;
+            const q = preguntas[indiceActual];
+
+            document.getElementById('question-number').textContent = `PREGUNTA ${String(indiceActual + 1).padStart(2, '0')} / ${preguntas.length}`;
+            document.getElementById('progress-bar').style.width = `${((indiceActual) / preguntas.length) * 100}%`;
+            document.getElementById('question-text').textContent = q.pregunta;
+            
+            document.getElementById('feedback-panel').classList.add('hidden');
+            document.getElementById('feedback-title').textContent = ">>> RETROALIMENTACIÓN TÁCTICA";
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
 
-            q.options.forEach((opt, index) => {
+            q.opciones.forEach((opcion, index) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-btn w-full p-4 text-left text-xs sm:text-sm font-bold text-gray-200 rounded flex justify-between items-center';
-                btn.innerHTML = `<span>${opt}</span><span class="text-xs opacity-50">></span>`;
-                btn.onclick = () => {
-                    clearInterval(timerInterval);
-                    handleAnswer(index, btn);
-                };
+                btn.className = 'btn-option p-3.5 rounded text-left text-sm font-semibold text-gray-200 w-full flex justify-between items-center uppercase';
+                btn.textContent = opcion;
+                btn.onclick = () => seleccionarOpcion(index);
                 optionsContainer.appendChild(btn);
             });
+
+            iniciarTemporizador();
         }
 
-        function handleAnswer(selectedIndex, btnElement) {
-            sfx.click();
-            const q = questions[currentQuestion];
-            const allBtns = document.querySelectorAll('.option-btn');
-            
-            allBtns.forEach(b => b.disabled = true);
+        function seleccionarOpcion(indexSeleccionado) {
+            if (respondido) return;
+            respondido = true;
+            clearInterval(timerInterval);
 
-            if (selectedIndex === q.correct) {
-                if(btnElement) btnElement.classList.add('selected-correct');
-                sfx.success();
-                let earnedXP = 100 + (timeLeft * 2);
-                score += earnedXP;
+            const q = preguntas[indiceActual];
+            const botones = document.getElementById('options-container').children;
+
+            if (indexSeleccionado === q.correcta) {
+                botones[indexSeleccionado].classList.add('correct-opt');
+                puntaje++;
+                playSound('correct');
             } else {
-                if(btnElement) btnElement.classList.add('selected-incorrect');
-                if(allBtns[q.correct]) allBtns[q.correct].classList.add('selected-correct');
-                sfx.error();
+                botones[indexSeleccionado].classList.add('incorrect-opt');
+                botones[q.correcta].classList.add('correct-opt');
+                playSound('incorrect');
             }
 
-            document.getElementById('score-display').innerText = score;
+            for (let btn of botones) {
+                btn.disabled = true;
+            }
 
-            setTimeout(() => {
-                currentQuestion++;
-                loadQuestion();
-            }, 1200);
+            document.getElementById('score-display').textContent = `${String(puntaje).padStart(2, '0')} / ${preguntas.length}`;
+            document.getElementById('explanation-text').textContent = q.explicacion;
+            document.getElementById('feedback-panel').classList.remove('hidden');
         }
 
-        function endQuiz() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('timer-text').parentElement.classList.add('hidden');
-            document.getElementById('timer-bar').parentElement.classList.add('hidden');
-            
-            const resultScreen = document.getElementById('result-screen');
-            resultScreen.classList.remove('hidden');
-
-            const resultIcon = document.getElementById('result-icon');
-            const resultTitle = document.getElementById('result-title');
-            const resultDesc = document.getElementById('result-desc');
-            const actionContainer = document.getElementById('action-container');
-
-            // Barrera de supervivencia: 850 XP
-            if (score >= 850) {
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--success)] rounded-full text-2xl font-bold text-[var(--success)] shadow-[0_0_15px_#00FF00]";
-                resultIcon.innerText = "✓";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--success)]";
-                resultTitle.innerText = ">> BROTE SUPERADO CON ÉXITO";
-                resultDesc.innerHTML = `Métricas óptimas alcanzadas. Tu puntuación final es de <span class="text-[var(--cyan)] font-bold">${score} XP</span>. Has contenido el Brote Mutante del sistema digestivo.`;
-                
-                actionContainer.innerHTML = `
-                    <a href="https://wa.me/51941071347?text=Hola,%20superé%20el%20Brote%20Mutante%20del%20Aparato%20Digestivo%20con%20${score}%20XP.%20Solicito%20acceso%20al%20siguiente%20nivel." target="_blank" class="block w-full border border-[var(--success)] bg-[var(--success)] text-black font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-transparent hover:text-[var(--success)] transition-colors">
-                        [ RECLAMAR RECOMPENSA EN WHATSAPP ]
-                    </a>
-                `;
+        function siguientePregunta() {
+            clearInterval(timerInterval);
+            indiceActual++;
+            if (indiceActual < preguntas.length) {
+                cargarPregunta();
             } else {
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--danger)] rounded-full text-2xl font-bold text-[var(--danger)] shadow-[0_0_15px_#FF0040]";
-                resultIcon.innerText = "✕";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--danger)]";
-                resultTitle.innerText = ">> INFECCIÓN NO CONTROLADA";
-                resultDesc.innerHTML = `Tu puntaje final fue de <span class="text-[var(--danger)] font-bold">${score} XP</span>. No alcanzaste el umbral mínimo de 850 XP requerido para superar el brote.`;
-                
-                actionContainer.innerHTML = `
-                    <button onclick="location.reload()" class="w-full border border-[var(--magenta)] bg-transparent text-[var(--magenta)] font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-[var(--magenta)] hover:text-black transition-colors">
-                        [ REINTENTAR PROTOCOLO ]
-                    </button>
-                `;
+                finalizarEvaluacion();
             }
         }
 
-        window.addEventListener('click', () => {
-            initAudio();
-        }, { once: true });
+        function finalizarEvaluacion() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('flex');
 
-        loadQuestion();
+            const porcentaje = Math.round((puntaje / preguntas.length) * 100);
+            
+            document.getElementById('final-score').textContent = `${puntaje} / ${preguntas.length}`;
+            document.getElementById('final-percent').textContent = `${porcentaje}%`;
+
+            const unlockStatus = document.getElementById('unlock-status');
+            
+            if (porcentaje >= 70) {
+                localStorage.setItem('krebs_digestivo_fase3_unlocked', 'true');
+
+                unlockStatus.textContent = "DESBLOQUEADO ✔";
+                unlockStatus.className = "font-bold text-[var(--success)]";
+                document.getElementById('results-title').textContent = "BROTE CONTROLADO";
+                document.getElementById('results-subtitle').textContent = "Fase 3 (Efecto Krebs) desbloqueada en la Central de Operaciones.";
+                document.getElementById('badge-icon').textContent = "⚡";
+                playSound('victory');
+            } else {
+                unlockStatus.textContent = "BLOQUEADO (Mínimo 7/10)";
+                unlockStatus.className = "font-bold text-[var(--danger)]";
+                document.getElementById('results-title').textContent = "EVALUACIÓN INSUFICIENTE";
+                document.getElementById('results-subtitle').textContent = "Se requiere al menos 7 aciertos para habilitar la Fase Élite.";
+                document.getElementById('badge-icon').textContent = "🔒";
+            }
+        }
+
+        function reiniciarEvaluacion() {
+            indiceActual = 0;
+            puntaje = 0;
+            document.getElementById('score-display').textContent = `00 / ${preguntas.length}`;
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('flex');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            cargarPregunta();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cargarPregunta);
+        } else {
+            cargarPregunta();
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Módulo 03: Aparato Respiratorio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para efectos de sonido -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        :root {
+            --cyan: #00F2FF;
+            --magenta: #FF00E5;
+            --dark: #050505;
+            --danger: #FF0040;
+            --success: #00FF00;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: var(--dark);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.25) 50%,
+                rgba(0,0,0,0.25)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .neon-border-cyan { border: 1px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+        
+        .btn-module {
+            border: 1px solid #112240;
+            background: rgba(17, 34, 64, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-module:hover:not(.locked) {
+            border-color: var(--cyan);
+            background-color: rgba(0, 242, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #331122;
+            background: rgba(20, 5, 10, 0.2);
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+
+    <div class="scanlines"></div>
+
+    <main class="w-full max-w-3xl bg-[#02050A] neon-border-cyan p-6 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl fade-in">
+        
+        <!-- Cabecera -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#112240] pb-4 gap-4">
+            <div>
+                <span class="text-xs text-[var(--magenta)] tracking-widest uppercase">/// SECTOR ANATOMÍA</span>
+                <h1 class="text-lg sm:text-xl font-bold tracking-widest text-[var(--cyan)]">>_ MÓDULO 03: APARATO RESPIRATORIO</h1>
+            </div>
+            <div class="text-xs text-gray-400 text-right">
+                <p>ESTADO: <span class="text-[var(--success)] font-bold">PROTEGIDO</span></p>
+            </div>
+        </header>
+
+        <!-- Menú de Fases con Candados Automáticos -->
+        <div class="space-y-4">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">> Progresión Táctica de Amenaza:</h2>
+            
+            <div class="flex flex-col gap-3">
+                <!-- Fase 1: Siempre Abierta -->
+                <a href="https://cepaceroaparatorespiratorio.netlify.app" target="_blank" class="btn-module p-4 flex justify-between items-center group">
+                    <div>
+                        <span class="text-xs text-[var(--success)] font-bold mb-1">FASE 1 🦠 (Nivel Básico)</span>
+                        <p class="text-sm font-bold text-gray-200">Cepa Cero: Fundamentos Respiratorios</p>
+                    </div>
+                    <span class="text-[var(--cyan)]">></span>
+                </a>
+
+                <!-- Fase 2: Bloqueada por defecto -->
+                <a id="btn-fase2" href="#" class="btn-module locked p-4 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs text-yellow-500 font-bold mb-1">FASE 2 ☣️ (Nivel Intermedio)</span>
+                        <p id="txt-fase2" class="text-sm font-bold text-gray-400">Brote Mutante [🔒 BLOQUEADO]</p>
+                    </div>
+                    <span id="badge-fase2" class="text-xs text-yellow-500">REQUIERE FASE 1</span>
+                </a>
+
+                <!-- Fase 3: Bloqueada por defecto -->
+                <a id="btn-fase3" href="#" class="btn-module locked p-4 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs text-[var(--magenta)] font-bold mb-1">FASE 3 ⚡ (Nivel Élite)</span>
+                        <p id="txt-fase3" class="text-sm font-bold text-gray-400">Efecto Krebs [🔒 BLOQUEADO]</p>
+                    </div>
+                    <span id="badge-fase3" class="text-xs text-[var(--magenta)]">REQUIERE FASE 2</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Panel de Recompensa -->
+        <section class="border border-[#112240] bg-[#050B14] p-5 rounded space-y-3">
+            <h3 class="text-xs font-bold text-gray-200 uppercase tracking-wider">> Protocolo de Recompensa & Descuentos</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">
+                Supera los niveles de amenaza con precisión en tus primeros intentos para desbloquear cupones de hasta el <span class="text-[var(--cyan)] font-bold">30% OFF</span> en tu membresía de la Bóveda con el Maestro Antonio.
+            </p>
+            <a href="https://wa.me/51941071347?text=Hola,%20Maestro%20Antonio.%20Completé%20el%20Módulo%2001%20(Aparato%20Respiratorio)%20y%20vengo%20a%20reclamar%20mi%20beneficio." target="_blank" class="block w-full border border-[var(--success)] bg-[var(--success)] text-black font-bold py-3 text-center text-xs uppercase tracking-widest hover:bg-transparent hover:text-[var(--success)] transition-colors">
+                [ RECLAMAR BENEFICIO EN WHATSAPP ]
+            </a>
+        </section>
+
+    </main>
+
+    <script>
+        // Lógica automática de candados basada en el almacenamiento local del navegador
+        window.addEventListener('DOMContentLoaded', () => {
+            const fase1Superada = localStorage.getItem('krebs_fase1_respiratorio_ok') === 'true';
+            const fase2Superada = localStorage.getItem('krebs_fase2_respiratorio_ok') === 'true';
+
+            const btn2 = document.getElementById('btn-fase2');
+            const txt2 = document.getElementById('txt-fase2');
+            const badge2 = document.getElementById('badge-fase2');
+
+            const btn3 = document.getElementById('btn-fase3');
+            const txt3 = document.getElementById('txt-fase3');
+            const badge3 = document.getElementById('badge-fase3');
+
+            if (fase1Superada) {
+                btn2.classList.remove('locked');
+                btn2.href = "https://brotemutanterespiratorio.netlify.app"; // Enlace a tu Fase 2 desplegada
+                btn2.target = "_blank";
+                txt2.innerText = 'Brote Mutante: Respiratorio';
+                txt2.className = 'text-sm font-bold text-gray-200';
+                badge2.innerText = '>[ DESBLOQUEADO ]';
+                badge2.className = 'text-xs text-[var(--success)]';
+            }
+
+            if (fase2Superada) {
+                btn3.classList.remove('locked');
+                btn3.href = "https://efectokrebsrespiratorio.netlify.app"; // Aquí colocarás el enlace de la Fase 3 cuando la despliegues
+                btn3.target = "_blank";
+                txt3.innerText = 'Efecto Krebs: Integración Respiratoria';
+                txt3.className = 'text-sm font-bold text-gray-200';
+                badge3.innerText = '>[ DESBLOQUEADO ]';
+                badge3.className = 'text-xs text-[var(--success)]';
+            }
+        });
+    </script>
+</body>
+</html>

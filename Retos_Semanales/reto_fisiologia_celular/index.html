@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Reto Táctico: Fisiología Celular</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Space Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para efectos de sonido -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        :root {
+            --cyan: #00F2FF;
+            --magenta: #FF00E5;
+            --dark: #050505;
+            --danger: #FF0040;
+            --success: #00FF00;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: var(--dark);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.25) 50%,
+                rgba(0,0,0,0.25)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .neon-border-cyan { border: 1px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+        .neon-text-cyan { text-shadow: 0 0 8px var(--cyan); }
+        .neon-text-magenta { text-shadow: 0 0 8px var(--magenta); color: var(--magenta); }
+
+        .option-btn {
+            background: rgba(17, 34, 64, 0.4);
+            border: 1px solid #112240;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 242, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .option-btn.selected-correct {
+            background: rgba(0, 255, 0, 0.2) !important;
+            border-color: var(--success) !important;
+            color: var(--success);
+        }
+        .option-btn.selected-incorrect {
+            background: rgba(255, 0, 64, 0.2) !important;
+            border-color: var(--danger) !important;
+            color: var(--danger);
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+
+    <div class="scanlines"></div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main id="app-container" class="w-full max-w-2xl bg-[#02050A] neon-border-cyan p-6 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl fade-in">
+        
+        <!-- Cabecera -->
+        <header class="flex justify-between items-center border-b border-[#112240] pb-4">
+            <div>
+                <h1 class="text-xs sm:text-sm font-bold tracking-widest text-gray-400">HIJOS DE KREBS /// <span class="text-[var(--cyan)]">FISIOLOGÍA CELULAR</span></h1>
+                <p id="progress-indicator" class="text-xs text-[var(--magenta)] mt-1">> INTERCEPCIÓN 1 / 10</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-gray-400">XP TOTAL</p>
+                <p id="score-display" class="text-lg sm:text-xl font-bold text-[var(--cyan)]">0</p>
+            </div>
+        </header>
+
+        <!-- Barra de Tiempo y Estado -->
+        <div class="flex justify-between items-center text-xs text-gray-400 font-bold">
+            <span id="timer-text">> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">60s</span></span>
+            <span id="efficiency-bonus" class="text-[var(--magenta)]">BONUS ACTIVO</span>
+        </div>
+        <div class="w-full bg-gray-900 h-1.5 rounded overflow-hidden border border-[#112240]">
+            <div id="timer-bar" class="bg-[var(--cyan)] h-full w-full transition-all duration-1000"></div>
+        </div>
+
+        <!-- Pantalla de Pregunta -->
+        <div id="quiz-screen" class="space-y-6">
+            <h2 id="question-text" class="text-sm sm:text-base font-bold text-gray-200 leading-relaxed">
+                Cargando vector biológico...
+            </h2>
+
+            <div id="options-container" class="grid grid-cols-1 gap-3">
+                <!-- Opciones inyectadas por JS -->
+            </div>
+        </div>
+
+        <!-- Pantalla Final (Resultado) -->
+        <div id="result-screen" class="hidden text-center space-y-6 py-8">
+            <div id="result-icon" class="w-16 h-16 mx-auto flex items-center justify-center border-2 rounded-full text-2xl font-bold"></div>
+            <h2 id="result-title" class="text-xl sm:text-2xl font-bold tracking-wider"></h2>
+            <p id="result-desc" class="text-xs sm:text-sm text-gray-300 max-w-md mx-auto leading-relaxed"></p>
+            
+            <div id="action-container" class="pt-4">
+                <!-- Botón dinámico (WhatsApp o Reintentar) -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- BASE DE DATOS: FISIOLOGÍA CELULAR ---
+        const questions = [
+            {
+                question: "¿CUÁL ES EL COMPONENTE DEL CITOESQUELETO QUE PARTICIPA EN EL PROCESO DE CITOCINESIS MEDIANTE LA FORMACIÓN DEL ANILLO CONTRÁCTIL?",
+                options: [
+                    "A) FILAMENTOS INTERMEDIOS",
+                    "B) MICROTÚBULOS",
+                    "C) MICROFILAMENTOS DE ACTINA",
+                    "D) CILIOS Y FLAGELOS",
+                    "E) CENTRÍOLOS"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿CUÁLES DE LAS SIGUIENTES CÉLULAS TIENEN LA CAPACIDAD DE ENTRAR EN UNA FASE DE QUIESCENCIA O ESTADO G0 DEL CICLO CELULAR?",
+                options: [
+                    "A) FIBRAS MUSCULARES Y NEUMOCITOS",
+                    "B) NEURONAS Y NEUROGLÍAS",
+                    "C) NEURONAS Y HEPATOCITOS",
+                    "D) HEPATOCITOS Y RETICULOCITOS",
+                    "E) ERITROCITOS Y ENTEROCITOS"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿EN QUÉ ETAPA DE LA INTERFASE DEL CICLO CELULAR SE LLEVA A CABO LA REPLICACIÓN DEL ADN?",
+                options: [
+                    "A) FASE G1",
+                    "B) FASE S",
+                    "C) FASE G0",
+                    "D) FASE G2",
+                    "E) FASE M"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿EN QUÉ ETAPA DE LA INTERFASE SE REVISA Y CORRIGE PRINCIPALMENTE CUALQUIER ERROR EN LA REPLICACIÓN DEL ADN ANTES DE INICIAR LA DIVISIÓN CELULAR?",
+                options: [
+                    "A) FASE G1",
+                    "B) FASE G0",
+                    "C) FASE G2",
+                    "D) FASE S",
+                    "E) PROFASE"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿CÓMO SE DENOMINA AL CONJUNTO ESTRUCTURAL FORMADO POR UN PAR DE CENTRÍOLOS DISPUESTOS DE MANERA PERPENDICULAR?",
+                options: [
+                    "A) CENTROSOMA",
+                    "B) NUCLEOSOMA",
+                    "C) ÁSTER",
+                    "D) DIPLOSOMA",
+                    "E) CINETOCORO"
+                ],
+                correct: 3
+            },
+            {
+                question: "¿MEDIANTE QUÉ MECANISMO OCURRE PRINCIPALMENTE LA CITOCINESIS EN LAS CÉLULAS VEGETALES?",
+                options: [
+                    "A) ESTRANGULACIÓN PERIFÉRICA",
+                    "B) MACHACAMIENTO MEMBRANAL",
+                    "C) TABICAMIENTO",
+                    "D) DIVISIÓN SIMPLE",
+                    "E) GEMACIÓN CITOPLASMÁTICA"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿CÓMO SE DENOMINA EL CENTRO ORGANIZADOR DE MICROTÚBULOS COMPUESTO POR EL DIPLOSOMA MÁS LAS FIBRAS DEL ÁSTER?",
+                options: [
+                    "A) NUCLEOSOMA",
+                    "B) CENTROSOMA",
+                    "C) AXONEMA",
+                    "D) GAMETO",
+                    "E) CENTRÓMERO"
+                ],
+                correct: 1
+            },
+            {
+                question: "A DIFERENCIA DE LAS CÉLULAS ANIMALES, ¿QUÉ ESTRUCTURAS ORGANIZADORAS DE MICROTÚBULOS PRESENTAN LAS CÉLULAS VEGETALES EN LUGAR DE CENTROSOMAS?",
+                options: [
+                    "A) NUCLEOSOMAS",
+                    "B) DIPLOSOMAS",
+                    "C) CINETOCOROS",
+                    "D) CASQUETES POLARES",
+                    "E) APARATO DE GOLGI"
+                ],
+                correct: 3
+            },
+            {
+                question: "¿DÓNDE OCURRE EL SEGUNDO PUNTO DE CONTROL EN LA CÉLULA?",
+                options: [
+                    "A) AL FINAL DE LA G1",
+                    "B) AL FINAL DE LA G2",
+                    "C) FASE S",
+                    "D) AL INICIO DE LA G1",
+                    "E) AL INICIO DE LA G2"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿CUÁLES SON LAS PROTEÍNAS QUE INTERVIENEN EN LOS PUNTOS DE CONTROL CELULAR?",
+                options: [
+                    "A) QUINASA Y CICLINA",
+                    "B) CICLINA Y ATP-asa",
+                    "C) QUINASA Y CISTEÍNA",
+                    "D) SINTASA Y QUINESINA",
+                    "E) QUINESINA Y CICLINA"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        let audioInit = false;
+        let synth;
+
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -12;
+                audioInit = true;
+            }
+        }
+
+        const sfx = {
+            click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
+            success: () => { if(audioInit) synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["C3", "F#2"], "4n"); }
+        };
+
+        function startTimer() {
+            timeLeft = 60;
+            document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
+            document.getElementById('timer-bar').style.width = '100%';
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
+                let percentage = (timeLeft / 60) * 100;
+                document.getElementById('timer-bar').style.width = percentage + '%';
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleAnswer(-1); // Tiempo agotado
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            initAudio();
+            startTimer();
+
+            const q = questions[currentQuestion];
+            document.getElementById('progress-indicator').innerText = `> INTERCEPCIÓN ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('question-text').innerText = q.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full p-4 text-left text-xs sm:text-sm font-bold text-gray-200 rounded flex justify-between items-center';
+                btn.innerHTML = `<span>${opt}</span><span class="text-xs opacity-50">></span>`;
+                btn.onclick = () => {
+                    clearInterval(timerInterval);
+                    handleAnswer(index, btn);
+                };
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            sfx.click();
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIndex === q.correct) {
+                if(btnElement) btnElement.classList.add('selected-correct');
+                sfx.success();
+                // Cálculo de XP basado en velocidad (Base 100 + bonus de tiempo)
+                let earnedXP = 100 + (timeLeft * 2);
+                score += earnedXP;
+            } else {
+                if(btnElement) btnElement.classList.add('selected-incorrect');
+                if(allBtns[q.correct]) allBtns[q.correct].classList.add('selected-correct');
+                sfx.error();
+            }
+
+            document.getElementById('score-display').innerText = score;
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1200);
+        }
+
+        function endQuiz() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('timer-text').parentElement.classList.add('hidden');
+            document.getElementById('timer-bar').parentElement.classList.add('hidden');
+            
+            const resultScreen = document.getElementById('result-screen');
+            resultScreen.classList.remove('hidden');
+
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultDesc = document.getElementById('result-desc');
+            const actionContainer = document.getElementById('action-container');
+
+            // Barrera de supervivencia: 750 XP
+            if (score >= 750) {
+                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--success)] rounded-full text-2xl font-bold text-[var(--success)] shadow-[0_0_15px_#00FF00]";
+                resultIcon.innerText = "✓";
+                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--success)]";
+                resultTitle.innerText = ">> PROTOCOLO SUPERADO CON ÉXITO";
+                resultDesc.innerHTML = `Métricas óptimas alcanzadas. Tu puntuación final es de <span class="text-[var(--cyan)] font-bold">${score} XP</span>. Demuestras dominio táctico sobre el ciclo celular.`;
+                
+                actionContainer.innerHTML = `
+                    <a href="https://wa.me/51941071347?text=Hola,%20superé%20el%20Reto%20de%20Fisiología%20Celular%20con%20${score}%20XP.%20Solicito%20acceso%20a%20la%20Bóveda." target="_blank" class="block w-full border border-[var(--success)] bg-[var(--success)] text-black font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-transparent hover:text-[var(--success)] transition-colors">
+                        [ RECLAMAR RECOMPENSA EN WHATSAPP ]
+                    </a>
+                `;
+            } else {
+                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--danger)] rounded-full text-2xl font-bold text-[var(--danger)] shadow-[0_0_15px_#FF0040]";
+                resultIcon.innerText = "✕";
+                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--danger)]";
+                resultTitle.innerText = ">> MÉTRICAS INSUFICIENTES";
+                resultDesc.innerHTML = `Tu puntaje final fue de <span class="text-[var(--danger)] font-bold">${score} XP</span>. No alcanzaste el umbral mínimo de 750 XP requerido para aprobar la simulación.`;
+                
+                actionContainer.innerHTML = `
+                    <button onclick="location.reload()" class="w-full border border-[var(--cyan)] bg-transparent text-[var(--cyan)] font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-[var(--cyan)] hover:text-black transition-colors">
+                        [ REINTENTAR PROTOCOLO ]
+                    </button>
+                `;
+            }
+        }
+
+        // Iniciar al primer clic del usuario (requerido por políticas de audio del navegador)
+        window.addEventListener('click', () => {
+            initAudio();
+        }, { once: true });
+
+        // Iniciar quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
