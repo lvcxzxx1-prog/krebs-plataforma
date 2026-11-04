@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Bóveda Científica - Plataforma Oficial</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Chakra Petch -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para Efectos de Audio Sintético -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        :root {
+            --cyan: #00F2FF;
+            --magenta: #FF00E5;
+            --dark: #030712;
+            --success: #00FF66;
+            --danger: #FF0055;
+            --warning: #FFB700;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.3) 50%,
+                rgba(0,0,0,0.3)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .neon-border-cyan {
+            border: 1px solid var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+        }
+
+        .neon-border-magenta {
+            border: 1px solid var(--magenta);
+            box-shadow: 0 0 20px rgba(255, 0, 229, 0.2);
+        }
+
+        .module-card {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid #1f2937;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .module-card:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 242, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .module-card-locked {
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid #1f2937;
+            opacity: 0.75;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .module-card-locked:hover {
+            border-color: var(--warning);
+            background: rgba(255, 183, 0, 0.05);
+            opacity: 1.0;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col items-center p-4 sm:p-8">
+
+    <div class="scanlines"></div>
+
+    <main class="w-full max-w-5xl flex flex-col space-y-6 relative z-10">
+        
+        <!-- ENCABEZADO TÁCTICO -->
+        <header class="bg-[#0b132b] neon-border-cyan rounded-lg p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wider text-[var(--cyan)] uppercase flex items-center gap-2">
+                    >_ BÓVEDA CIENTÍFICA
+                </h1>
+                <p class="text-xs text-gray-400 uppercase mt-1">ESTADO: ACCESO PÚBLICO // HIJOS DE KREBS ACADEMY</p>
+            </div>
+            <div class="bg-[#111d4a] px-4 py-2.5 rounded border border-gray-700 text-right">
+                <span class="block text-[9px] text-gray-400 uppercase tracking-widest">NIVEL DE ACCESO</span>
+                <span class="text-sm font-bold text-[var(--warning)] uppercase">MODO EXPLORADOR (FREEMIUM)</span>
+            </div>
+        </header>
+
+        <!-- BANNER DE RETOS SEMANALES (ACCESO LIBRE / GANCHO) -->
+        <section class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 neon-border-magenta rounded-lg p-6 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
+            <div class="space-y-1 text-center sm:text-left">
+                <span class="px-2.5 py-0.5 rounded text-[10px] bg-[var(--magenta)] text-black font-bold uppercase tracking-wider">EVENTO ACTIVO</span>
+                <h2 class="text-lg sm:text-xl font-bold text-white uppercase tracking-wide">ZONA DE RETOS SEMANALES</h2>
+                <p class="text-xs text-gray-300 max-w-xl">
+                    Pon a prueba tus conocimientos clínicos con evaluaciones cronometradas de alta exigencia. ¡Demuestra tu nivel y obtén recompensas exclusivas!
+                </p>
+            </div>
+            <a href="Retos_Semanales/reto_sistema_urinario/index.html" class="px-6 py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded shadow hover:bg-white hover:text-black transition-colors whitespace-nowrap">
+    Ingresar al Reto →
+</a>
+        </section>
+
+        <!-- GRILLA DE MÓDULOS DE BIOLOGÍA Y ANATOMÍA -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- COLUMNA BIOLOGÍA -->
+            <section class="space-y-3">
+                <h3 class="text-sm font-bold text-[var(--cyan)] uppercase tracking-wider border-b border-gray-800 pb-2">
+                    /// BIOLOGÍA & BIOQUÍMICA
+                </h3>
+
+                <!-- Módulo 1 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Biología y Composición Química')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 01</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Biología y Composición Química</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Módulo 2 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Citología I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 02</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Citología I</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Módulo 3 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Citología II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 03</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Citología II</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Módulo 4 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Fisiología Celular I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 04</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Fisiología Celular I</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Módulo 5 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Fisiología Celular II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 05</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Fisiología Celular II</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Módulo 6 (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Genética')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 06</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Genética</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+            </section>
+
+            <!-- COLUMNA ANATOMÍA -->
+            <section class="space-y-3">
+                <h3 class="text-sm font-bold text-[var(--cyan)] uppercase tracking-wider border-b border-gray-800 pb-2">
+                    /// ANATOMÍA HUMANA Y FISIOLOGÍA
+                </h3>
+
+                <!-- Aparato Digestivo (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Aparato Digestivo')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 01</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Aparato Digestivo</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Sistema Circulatorio (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Sistema Circulatorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 02</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Circulatorio</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Aparato Respiratorio (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Aparato Respiratorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 03</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Aparato Respiratorio</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Sistema Urinario (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Sistema Urinario')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 04</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Urinario</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Sistema Endocrino (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Sistema Endocrino')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 05</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Endocrino</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+
+                <!-- Sistema Nervioso (Bloqueado) -->
+                <div onclick="mostrarAlertaPrivativa('Sistema Nervioso')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 06</span>
+                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Nervioso</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
+                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
+                    </span>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- SCRIPT PARA INTERACCIÓN DE BLOQUEO Y VENTANA DE CONVERSIÓN -->
+    <script>
+        function mostrarAlertaPrivativa(nombreModulo) {
+            try {
+                if (typeof Tone !== 'undefined') {
+                    if (Tone.context.state !== 'running') Tone.start();
+                    const synthErr = new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.01, decay: 0.15, sustain: 0, release: 0.1 }
+                    }).toDestination();
+                    synthErr.triggerAttackRelease("C3", "8n");
+                }
+            } catch(e) {}
+
+            alert(`🔒 ACCESO RESTRINGIDO\n\nEl módulo "${nombreModulo}" forma parte de la Bóveda Élite de Hijos de Krebs.\n\nPara desbloquear este y todos los módulos completos de Biología y Anatomía, comunícate con nosotros para adquirir tu membresía o canjear tus códigos de acceso.`);
+        }
+    </script>
+</body>
+</html>
