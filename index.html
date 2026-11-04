@@ -55,29 +55,18 @@
             box-shadow: 0 0 20px rgba(255, 0, 229, 0.2);
         }
 
-        .module-card {
-            background: rgba(17, 24, 39, 0.7);
-            border: 1px solid #1f2937;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .module-card:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 242, 255, 0.05);
-            transform: translateY(-2px);
-        }
-
         .module-card-locked {
-            background: rgba(17, 24, 39, 0.4);
+            background: rgba(17, 24, 39, 0.5);
             border: 1px solid #1f2937;
-            opacity: 0.75;
             transition: all 0.2s ease-in-out;
+            opacity: 0.8;
         }
 
         .module-card-locked:hover {
             border-color: var(--warning);
             background: rgba(255, 183, 0, 0.05);
             opacity: 1.0;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -110,9 +99,9 @@
                     Pon a prueba tus conocimientos clínicos con evaluaciones cronometradas de alta exigencia. ¡Demuestra tu nivel y obtén recompensas exclusivas!
                 </p>
             </div>
-            <a href="Retos_Semanales/reto_sistema_urinario/index.html" class="px-6 py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded shadow hover:bg-white hover:text-black transition-colors whitespace-nowrap">
-    Ingresar al Reto →
-</a>
+            <a href="Retos_Semanales/index.html" class="px-6 py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded shadow hover:bg-white hover:text-black transition-colors whitespace-nowrap">
+                Ingresar al Reto →
+            </a>
         </section>
 
         <!-- GRILLA DE MÓDULOS DE BIOLOGÍA Y ANATOMÍA -->
@@ -124,143 +113,131 @@
                     /// BIOLOGÍA & BIOQUÍMICA
                 </h3>
 
-                <!-- Módulo 1 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Biología y Composición Química')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Biología y Composición Química')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 01</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Biología y Composición Química</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Biología y Composición Química</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Módulo 2 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Citología I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Citología I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 02</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Citología I</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Citología I</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Módulo 3 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Citología II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Citología II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 03</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Citología II</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Citología II</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Módulo 4 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Fisiología Celular I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Fisiología Celular I')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 04</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Fisiología Celular I</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Fisiología Celular I</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Módulo 5 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Fisiología Celular II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Fisiología Celular II')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 05</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Fisiología Celular II</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Fisiología Celular II</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Módulo 6 (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Genética')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Genética')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 06</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Genética</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Genética</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
             </section>
 
-            <!-- COLUMNA ANATOMÍA -->
+            <!-- COLUMNA ANATOMÍA (LOS 9 MÓDULOS) -->
             <section class="space-y-3">
                 <h3 class="text-sm font-bold text-[var(--cyan)] uppercase tracking-wider border-b border-gray-800 pb-2">
                     /// ANATOMÍA HUMANA Y FISIOLOGÍA
                 </h3>
 
-                <!-- Aparato Digestivo (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Aparato Digestivo')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Aparato Digestivo')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 01</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Aparato Digestivo</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Aparato Digestivo</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Sistema Circulatorio (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Sistema Circulatorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Sistema Circulatorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 02</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Circulatorio</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Sistema Circulatorio</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Aparato Respiratorio (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Aparato Respiratorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Aparato Respiratorio')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 03</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Aparato Respiratorio</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Aparato Respiratorio</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Sistema Urinario (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Sistema Urinario')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Sistema Urinario')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 04</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Urinario</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Sistema Urinario</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Sistema Endocrino (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Sistema Endocrino')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Sistema Endocrino')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 05</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Endocrino</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Sistema Endocrino</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
 
-                <!-- Sistema Nervioso (Bloqueado) -->
-                <div onclick="mostrarAlertaPrivativa('Sistema Nervioso')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                <div onclick="mostrarModalPrivativo('Sistema Nervioso')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
                     <div>
                         <span class="text-[10px] text-gray-500 font-mono">MÓDULO 06</span>
-                        <h4 class="text-sm font-bold text-gray-300 uppercase">Sistema Nervioso</h4>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Sistema Nervioso</h4>
                     </div>
-                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">
-                        🔒 <span class="hidden sm:inline">[REQUIERE ÉLITE]</span>
-                    </span>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+
+                <div onclick="mostrarModalPrivativo('Aparato Reproductor')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 07</span>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Aparato Reproductor</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+
+                <div onclick="mostrarModalPrivativo('Aparato Locomotor')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 08</span>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Aparato Locomotor</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+
+                <div onclick="mostrarModalPrivativo('Inmunológico, Salud y Enfermedad')" class="module-card-locked p-4 rounded-lg cursor-pointer flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-gray-500 font-mono">MÓDULO 09</span>
+                        <h4 class="text-sm font-bold text-gray-200 uppercase">Inmunológico, Salud y Enfermedad</h4>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--warning)] flex items-center gap-1">🔒 [REQUIERE ÉLITE]</span>
                 </div>
             </section>
 
@@ -268,9 +245,40 @@
 
     </main>
 
-    <!-- SCRIPT PARA INTERACCIÓN DE BLOQUEO Y VENTANA DE CONVERSIÓN -->
+    <!-- VENTANA MODAL CIBERNÉTICA CON WHATSAPP DIRECTO -->
+    <div id="elite-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#0b132b] neon-border-magenta rounded-lg max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-start border-b border-gray-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🔒</span>
+                    <h3 class="text-xs sm:text-sm font-bold text-[var(--warning)] uppercase tracking-wider">>_ ACCESO ÉLITE REQUERIDO</h3>
+                </div>
+                <button onclick="cerrarModal()" class="text-gray-400 hover:text-white text-lg font-bold">×</button>
+            </div>
+            
+            <div class="space-y-3 text-xs sm:text-sm">
+                <p class="text-gray-300 leading-relaxed">
+                    El módulo <strong id="modal-module-title" class="text-[var(--cyan)] uppercase"></strong> forma parte exclusiva de la <span class="text-[var(--warning)] font-bold">Bóveda Élite de Hijos de Krebs</span>.
+                </p>
+                <p class="text-gray-400">
+                    Comunícate directamente con nosotros para adquirir tu membresía y desbloquear todos los módulos de Biología y Anatomía al instante.
+                </p>
+            </div>
+
+            <div class="space-y-2 pt-2">
+                <a id="modal-whatsapp-btn" href="#" target="_blank" class="block w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded text-center transition-colors shadow-lg flex items-center justify-center gap-2">
+                    <span class="text-base">💬</span> Solicitar Acceso por WhatsApp
+                </a>
+                <button onclick="cerrarModal()" class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold text-xs uppercase tracking-wider rounded transition-colors border border-gray-700">
+                    Regresar al Explorador
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE INTERACCIÓN MODAL Y AUDIO -->
     <script>
-        function mostrarAlertaPrivativa(nombreModulo) {
+        function mostrarModalPrivativo(nombreModulo) {
             try {
                 if (typeof Tone !== 'undefined') {
                     if (Tone.context.state !== 'running') Tone.start();
@@ -282,7 +290,22 @@
                 }
             } catch(e) {}
 
-            alert(`🔒 ACCESO RESTRINGIDO\n\nEl módulo "${nombreModulo}" forma parte de la Bóveda Élite de Hijos de Krebs.\n\nPara desbloquear este y todos los módulos completos de Biología y Anatomía, comunícate con nosotros para adquirir tu membresía o canjear tus códigos de acceso.`);
+            const modal = document.getElementById('elite-modal');
+            const titleEl = document.getElementById('modal-module-title');
+            const btnWhatsApp = document.getElementById('modal-whatsapp-btn');
+            
+            titleEl.textContent = nombreModulo;
+            const mensajeWp = encodeURIComponent(`Hola, Maestro Antonio. Deseo adquirir la membresía de la Bóveda Élite para desbloquear el módulo "${nombreModulo}" y toda la plataforma. Quedo atento a la información.`);
+            btnWhatsApp.href = `https://wa.me/51941071347?text=${mensajeWp}`;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('elite-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         }
     </script>
 </body>
