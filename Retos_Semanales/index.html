@@ -3,129 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Zona de Retos Semanales - Acceso Libre</title>
+    <title>Hijos de Krebs - Retos Semanales (100% Gratuito)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --cyan: #00F2FF;
-            --magenta: #FF00E5;
-            --dark: #030712;
-            --success: #00FF66;
-            --danger: #FF0055;
-            --warning: #FFB700;
-        }
-        body {
-            font-family: 'Chakra Petch', sans-serif;
-            background-color: var(--dark);
-            color: #ffffff;
-            overflow-x: hidden;
-            user-select: none;
-        }
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.3) 50%,
-                rgba(0,0,0,0.3)
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        .neon-border-magenta {
-            border: 1px solid var(--magenta);
-            box-shadow: 0 0 20px rgba(255, 0, 229, 0.2);
-        }
-        .neon-border-cyan {
-            border: 1px solid var(--cyan);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
-        }
-        .challenge-card {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid #1f2937;
-            transition: all 0.2s ease-in-out;
-        }
-        .challenge-card:hover {
-            border-color: var(--magenta);
-            background: rgba(255, 0, 229, 0.05);
-            transform: translateY(-2px);
-        }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center p-4 sm:p-8">
-    <div class="scanlines"></div>
-    <main class="w-full max-w-4xl flex flex-col space-y-6 relative z-10">
-        
-        <!-- ENCABEZADO -->
-        <header class="bg-[#0b132b] neon-border-magenta rounded-lg p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--magenta)] transition-colors mb-1 font-semibold">
-                    ← VOLVER A BÓVEDA CIENTÍFICA (PRINCIPAL)
-                </a>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-wider text-[var(--magenta)] uppercase">
-                    >_ ZONA DE RETOS SEMANALES
-                </h1>
-                <p class="text-xs text-gray-400 uppercase mt-1">ACCESO LIBRE Y GRATUITO // HIJOS DE KREBS ACADEMY</p>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">🧬 Hijos de Krebs</span>
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Plataforma Preuniversitaria</span>
             </div>
-            <div class="bg-[#111d4a] px-4 py-2.5 rounded border border-gray-700 text-right">
-                <span class="block text-[9px] text-gray-400 uppercase tracking-widest">ESTADO</span>
-                <span class="text-sm font-bold text-[var(--success)] uppercase">100% GRATUITO</span>
-            </div>
-        </header>
+            <nav class="hidden md:flex space-x-6 text-sm text-slate-300">
+                <a href="#retos" class="hover:text-emerald-400 transition">Retos Semanales</a>
+                <a href="#recursos" class="hover:text-emerald-400 transition">Banco de Preguntas</a>
+                <a href="#contacto" class="hover:text-emerald-400 transition">Comunidad</a>
+            </nav>
+        </div>
+    </header>
 
-        <!-- LISTA DE RETOS -->
-        <div class="space-y-4">
-            <h2 class="text-sm font-bold text-[var(--cyan)] uppercase tracking-wider border-b border-gray-800 pb-2">
-                /// EVALUACIONES CLÍNICAS DISPONIBLES
-            </h2>
-
-            <!-- Reto 1: Aparato Respiratorio -->
-            <a href="reto_aparato_respiratorio/index.html" class="challenge-card p-5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 block">
-                <div class="space-y-1">
-                    <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-700 font-bold uppercase">NUEVO RETO ACTIVO</span>
-                    <h3 class="text-base sm:text-lg font-bold text-white uppercase">Reto: Aparato Respiratorio & Fisiología Pulmonar</h3>
-                    <p class="text-xs text-gray-300">15 reactivos de alta exigencia sobre ventilación, hematosis, transporte de gases y anatomía respiratoria.</p>
-                </div>
-                <span class="px-5 py-2.5 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded whitespace-nowrap hover:bg-white hover:text-black transition-colors">
-                    Iniciar Reto →
-                </span>
-            </a>
-
-            <!-- Reto 2: Sistema Urinario -->
-            <a href="reto_sistema_urinario/index.html" class="challenge-card p-5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 block">
-                <div class="space-y-1">
-                    <span class="px-2 py-0.5 rounded text-[10px] bg-purple-950 text-purple-400 border border-purple-700 font-bold uppercase">DISPONIBLE</span>
-                    <h3 class="text-base sm:text-lg font-bold text-white uppercase">Reto: Sistema Urinario & Función Renal</h3>
-                    <p class="text-xs text-gray-300">10 reactivos clave sobre filtración glomerular, nefronas, reabsorción y regulación hormonal.</p>
-                </div>
-                <span class="px-5 py-2.5 bg-gray-800 border border-gray-700 text-gray-200 font-bold text-xs uppercase tracking-wider rounded whitespace-nowrap hover:bg-[var(--magenta)] hover:text-white transition-colors">
-                    Iniciar Reto →
-                </span>
-            </div>
-
-            <!-- Próximos Retos -->
-            <div class="challenge-card p-5 rounded-lg flex justify-between items-center opacity-60">
-                <div>
-                    <span class="px-2 py-0.5 rounded text-[10px] bg-gray-800 text-gray-400 uppercase">PRÓXIMAMENTE</span>
-                    <h3 class="text-sm font-bold text-gray-300 uppercase mt-1">Reto: Sistema Circulatorio & Hemodinamia</h3>
-                </div>
-                <span class="text-xs text-gray-500 font-bold uppercase">[BLOQUEADO]</span>
-            </div>
-
-            <div class="challenge-card p-5 rounded-lg flex justify-between items-center opacity-60">
-                <div>
-                    <span class="px-2 py-0.5 rounded text-[10px] bg-gray-800 text-gray-400 uppercase">PRÓXIMAMENTE</span>
-                    <h3 class="text-sm font-bold text-gray-300 uppercase mt-1">Reto: Sistema Nervioso & Sinapsis</h3>
-                </div>
-                <span class="text-xs text-gray-500 font-bold uppercase">[BLOQUEADO]</span>
+    <!-- Hero Section -->
+    <section class="relative py-20 px-4 text-center bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800/60">
+        <div class="max-w-4xl mx-auto">
+            <span class="inline-block bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-semibold px-3 py-1 rounded-full mb-4">ACCESO LIBRE Y GRATUITO</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+                Domina la Biología, Anatomía y Bioquímica
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+                Los 7 retos semanales oficiales de <strong>Hijos de Krebs</strong> diseñados para asegurar tu ingreso universitario con rigor científico, teoría avanzada y casos prácticos tipo admisión.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#retos" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">Ver los 7 Retos</a>
+                <a href="#recursos" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold px-6 py-3 rounded-xl transition">Descargar Materiales</a>
             </div>
         </div>
+    </section>
 
+    <!-- Retos Section -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-16 w-full" id="retos">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-3">Los 7 Retos Semanales Disponibles</h2>
+            <p class="text-slate-400">Material completo, solucionarios detallados y reactivos de alto nivel académico.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Reto 1 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-emerald-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Semana 01</span>
+                        <span class="text-xs text-emerald-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-300 transition">Biología Celular: Membrana y Transporte</h3>
+                    <p class="text-slate-400 text-sm mb-6">Modelo de mosaico fluido, gradientes electroquímicos, transporte activo primario y secundario, y peroxidación lipídica.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">2 Teóricas + 2 Casos</span>
+                    <a href="#reto1-detalles" class="text-emerald-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 2 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-emerald-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Semana 02</span>
+                        <span class="text-xs text-emerald-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-300 transition">Bioenergética y Respiración Celular</h3>
+                    <p class="text-slate-400 text-sm mb-6">Glucólisis aeróbica/anaeróbica, lanzaderas mitocondriales, cadena transportadora de electrones y fosforilación oxidativa.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Teoría + Aplicación</span>
+                    <a href="#reto2-detalles" class="text-emerald-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 3 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-emerald-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Semana 03</span>
+                        <span class="text-xs text-emerald-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-300 transition">Ciclo de Krebs y Regulación Enzimática</h3>
+                    <p class="text-slate-400 text-sm mb-6">Descarboxilación oxidativa del piruvato, balance energético por vuelta, regulación alostérica de PFK-1 y enzimas marcapasos.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Reactivos Clave</span>
+                    <a href="#reto3-detalles" class="text-emerald-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 4 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-cyan-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full">Semana 04</span>
+                        <span class="text-xs text-cyan-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-cyan-300 transition">Genética Molecular y Dogma Central</h3>
+                    <p class="text-slate-400 text-sm mb-6">Replicación semiconservativa, transcripción en eucariotas/procariotas, código genético y traducción ribosomal.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Problemas Prácticos</span>
+                    <a href="#reto4-detalles" class="text-cyan-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 5 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-cyan-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full">Semana 05</span>
+                        <span class="text-xs text-cyan-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-cyan-300 transition">Anatomía: Sistema Nervioso Central</h3>
+                    <p class="text-slate-400 text-sm mb-6">Cerebro, lóbulos funcionales, áreas de Brodmann (Sensorial, Motora, Área de Broca y Wernicke) y vías nerviosas.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Casos Clínicos</span>
+                    <a href="#reto5-detalles" class="text-cyan-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 6 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-cyan-500/50 transition group">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full">Semana 06</span>
+                        <span class="text-xs text-cyan-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-cyan-300 transition">Anatomía: Sistema Cardiovascular</h3>
+                    <p class="text-slate-400 text-sm mb-6">Ciclo cardíaco, válvulas auriculoventriculares y sigmoideas, gasto cardíaco, circulación mayor y menor.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Preguntas de Admisión</span>
+                    <a href="#reto6-detalles" class="text-cyan-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+
+            <!-- Reto 7 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-emerald-500/50 transition group lg:col-start-2">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Semana 07</span>
+                        <span class="text-xs text-emerald-400 font-semibold">100% Gratuito</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-300 transition">Bioquímica: Lípidos y $\beta$-Oxidación</h3>
+                    <p class="text-slate-400 text-sm mb-6">Lanzadera de carnitina, rendimiento energético de ácidos grasos saturados/insaturados y metabolismo cetogénico.</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-500">Simulacro Final</span>
+                    <a href="#reto7-detalles" class="text-emerald-400 hover:underline text-sm font-semibold">Acceder al Reto →</a>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-8 text-center text-slate-500 text-sm" id="contacto">
+        <p>&copy; 2026 Hijos de Krebs. Todos los derechos reservados. Plataforma educativa creada para postulantes universitarios.</p>
+    </footer>
 </body>
 </html>
