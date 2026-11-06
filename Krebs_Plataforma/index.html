@@ -308,5 +308,51 @@
             modal.classList.add('hidden');
         }
     </script>
+<!-- Botón de Acceso VIP Global -->
+<button onclick="abrirVIPGlobal()" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1.5">
+    🔑 <span class="underline">Acceso Alumnos VIP</span>
+</button>
+
+<!-- Modal Global -->
+<div id="modal-vip-global" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#0b132b] border border-[var(--magenta)] rounded-lg p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+        <button onclick="cerrarVIPGlobal()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-lg font-bold">✕</button>
+        <div class="space-y-1">
+            <h3 class="text-sm font-bold text-[var(--magenta)] uppercase tracking-wider">Activar Acceso General</h3>
+            <p class="text-xs text-gray-400">Ingresa tu código VIP para desbloquear toda la plataforma.</p>
+        </div>
+        <input type="password" id="input-codigo-global" placeholder="INGRESA TU CÓDIGO..." class="w-full bg-black/50 border border-gray-700 rounded p-3 text-xs text-white font-mono uppercase tracking-widest focus:border-[var(--magenta)] focus:outline-none">
+        <button onclick="verificarVIPGlobal()" class="w-full py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded hover:bg-white hover:text-black transition-colors">
+            Desbloquear Todo
+        </button>
+    </div>
+</div>
+
+<script>
+    function abrirVIPGlobal() {
+        if(localStorage.getItem('krebs_vip_activo') === 'true') {
+            alert('¡Ya tienes acceso VIP activo en este dispositivo!');
+            return;
+        }
+        document.getElementById('modal-vip-global').classList.remove('hidden');
+        document.getElementById('modal-vip-global').classList.add('flex');
+    }
+    function cerrarVIPGlobal() {
+        document.getElementById('modal-vip-global').classList.add('hidden');
+        document.getElementById('modal-vip-global').classList.remove('flex');
+    }
+    function verificarVIPGlobal() {
+        const codigo = document.getElementById('input-codigo-global').value.trim().toUpperCase();
+        // Tu clave maestra de acceso global
+        if(codigo === "KREBS-VIP-2026") {
+            localStorage.setItem('krebs_vip_activo', 'true');
+            alert('¡Acceso concedido! Todos los módulos de la bóveda están desbloqueados.');
+            cerrarVIPGlobal();
+            location.reload();
+        } else {
+            alert('Código incorrecto. Verifica tu clave.');
+        }
+    }
+</script>
 </body>
 </html>

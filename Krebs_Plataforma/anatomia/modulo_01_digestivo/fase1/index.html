@@ -508,5 +508,16 @@
             cargarPregunta();
         }
     </script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('krebs_vip_activo') === 'true') {
+            // Remueve bloqueos y habilita las rutas a Cepa Cero, Brote Mutante y Efecto Krebs
+            document.querySelectorAll('.locked-module').forEach(el => {
+                el.classList.remove('locked-module');
+                // Si el elemento es un enlace o tarjeta bloqueada, puedes habilitar su evento de clic aquí
+            });
+        }
+    });
+</script>
 </body>
 </html>
