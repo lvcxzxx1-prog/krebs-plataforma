@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Bóveda Científica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        :root { --cyan: #00F2FF; --magenta: #FF00FF; --dark: #030712; --darker: #010409; --success: #00FF66; --warning: #FFB700; }
+        body { font-family: 'Space Mono', monospace; background-color: var(--darker); color: #ffffff; user-select: none; }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3)); background-size: 100% 4px; pointer-events: none; z-index: 9999; }
+        .neon-box { border: 1px solid #1f2937; background: rgba(11, 19, 43, 0.7); box-shadow: 0 0 20px rgba(0, 242, 255, 0.05); }
+        .module-card { border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.8); transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-radius: 0.5rem; cursor: pointer; }
+        .module-card:hover { border-color: var(--cyan); background: rgba(0, 242, 255, 0.05); transform: translateY(-1px); }
+        .locked-card { opacity: 0.6; border-style: dashed; }
+        .unlocked-card { opacity: 1; border-style: solid; border-color: var(--cyan); }
+        .neon-text-cyan { text-shadow: 0 0 8px var(--cyan); color: var(--cyan); }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col justify-start items-center p-4 sm:p-8 space-y-6">
+    <div class="scanlines"></div>
+
+    <!-- ENCABEZADO Y PANEL VIP -->
+    <header class="w-full max-w-6xl neon-box p-5 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+        <div>
+            <a href="index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors mb-2 font-semibold">
+                ← RETORNAR AL PORTAL PRINCIPAL
+            </a>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-wider neon-text-cyan uppercase">
+                >_ BÓVEDA CIENTÍFICA
+            </h1>
+            <p class="text-xs text-gray-400 uppercase mt-1">ESTADO: <span id="vault-status-text" class="text-[var(--warning)]">MODO EXPLORADOR (FREEMIUM)</span> // HIJOS DE KREBS ACADEMY</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-end gap-3 w-full md:w-auto">
+            <div class="flex gap-2 bg-[#111d4a] p-2 rounded border border-gray-700 w-full sm:w-auto">
+                <input type="password" id="vip-code-input" placeholder="CÓDIGO VIP..." class="bg-black/60 border border-gray-600 px-2.5 py-1 text-xs text-white uppercase tracking-wider rounded focus:outline-none focus:border-[var(--cyan)] w-28">
+                <button onclick="verificarCodigoVIP()" onmouseenter="sfx.hover()" class="px-3 py-1 bg-[var(--cyan)] text-black font-bold text-xs uppercase rounded hover:bg-white transition-colors">ACTIVAR</button>
+            </div>
+            <button onclick="solicitarAccesoElite()" onmouseenter="sfx.hover()" class="px-4 py-2 bg-gradient-to-r from-purple-900 to-pink-900 hover:from-purple-800 hover:to-pink-800 border border-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded shadow-[0_0_10px_rgba(255,0,255,0.3)] transition-all whitespace-nowrap">
+                ✦ SOLICITAR ACCESO ÉLITE
+            </button>
+        </div>
+    </header>
+
+    <!-- ZONA DE RETOS SEMANALES -->
+    <section class="w-full max-w-6xl bg-gradient-to-r from-purple-950/60 via-indigo-950/60 to-slate-900/60 border border-[var(--magenta)] p-6 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg relative z-10">
+        <div>
+            <span class="inline-block px-2.5 py-0.5 rounded text-[9px] bg-purple-950 text-[var(--magenta)] border border-[var(--magenta)] font-bold uppercase mb-2">EVENTO ACTIVO</span>
+            <h2 class="text-base sm:text-lg font-bold text-white uppercase tracking-wide">ZONA DE RETOS SEMANALES</h2>
+            <p class="text-xs text-gray-300 mt-1">Evaluaciones cronometradas de alta exigencia (100% Gratuito).</p>
+        </div>
+        <a href="Retos_Semanales/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="px-6 py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded hover:bg-white hover:text-black transition-colors shadow-[0_0_15px_rgba(255,0,255,0.4)] whitespace-nowrap">
+            INGRESAR AL RETO →
+        </a>
+    </section>
+
+    <!-- CUADRICULA DE CURSOS Y MODULOS (TODOS BLOQUEADOS POR DEFECTO) -->
+    <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+        
+        <!-- BIOLOGÍA & BIOQUÍMICA (6 MÓDULOS) -->
+        <div class="space-y-4">
+            <h3 class="text-xs font-bold text-[var(--cyan)] uppercase tracking-widest border-b border-gray-800 pb-2">/// BIOLOGÍA & BIOQUÍMICA</h3>
+            <div class="space-y-3">
+                <div onclick="abrirModulo('biologia/modulo_01_composicion_quimica/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 01</span><h4 class="text-sm font-bold text-gray-300 uppercase">BIOLOGÍA Y COMPOSICIÓN QUÍMICA</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('biologia/modulo_02_citologia_i/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 02</span><h4 class="text-sm font-bold text-gray-300 uppercase">CITOLOGÍA I</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('biologia/modulo_03_citologia_ii/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 03</span><h4 class="text-sm font-bold text-gray-300 uppercase">CITOLOGÍA II</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('biologia/modulo_04_fisiologia_celular_i/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 04</span><h4 class="text-sm font-bold text-gray-300 uppercase">FISIOLOGÍA CELULAR I</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('biologia/modulo_05_fisiologia_celular_ii/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 05</span><h4 class="text-sm font-bold text-gray-300 uppercase">FISIOLOGÍA CELULAR II</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('biologia/modulo_06_genetica/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 06</span><h4 class="text-sm font-bold text-gray-300 uppercase">GENÉTICA Y HERENCIA</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANATOMÍA HUMANA Y FISIOLOGÍA (9 MÓDULOS) -->
+        <div class="space-y-4">
+            <h3 class="text-xs font-bold text-[var(--magenta)] uppercase tracking-widest border-b border-gray-800 pb-2">/// ANATOMÍA HUMANA Y FISIOLOGÍA</h3>
+            <div class="space-y-3">
+                <div onclick="abrirModulo('anatomia/modulo_01_digestivo/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 01</span><h4 class="text-sm font-bold text-gray-300 uppercase">APARATO DIGESTIVO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_02_circulatorio/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 02</span><h4 class="text-sm font-bold text-gray-300 uppercase">SISTEMA CIRCULATORIO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_03_respiratorio/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 03</span><h4 class="text-sm font-bold text-gray-300 uppercase">APARATO RESPIRATORIO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_04_urinario/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 04</span><h4 class="text-sm font-bold text-gray-300 uppercase">APARATO URINARIO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_05_endocrino/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 05</span><h4 class="text-sm font-bold text-gray-300 uppercase">SISTEMA ENDOCRINO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_06_nervioso/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 06</span><h4 class="text-sm font-bold text-gray-300 uppercase">SISTEMA NERVIOSO</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_07_reproductor/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 07</span><h4 class="text-sm font-bold text-gray-300 uppercase">APARATO REPRODUCTOR</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_08_locomotor/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 08</span><h4 class="text-sm font-bold text-gray-300 uppercase">SISTEMA LOCOMOTOR</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+                <div onclick="abrirModulo('anatomia/modulo_09_inmunologico_salud_y_enfermedad/central_operaciones/index.html')" onmouseenter="sfx.hover()" class="module-card locked-card module-item">
+                    <div><span class="text-[9px] text-gray-500 font-bold block">MÓDULO 09</span><h4 class="text-sm font-bold text-gray-300 uppercase">INMUNOLÓGICO, SALUD Y ENFERMEDAD</h4></div>
+                    <span class="text-xs font-bold text-gray-400 badge-lock">🔒 [REQUIERE ÉLITE]</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let synth;
+        let audioInit = false;
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -12;
+                audioInit = true;
+            }
+        }
+        const sfx = {
+            hover: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.03); } catch(e) {} },
+            click: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("C6", "32n"); } catch(e) {} }
+        };
+
+        const MASTER_CODE = "KREBS-VIP-2027"; 
+
+        function verificarCodigoVIP() {
+            const inputVal = document.getElementById('vip-code-input').value.trim();
+            if (inputVal === MASTER_CODE) {
+                sessionStorage.setItem('active_krebs_token', MASTER_CODE);
+                aplicarAccesoVIP();
+                alert("¡Código maestro aceptado! Acceso total concedido a la Bóveda Científica.");
+            } else {
+                alert("Código incorrecto o expirado. Solicita tu nuevo pase Élite.");
+            }
+        }
+
+        function solicitarAccesoElite() {
+            const mensaje = encodeURIComponent("Hola, deseo adquirir el Pase Élite y conocer el nuevo código de acceso para los módulos de Hijos de Krebs.");
+            window.open(`https://wa.me/?text=${mensaje}`, '_blank');
+        }
+
+        function abrirModulo(url) {
+            const tokenGuardado = sessionStorage.getItem('active_krebs_token');
+            if (tokenGuardado === MASTER_CODE) {
+                sfx.click();
+                window.location.href = url;
+            } else {
+                sfx.click();
+                alert("Acceso Restringido. Este módulo requiere nivel Élite o ingresar el código VIP vigente.");
+            }
+        }
+
+        function aplicarAccesoVIP() {
+            const tokenGuardado = sessionStorage.getItem('active_krebs_token');
+            
+            if (tokenGuardado === MASTER_CODE) {
+                document.getElementById('vault-status-text').textContent = "ACCESO ÉLITE ACTIVO (VIP)";
+                document.getElementById('vault-status-text').className = "text-[var(--success)]";
+                
+                document.querySelectorAll('.module-item').forEach(card => {
+                    card.classList.remove('locked-card');
+                    card.classList.add('unlocked-card');
+                    const badge = card.querySelector('.badge-lock');
+                    if (badge) {
+                        badge.textContent = "[ACCESIBLE]";
+                        badge.className = "text-xs font-bold text-[var(--success)]";
+                    }
+                });
+            } else {
+                // Limpiamos sessionStorage por seguridad al cargar si no hay coincidencia estricta
+                sessionStorage.removeItem('active_krebs_token');
+                document.getElementById('vault-status-text').textContent = "MODO EXPLORADOR (FREEMIUM)";
+                document.getElementById('vault-status-text').className = "text-[var(--warning)]";
+                
+                document.querySelectorAll('.module-item').forEach(card => {
+                    card.classList.remove('unlocked-card');
+                    card.classList.add('locked-card');
+                    const badge = card.querySelector('.badge-lock');
+                    if (badge) {
+                        badge.textContent = "🔒 [REQUIERE ÉLITE]";
+                        badge.className = "text-xs font-bold text-gray-400 badge-lock";
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { aplicarAccesoVIP(); });
+        document.addEventListener('click', () => { if (!audioInit) initAudio(); }, { once: true });
+    </script>
+</body>
+</html>

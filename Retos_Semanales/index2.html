@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hijos de Krebs | Zona de Retos Semanales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        :root { --cyan: #00F2FF; --magenta: #FF00FF; --dark: #030712; --darker: #010409; --success: #00FF66; --warning: #FFB700; }
+        body { font-family: 'Space Mono', monospace; background-color: var(--darker); color: #ffffff; user-select: none; }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3)); background-size: 100% 4px; pointer-events: none; z-index: 9999; }
+        .neon-box { border: 1px solid #1f2937; background: rgba(11, 19, 43, 0.7); box-shadow: 0 0 20px rgba(0, 242, 255, 0.05); }
+        .challenge-card { border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.8); transition: all 0.2s ease; }
+        .challenge-card:hover { border-color: var(--cyan); background: rgba(0, 242, 255, 0.05); transform: translateY(-2px); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+        .neon-text-cyan { text-shadow: 0 0 8px var(--cyan); color: var(--cyan); }
+    </style>
+</head>
+<body class="min-h-screen w-full flex flex-col justify-between p-4 sm:p-8">
+    <div class="scanlines"></div>
+
+    <main class="w-full max-w-6xl neon-box rounded-lg p-6 sm:p-10 relative z-10 flex flex-col space-y-8 shadow-2xl mx-auto my-auto">
+        
+        <!-- ENCABEZADO CON RUTA CORREGIDA -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-5 gap-4">
+            <div>
+                <a href="../boveda.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors mb-2 font-semibold">
+                    ← RETORNAR A BÓVEDA CIENTÍFICA
+                </a>
+                <h1 class="text-xl sm:text-3xl font-bold tracking-wider neon-text-cyan uppercase">
+                    >_ ZONA DE RETOS SEMANALES
+                </h1>
+                <p class="text-xs text-gray-400 uppercase mt-1">Evaluaciones oficiales de <strong class="text-white">Hijos de Krebs</strong> sincronizadas 1 a 1 con tus carpetas.</p>
+            </div>
+            <div class="bg-[#111d4a] px-4 py-2 rounded border border-gray-700 text-right">
+                <span class="block text-[9px] text-gray-400 uppercase tracking-widest">ESTADO</span>
+                <span class="text-xs font-bold text-[var(--success)]">100% GRATUITO Y DISPONIBLE</span>
+            </div>
+        </header>
+
+        <!-- TARJETAS DE RETOS ENLAZADAS A LAS 7 SUBCARPETAS EXACTAS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--cyan)] font-bold">reto_fisiologia_celular</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Fisiología Celular</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo de fisiología y transporte celular.</p>
+                </div>
+                <a href="reto_fisiologia_celular/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--cyan)] hover:text-black border border-cyan-800 text-[var(--cyan)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--cyan)] font-bold">reto_aparato_respiratorio</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Aparato Respiratorio</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo del sistema respiratorio.</p>
+                </div>
+                <a href="reto_aparato_respiratorio/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--cyan)] hover:text-black border border-cyan-800 text-[var(--cyan)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--cyan)] font-bold">reto_digestivo</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Aparato Digestivo</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo del sistema digestivo.</p>
+                </div>
+                <a href="reto_digestivo/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--cyan)] hover:text-black border border-cyan-800 text-[var(--cyan)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--cyan)] font-bold">reto_genetica</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Genética</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo de genética y herencia.</p>
+                </div>
+                <a href="reto_genetica/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--cyan)] hover:text-black border border-cyan-800 text-[var(--cyan)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--magenta)] font-bold">reto_sistema_nervioso</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Sistema Nervioso</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo de sistema nervioso central y periférico.</p>
+                </div>
+                <a href="reto_sistema_nervioso/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--magenta)] hover:text-black border border-pink-800 text-[var(--magenta)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--magenta)] font-bold">reto_sistema_circulatorio</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Sistema Circulatorio</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo cardiovascular y ciclo cardíaco.</p>
+                </div>
+                <a href="reto_sistema_circulatorio/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--magenta)] hover:text-black border border-pink-800 text-[var(--magenta)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+            <div class="challenge-card p-6 rounded-lg flex flex-col justify-between space-y-4 md:col-span-2 lg:col-span-1">
+                <div>
+                    <div class="flex justify-between items-center mb-3"><span class="text-[10px] text-[var(--magenta)] font-bold">reto_sistema_urinario</span><span class="text-[10px] text-[var(--success)] font-bold">GRATIS</span></div>
+                    <h3 class="text-base font-bold text-white uppercase mb-2">Sistema Urinario</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">Evaluación correspondiente al módulo del aparato urinario y excreción.</p>
+                </div>
+                <a href="reto_sistema_urinario/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="block w-full py-3 bg-[#112240] hover:bg-[var(--magenta)] hover:text-black border border-pink-800 text-[var(--magenta)] font-bold text-xs uppercase tracking-wider rounded text-center transition-colors">Acceder al Reto →</a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let synth;
+        let audioInit = false;
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -12;
+                audioInit = true;
+            }
+        }
+        const sfx = {
+            hover: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.03); } catch(e) {} },
+            click: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("C6", "32n"); } catch(e) {} }
+        };
+        document.addEventListener('click', () => { if (!audioInit) initAudio(); }, { once: true });
+    </script>
+</body>
+</html>
