@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente de consola: Space Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para la síntesis de audio -->
+    <!-- Tone.js para la síntesis de audio y ambiente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     
     <style>
@@ -120,6 +120,9 @@
         <!-- Cabecera -->
         <header class="flex justify-between items-center border-b border-[#112240] pb-3 mb-4">
             <div class="flex items-center space-x-3">
+                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors font-semibold mr-2">
+                    ← ZONA DE RETOS
+                </a>
                 <div class="w-3 h-3 bg-[var(--cyan)] rounded-full animate-pulse shadow-[0_0_8px_#00F2FF]"></div>
                 <h1 class="text-xs sm:text-base font-bold tracking-widest text-gray-400">
                     HIJOS DE KREBS <span class="text-[var(--cyan)]">///</span> RETO_SEMANAL
@@ -201,35 +204,87 @@
     </main>
 
     <script>
-        // --- MOTOR DE AUDIO ---
+        // --- MOTOR DE AUDIO INMERSIVO (Estilo Brilliant / Cyberpunk EdTech) ---
         let synth;
+        let ambientPad;
+        let ambientLoop;
         let audioInit = false;
 
         function initAudio() {
             if (!audioInit) {
                 synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                synth.volume.value = -12;
+                synth.volume.value = -10;
+
+                ambientPad = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                }).toDestination();
+                ambientPad.volume.value = -26;
+
+                const arpSynth = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                arpSynth.volume.value = -32;
+
+                const filter = new Tone.Filter(800, "lowpass").toDestination();
+                arpSynth.connect(filter);
+
+                const arpNotes = ["C3", "G3", "D#4", "A#3", "G3", "C4"];
+                let step = 0;
+
+                ambientLoop = new Tone.Loop(time => {
+                    arpSynth.triggerAttackRelease(arpNotes[step % arpNotes.length], "16n", time);
+                    step++;
+                }, "8n");
+
                 audioInit = true;
             }
         }
 
+        function startAmbientSound() {
+            if (!audioInit) return;
+            try {
+                Tone.Transport.bpm.value = 90;
+                Tone.Transport.start();
+                ambientPad.triggerAttack(["C3", "G3", "A#3", "D#4"]);
+                ambientLoop.start(0);
+            } catch (e) {}
+        }
+
+        function stopAmbientSound() {
+            try {
+                if (ambientPad) {
+                    ambientPad.triggerRelease(["C3", "G3", "A#3", "D#4"]);
+                }
+                if (ambientLoop) {
+                    ambientLoop.stop();
+                    Tone.Transport.stop();
+                }
+            } catch (e) {}
+        }
+
         const sfx = {
-            hover: () => { if(audioInit) synth.triggerAttackRelease("C6", "64n", Tone.now(), 0.05); },
-            click: () => { if(audioInit) synth.triggerAttackRelease("E6", "32n"); },
-            correct: () => { if(audioInit) synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); },
-            error: () => { if(audioInit) synth.triggerAttackRelease(["C3", "F#2"], "8n"); },
+            hover: () => { if(audioInit) synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.04); },
+            click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
+            correct: () => { if(audioInit) synth.triggerAttackRelease(["C5", "G5", "C6"], "8n"); },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["D#3", "A2"], "8n"); },
             timeout: () => { if(audioInit) synth.triggerAttackRelease(["G2", "C2"], "4n"); },
             victory: () => { if(audioInit) {
+                stopAmbientSound();
                 const now = Tone.now();
                 synth.triggerAttackRelease("C4", "16n", now);
-                synth.triggerAttackRelease("E4", "16n", now + 0.1);
-                synth.triggerAttackRelease("G4", "16n", now + 0.2);
-                synth.triggerAttackRelease("C5", "4n", now + 0.3);
+                synth.triggerAttackRelease("G4", "16n", now + 0.12);
+                synth.triggerAttackRelease("C5", "8n", now + 0.24);
+                synth.triggerAttackRelease("E5", "4n", now + 0.36);
             }},
-            defeat: () => { if(audioInit) synth.triggerAttackRelease(["C3", "G2", "C2"], "2n"); }
+            defeat: () => { if(audioInit) {
+                stopAmbientSound();
+                synth.triggerAttackRelease(["G3", "D#3", "C3"], "2n");
+            }}
         };
 
-        // --- MATRIZ DE PREGUNTAS (12 Preguntas, 5 Alternativas) ---
+        // --- MATRIZ DE PREGUNTAS (Aparato Digestivo) ---
         const questions = [
             { q: "EL CONDUCTO DE STENON CORRESPONDE A:", options: ["GLÁNDULA SUBLINGUAL", "GLÁNDULA PARÓTIDA", "GLÁNDULA SUBMANDIBULAR", "GLÁNDULA SUBMAXILAR", "GLÁNDULA PALATINA"], correct: 1 },
             { q: "LA ENZIMA ENCARGADA DE INICIAR LA DIGESTIÓN DE GLÚCIDOS EN LA BOCA ES:", options: ["LISOZIMA", "PEPSINA", "PTIALINA", "CIMÓGENO", "LIPASA"], correct: 2 },
@@ -272,9 +327,16 @@
         }
 
         async function startGame() {
-            await Tone.start();
-            initAudio();
-            sfx.click();
+            try {
+                if (typeof Tone !== 'undefined') {
+                    await Tone.start();
+                    initAudio();
+                    sfx.click();
+                    startAmbientSound();
+                }
+            } catch (e) {
+                console.log("Audio bypass activado");
+            }
             switchScreen('game');
             loadQuestion();
         }
@@ -301,7 +363,7 @@
                 btn.className = "option-btn w-full text-left p-3 sm:p-4 text-gray-300 flex items-center space-x-3 text-xs sm:text-sm font-bold";
                 btn.onmouseenter = sfx.hover;
                 btn.onclick = () => handleAnswer(idx, btn);
-                const letter = String.fromCharCode(65 + idx); // A, B, C, D, E
+                const letter = String.fromCharCode(65 + idx);
                 btn.innerHTML = `<span class="text-[var(--cyan)] min-w-[20px]">[${letter}]</span><span>${opt}</span>`;
                 container.appendChild(btn);
             });
@@ -441,6 +503,7 @@
         }
 
         function endGame() {
+            stopAmbientSound();
             switchScreen('reward');
             
             let currentXpDisplay = 0;
@@ -465,7 +528,6 @@
         function evaluateResult(finalXp) {
             const container = document.getElementById('result-action-container');
             
-            // BARRERA DE CORTE: 900 XP PARA 12 PREGUNTAS
             if (finalXp >= 900) {
                 sfx.victory();
                 container.classList.add('border-[var(--cyan)]', 'shadow-[0_0_20px_rgba(0,242,255,0.15)]');
@@ -474,13 +536,13 @@
                     <p class="text-xs text-gray-300 mb-4 font-bold">Rendimiento táctico superior detectado. Acceso a beneficios autorizado.</p>
                     
                     <div class="bg-[#112240] p-3 text-center mb-4">
-                        <p class="text-lg sm:text-xl font-bold text-white tracking-widest">KREBS-TACTICAL-20</p>
+                        <p class="text-lg sm:text-xl font-bold text-white tracking-widest">KREBS-DIGESTIVO-VIP</p>
                     </div>
 
-                    <a href="https://wa.me/51941071347?text=Solicito%20coordenadas%20de%20acceso%20para%20la%20B%C3%B3veda%20Cient%C3%ADfica%20Premium" 
+                    <a href="https://wa.me/51941071347?text=Hola%2C%20he%20superado%20el%20reto%20de%20Aparato%20Digestivo%20con%20el%20código%20KREBS-DIGESTIVO-VIP" 
                        target="_blank" 
                        class="btn-tactical neon-border-cyan px-4 py-3 text-[var(--cyan)] text-xs sm:text-sm font-bold block text-center w-full bg-[#112240]/50 hover:bg-[#112240]">
-                        [ RECLAMAR ACCESO A LA BÓVEDA ]
+                        [ RECLAMAR DESCUENTO POR WHATSAPP ]
                     </a>
                 `;
             } else {

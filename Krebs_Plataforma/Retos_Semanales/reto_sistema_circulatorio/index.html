@@ -3,507 +3,659 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Reto Proyectable - Sistema Circulatorio</title>
-
+    <title>Hijos de Krebs | Reto Semanal: Sistema Circulatorio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Outfit -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Tone.js para Audio Sintético -->
+    <!-- Fuente de consola: Space Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para la síntesis de audio y ambiente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
+    
     <style>
+        :root {
+            --cyan: #00F2FF;
+            --magenta: #FF00FF;
+            --dark: #050A15;
+            --darker: #02050A;
+            --danger: #FF0040;
+            --success: #00FF00;
+        }
+
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
+            font-family: 'Space Mono', monospace;
+            background-color: var(--darker);
+            color: #ffffff;
+            overflow: hidden;
             user-select: none;
         }
 
-        .card-option {
-            background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            transition: all 0.15s ease-in-out;
+        /* Scanlines CRT */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
         }
 
-        .card-option:hover:not(:disabled) {
-            border-color: #0284c7;
-            background-color: #f0f9ff;
-            transform: translateY(-2px);
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Estilos Neón */
+        .neon-border-cyan { 
+            border: 1px solid var(--cyan); 
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3), inset 0 0 10px rgba(0, 242, 255, 0.1); 
+        }
+        .neon-text-cyan { text-shadow: 0 0 5px var(--cyan); }
+        .neon-text-magenta { text-shadow: 0 0 5px var(--magenta); color: var(--magenta); }
+
+        /* Botones holográficos */
+        .btn-tactical {
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .btn-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-tactical:hover::before { left: 100%; }
+        .btn-tactical:hover { 
+            background-color: rgba(0, 242, 255, 0.1); 
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.5); 
         }
 
-        .correct-opt {
-            border-color: #16a34a !important;
-            background: #f0fdf4 !important;
-            color: #15803d !important;
-            font-weight: 800 !important;
+        /* Opciones de respuesta */
+        .option-btn { 
+            border: 1px solid #112240; 
+            background: rgba(17, 34, 64, 0.4);
+            transition: all 0.2s; 
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--cyan);
+            background-color: rgba(0, 242, 255, 0.1);
+            padding-left: 1.5rem;
+        }
+        .option-correct { 
+            border-color: var(--success) !important; 
+            background-color: rgba(0, 255, 0, 0.1) !important; 
+            color: var(--success); 
+        }
+        .option-incorrect { 
+            border-color: var(--danger) !important; 
+            background-color: rgba(255, 0, 64, 0.1) !important; 
+            color: var(--danger); 
+            opacity: 0.6; 
         }
 
-        .incorrect-opt {
-            border-color: #dc2626 !important;
-            background-color: #fef2f2 !important;
-            color: #b91c1c !important;
+        /* Barra de Tiempo */
+        #timer-bar { transition: width 0.1s linear, background-color 0.3s; }
+        .timer-danger { 
+            background-color: var(--danger) !important; 
+            box-shadow: 0 0 15px var(--danger); 
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center justify-between p-4 sm:p-8">
+<body class="h-screen w-full flex flex-col items-center justify-center p-2 sm:p-8">
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main class="w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-10 flex flex-col justify-between my-auto space-y-6">
+    <div class="scanlines"></div>
+
+    <main class="w-full max-w-4xl h-full sm:h-[95vh] bg-[var(--dark)] border border-[#112240] sm:rounded-sm flex flex-col relative z-10 neon-border-cyan overflow-hidden p-4 sm:p-8 shadow-2xl">
         
-        <!-- CABECERA DE AULA -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-slate-100 pb-4 gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-slate-900 text-white font-black text-lg px-3 py-1.5 rounded-lg shadow">
-                    HK
-                </div>
-                <div>
-                    <span class="text-xs font-bold text-sky-600 tracking-widest uppercase block">HIJOS DE KREBS /// CÁTEDRA DE ANATOMÍA Y FISIOLOGÍA</span>
-                    <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">RETO PROYECTABLE: SISTEMA CIRCULATORIO</h1>
-                </div>
+        <!-- Cabecera -->
+        <header class="flex justify-between items-center border-b border-[#112240] pb-3 mb-4">
+            <div class="flex items-center space-x-3">
+                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors font-semibold mr-2">
+                    ← ZONA DE RETOS
+                </a>
+                <div class="w-3 h-3 bg-[var(--cyan)] rounded-full animate-pulse shadow-[0_0_8px_#00F2FF]"></div>
+                <h1 class="text-xs sm:text-base font-bold tracking-widest text-gray-400">
+                    HIJOS DE KREBS <span class="text-[var(--cyan)]">///</span> SISTEMA CIRCULATORIO
+                </h1>
             </div>
-            
-            <div class="flex items-center gap-3 self-end sm:self-auto">
-                <div class="bg-amber-50 border border-amber-200 px-4 py-1.5 rounded-xl text-center shadow-sm">
-                    <span class="block text-[9px] font-extrabold text-amber-700 uppercase tracking-wider">TIEMPO</span>
-                    <span id="timer-display" class="text-lg font-black text-amber-600 font-mono">60s</span>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-200 px-4 py-1.5 rounded-xl text-right shadow-sm">
-                    <span class="block text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider">ACIERTOS</span>
-                    <span id="score-display" class="text-lg font-black text-emerald-600">00 / 10</span>
-                </div>
+            <div class="text-xs sm:text-sm text-gray-500 font-bold">
+                XP TOTAL: <span id="header-xp" class="text-[var(--cyan)]">0</span>
             </div>
         </header>
 
-        <!-- BARRA DE PROGRESO -->
-        <div class="space-y-1.5">
-            <div class="flex justify-between items-center text-xs font-bold tracking-wider">
-                <span id="question-number" class="text-sky-600">PREGUNTA 01 / 10</span>
-                <span id="difficulty-tag" class="px-2.5 py-0.5 rounded-full text-[10px] uppercase">DIFICULTAD</span>
+        <!-- PANTALLA 1: INICIO -->
+        <section id="screen-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div class="space-y-3">
+                <h2 class="text-2xl sm:text-4xl font-bold neon-text-cyan">>_ SISTEMA CIRCULATORIO</h2>
+                <p class="neon-text-magenta text-xs sm:text-sm font-bold tracking-widest uppercase">Entrenamiento de Campo - Nivel Avanzado</p>
             </div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
-                <div id="progress-bar" class="bg-sky-600 h-full w-0 transition-all duration-300"></div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE EVALUACIÓN -->
-        <section id="quiz-container" class="space-y-6">
-            <!-- ENUNCIADO DE ALTA VISIBILIDAD -->
-            <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-inner">
-                <h2 id="question-text" class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug uppercase tracking-tight">
-                    CARGANDO REACTIVO EVALUATIVO...
-                </h2>
-            </div>
-
-            <!-- CONTENEDOR DE ALTERNATIVAS -->
-            <div id="options-container" class="grid grid-cols-1 gap-3.5">
-                <!-- Generado dinámicamente -->
-            </div>
-
-            <!-- RETROALIMENTACIÓN Y BOTÓN SIGUIENTE -->
-            <div id="feedback-panel" class="hidden bg-sky-50 border-l-8 border-sky-600 p-5 rounded-xl space-y-3">
-                <div>
-                    <span id="feedback-title" class="text-xs font-black uppercase tracking-wider text-sky-800 block mb-1">>>> RETROALIMENTACIÓN CÁTEDRA</span>
-                    <p id="explanation-text" class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed"></p>
-                </div>
-                <button id="next-btn" onclick="siguientePregunta()" class="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white font-extrabold text-sm tracking-wider uppercase rounded-xl hover:bg-sky-600 transition-colors shadow-lg">
-                    Siguiente Reactivo →
-                </button>
-            </div>
-        </section>
-
-        <!-- PANTALLA FINAL DE RESULTADOS CON CALL TO ACTION -->
-        <section id="results-screen" class="hidden flex-col items-center justify-center space-y-6 py-6 text-center">
-            <div id="badge-icon" class="text-6xl animate-bounce">🫀</div>
             
-            <div>
-                <h2 id="results-title" class="text-3xl font-black text-slate-900 tracking-tight uppercase">RETO CONCLUIDO</h2>
-                <p id="results-subtitle" class="text-base text-slate-600 font-medium mt-1">Evaluación presencial de Sistema Circulatorio completada.</p>
+            <div class="p-4 sm:p-6 border border-[#112240] bg-black/60 text-left max-w-lg w-full text-xs sm:text-sm text-gray-400 space-y-3 shadow-inner">
+                <p class="text-[var(--cyan)] mb-2 font-bold">> PARÁMETROS DE LA MISIÓN:</p>
+                <p>• 10 Interceptaciones (5 Alternativas).</p>
+                <p>• <span class="text-white font-bold">60 Segundos</span> por bloque.</p>
+                <p>• <span class="text-[var(--magenta)]">XP Máximo:</span> 1000 XP.</p>
+                <p class="mt-4 pt-4 border-t border-[#112240] text-[var(--danger)] font-bold text-center">
+                    BARRERA DE CORTE: 700 XP PARA DESBLOQUEAR RECOMPENSA.
+                </p>
             </div>
 
-            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 max-w-md w-full shadow-sm space-y-3">
-                <div class="flex justify-between items-center text-base font-bold">
-                    <span class="text-slate-500">Aciertos Totales:</span>
-                    <span id="final-score" class="text-slate-900 text-xl font-black">0 / 10</span>
-                </div>
-                <div class="flex justify-between items-center text-base font-bold">
-                    <span class="text-slate-500">Rendimiento Operativo:</span>
-                    <span id="final-percent" class="text-sky-600 text-xl font-black">0%</span>
-                </div>
-            </div>
-
-            <!-- BANNER DE CONVERSIÓN Y ACCESO A BÓVEDA MAESTRA -->
-            <div class="bg-gradient-to-r from-sky-900 to-slate-900 text-white p-6 rounded-2xl max-w-md w-full shadow-xl space-y-4 text-left">
-                <div>
-                    <span class="bg-sky-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider">MÁS RECURSOS DE ESTUDIO</span>
-                    <h3 class="text-lg font-black mt-2">¿QUIERES ACCESO A LA BÓVEDA MAESTRA?</h3>
-                    <p class="text-xs text-sky-200 mt-1 leading-relaxed">
-                        Accede a simuladores interactivos, bancos explicados en video y carpetas de trabajo con el Maestro Antonio.
-                    </p>
-                </div>
-                
-                <a href="https://wa.me/51941071347?text=Hola,%20Maestro%20Antonio.%20Particip%C3%A9%20en%20el%20Reto%20de%20Sistema%20Circulatorio%20y%20quiero%20solicitar%20acceso%20a%20la%20B%C3%B3veda%20Maestra." 
-                   target="_blank" 
-                   class="block w-full py-3.5 bg-emerald-500 text-slate-950 font-black text-center text-xs uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/30">
-                    📲 SOLICITAR ACCESO EN WHATSAPP
-                </a>
-            </div>
-
-            <div class="flex gap-4 w-full max-w-md">
-                <button onclick="reiniciarEvaluacion()" class="w-full py-3 bg-slate-200 text-slate-800 font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-300 transition-colors">
-                    Reiniciar Reto de Aula
-                </button>
-            </div>
+            <button onclick="startGame()" class="btn-tactical neon-border-cyan px-8 py-4 text-[var(--cyan)] font-bold text-base sm:text-lg w-full max-w-lg mt-4">
+                [ INICIAR MISIÓN ]
+            </button>
         </section>
 
-        <!-- FOOTER DE CÁTEDRA -->
-        <footer class="border-t border-slate-100 pt-3 flex justify-between items-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            <span>Cátedra de Biología y Anatomía • Doc. Antonio</span>
-            <span>Hijos de Krebs</span>
-        </footer>
+        <!-- PANTALLA 2: JUEGO -->
+        <section id="screen-game" class="flex-1 flex-col hidden relative">
+            
+            <!-- Timer -->
+            <div class="w-full bg-black h-2 mb-2 rounded-sm overflow-hidden border border-[#112240]">
+                <div id="timer-bar" class="h-full bg-[var(--cyan)] w-full shadow-[0_0_10px_#00F2FF]"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold mb-4">
+                <span id="timer-text" class="text-[var(--cyan)] tracking-widest">T-MINUS: 60.0s</span>
+                <span class="text-gray-500">BLOQUE: <span id="question-progress" class="text-white">1/10</span></span>
+            </div>
 
+            <!-- Pregunta -->
+            <div class="mb-4 h-auto min-h-[80px]">
+                <p class="text-[var(--magenta)] text-[10px] sm:text-xs mb-1 uppercase font-bold">> Interceptación de datos:</p>
+                <h3 id="question-text" class="text-sm sm:text-lg font-bold leading-relaxed text-white"></h3>
+            </div>
+
+            <!-- 5 Alternativas -->
+            <div id="options-container" class="space-y-2 sm:space-y-3 flex-1 flex flex-col justify-start overflow-y-auto pb-4">
+                <!-- Inyectado por JS -->
+            </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedback-msg" class="absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-base sm:text-2xl hidden z-20 w-full text-center"></div>
+        </section>
+
+        <!-- PANTALLA 3: RESULTADOS -->
+        <section id="screen-reward" class="flex-1 flex-col items-center justify-center text-center hidden">
+            <h2 class="text-2xl sm:text-3xl font-bold neon-text-cyan mb-6 uppercase">Simulación Finalizada</h2>
+            
+            <div class="flex flex-row gap-4 w-full max-w-md mx-auto mb-8">
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">XP TOTAL</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-[var(--cyan)]" id="final-xp">0</p>
+                </div>
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">PRECISIÓN</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white" id="final-accuracy">0/10</p>
+                </div>
+            </div>
+
+            <div id="result-action-container" class="w-full max-w-md mx-auto p-4 sm:p-6 bg-black border">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
     </main>
 
     <script>
-        // BANCO DE 10 PREGUNTAS EN MAYÚSCULAS
-        const preguntas = [
+        // --- MOTOR DE AUDIO INMERSIVO (Estilo Brilliant / Cyberpunk EdTech) ---
+        let synth;
+        let ambientPad;
+        let ambientLoop;
+        let audioInit = false;
+
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -10;
+
+                ambientPad = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                }).toDestination();
+                ambientPad.volume.value = -26;
+
+                const arpSynth = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                arpSynth.volume.value = -32;
+
+                const filter = new Tone.Filter(800, "lowpass").toDestination();
+                arpSynth.connect(filter);
+
+                const arpNotes = ["C3", "G3", "D#4", "A#3", "G3", "C4"];
+                let step = 0;
+
+                ambientLoop = new Tone.Loop(time => {
+                    arpSynth.triggerAttackRelease(arpNotes[step % arpNotes.length], "16n", time);
+                    step++;
+                }, "8n");
+
+                audioInit = true;
+            }
+        }
+
+        function startAmbientSound() {
+            if (!audioInit) return;
+            try {
+                Tone.Transport.bpm.value = 90;
+                Tone.Transport.start();
+                ambientPad.triggerAttack(["C3", "G3", "A#3", "D#4"]);
+                ambientLoop.start(0);
+            } catch (e) {}
+        }
+
+        function stopAmbientSound() {
+            try {
+                if (ambientPad) {
+                    ambientPad.triggerRelease(["C3", "G3", "A#3", "D#4"]);
+                }
+                if (ambientLoop) {
+                    ambientLoop.stop();
+                    Tone.Transport.stop();
+                }
+            } catch (e) {}
+        }
+
+        const sfx = {
+            hover: () => { if(audioInit) synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.04); },
+            click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
+            correct: () => { if(audioInit) synth.triggerAttackRelease(["C5", "G5", "C6"], "8n"); },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["D#3", "A2"], "8n"); },
+            timeout: () => { if(audioInit) synth.triggerAttackRelease(["G2", "C2"], "4n"); },
+            victory: () => { if(audioInit) {
+                stopAmbientSound();
+                const now = Tone.now();
+                synth.triggerAttackRelease("C4", "16n", now);
+                synth.triggerAttackRelease("G4", "16n", now + 0.12);
+                synth.triggerAttackRelease("C5", "8n", now + 0.24);
+                synth.triggerAttackRelease("E5", "4n", now + 0.36);
+            }},
+            defeat: () => { if(audioInit) {
+                stopAmbientSound();
+                synth.triggerAttackRelease(["G3", "D#3", "C3"], "2n");
+            }}
+        };
+
+        // --- MATRIZ DE PREGUNTAS (Sistema Circulatorio) ---
+        const questions = [
             {
-                nivel: "FÁCIL",
-                pregunta: "1. ¿CUÁL ES EL COMPONENTE LÍQUIDO EXTRACELULAR DE LA SANGRE QUE TRANSPORTA AGUA, NUTRIENTES, HORMONAS, ELECTROLITOS Y DESECHOS METABÓLICOS A TRAVÉS DE TODO EL SISTEMA CIRCULATORIO?",
-                opciones: [
-                    "A) EL PLASMA SANGUÍNEO",
-                    "B) EL CITOSOL",
-                    "C) LA LINFA HISTOLÓGICA",
-                    "D) EL LÍQUIDO CEFALORRAQUÍDEO",
-                    "E) EL LÍQUIDO SINOVIAL"
+                q: "¿CUÁL ES EL COMPONENTE LÍQUIDO EXTRACELULAR DE LA SANGRE QUE TRANSPORTA AGUA, NUTRIENTES, HORMONAS, ELECTROLITOS Y DESECHOS METABÓLICOS A TRAVÉS DE TODO EL SISTEMA CIRCULATORIO?",
+                options: [
+                    "EL PLASMA SANGUÍNEO",
+                    "EL CITOSOL",
+                    "LA LINFA HISTOLÓGICA",
+                    "EL LÍQUIDO CEFALORRAQUÍDEO",
+                    "EL LÍQUIDO SINOVIAL"
                 ],
-                correcta: 0,
-                explicacion: "El plasma sanguíneo constituye la fracción líquida de la sangre en la que se encuentran suspendidos los elementos figurados y disueltos los nutrientes, gases y desechos metabólicos."
+                correct: 0
             },
             {
-                nivel: "INTERMEDIO",
-                pregunta: "2. ¿QUÉ TIPO DE VASOS SANGUÍNEOS DE CALIBRE MICROSCÓPICO POSEEN UNA PARED EXTREMADAMENTE DELGADA QUE FACILITA EL INTERCAMBIO DE GASES Y NUTRIENTES ENTRE LA SANGRE Y LOS TEJIDOS TISULARES?",
-                opciones: [
-                    "A) LAS ARTERIAS ELÁSTICAS",
-                    "B) LOS CAPILARES SANGUÍNEOS",
-                    "C) LAS VENAS DE GRAN CALIBRE",
-                    "D) LOS CONDUCTOS DEFERENTES",
-                    "E) LAS ARTERIAS CORONARIAS"
+                q: "¿QUÉ TIPO DE VASOS SANGUÍNEOS DE CALIBRE MICROSCÓPICO POSEEN UNA PARED EXTREMADAMENTE DELGADA QUE FACILITA EL INTERCAMBIO DE GASES Y NUTRIENTES ENTRE LA SANGRE Y LOS TEJIDOS TISULARES?",
+                options: [
+                    "LAS ARTERIAS ELÁSTICAS",
+                    "LOS CAPILARES SANGUÍNEOS",
+                    "LAS VENAS DE GRAN CALIBRE",
+                    "LOS CONDUCTOS DEFERENTES",
+                    "LAS ARTERIAS CORONARIAS"
                 ],
-                correcta: 1,
-                explicacion: "Los capilares sanguíneos son vasos microscópicos caracterizados por paredes delgadas que permiten la difusión e intercambio eficiente de gases, agua y solutos entre el plasma y los tejidos."
+                correct: 1
             },
             {
-                nivel: "DIFÍCIL",
-                pregunta: "3. DURANTE UNA RESPUESTA DE ALERTA O ESTRÉS, EL SISTEMA NERVIOSO AUTÓNOMO SIMPÁTICO ACTÚA SOBRE EL SISTEMA CARDIOVASCULAR. ¿QUÉ EFECTO FISIOLÓGICO ESPECÍFICO PROVOCA ESTA ESTIMULACIÓN SOBRE LA DINÁMICA CARDÍACA?",
-                opciones: [
-                    "A) DISMINUCIÓN DE LA FRECUENCIA CARDÍACA Y BRONCOCONSTRICCIÓN",
-                    "B) PARÁLISIS DEL MÚSCULO DETRUSOR CARDÍACO",
-                    "C) INCREMENTO DE LA FRECUENCIA CARDÍACA Y DEL GASTO CARDÍACO",
-                    "D) BLOQUEO COMPLETO DE LA PERFUSIÓN CAPILAR EN LOS MÚSCULOS",
-                    "E) REDUCCIÓN DE LA SÍNTESIS DE HEMOGLOBINA EN EL MIOCARDIO"
+                q: "DURANTE UNA RESPUESTA DE ALERTA O ESTRÉS, EL SISTEMA NERVIOSO AUTÓNOMO SIMPÁTICO ACTÚA SOBRE EL SISTEMA CARDIOVASCULAR. ¿QUÉ EFECTO FISIOLÓGICO ESPECÍFICO PROVOCA ESTA ESTIMULACIÓN SOBRE LA DINÁMICA CARDÍACA?",
+                options: [
+                    "DISMINUCIÓN DE LA FRECUENCIA CARDÍACA Y BRONCOCONSTRICCIÓN",
+                    "PARÁLISIS DEL MÚSCULO DETRUSOR CARDÍACO",
+                    "INCREMENTO DE LA FRECUENCIA CARDÍACA Y DEL GASTO CARDÍACO",
+                    "BLOQUEO COMPLETO DE LA PERFUSIÓN CAPILAR EN LOS MÚSCULOS",
+                    "REDUCCIÓN DE LA SÍNTESIS DE HEMOGLOBINA EN EL MIOCARDIO"
                 ],
-                correcta: 2,
-                explicacion: "La estimulación del sistema nervioso simpático incrementa la frecuencia cardíaca y la fuerza de contracción del corazón para optimizar el aporte sanguíneo durante situaciones de emergencia."
+                correct: 2
             },
             {
-                nivel: "INTERMEDIO",
-                pregunta: "4. ¿CUÁL ES LA PROTEÍNA CUATERNARIA PRESENTE EN LOS ERITROCITOS ENCARGADA DE UNIRSE DE MANERA REVERSIBLE AL OXÍGENO MOLECULAR PARA SU TRANSPORTE SISTÉMICO?",
-                opciones: [
-                    "A) LA MIOGLOBINA",
-                    "B) LA ANHIDRASA CARBÓNICA",
-                    "C) LA ALBÚMINA",
-                    "D) LA HEMOGLOBINA",
-                    "E) LA PROLACTINA"
+                q: "¿CUÁL ES LA PROTEÍNA CUATERNARIA PRESENTE EN LOS ERITROCITOS ENCARGADA DE UNIRSE DE MANERA REVERSIBLE AL OXÍGENO MOLECULAR PARA SU TRANSPORTE SISTÉMICO?",
+                options: [
+                    "LA MIOGLOBINA",
+                    "LA ANHIDRASA CARBÓNICA",
+                    "LA ALBÚMINA",
+                    "LA HEMOGLOBINA",
+                    "LA PROLACTINA"
                 ],
-                correcta: 3,
-                explicacion: "La hemoglobina es la proteína contenida en los glóbulos rojos que fija de forma reversible las moléculas de O₂ para distribuirlas desde los alvéolos hacia los tejidos."
+                correct: 3
             },
             {
-                nivel: "FÁCIL",
-                pregunta: "5. LOS ELEMENTOS FIGURADOS DE LA SANGRE ESPECIALIZADOS EN LA DEFENSA ESTRUCTURAL DEL ORGANISMO CONTRA INFECCIONES Y PATÓGENOS SE DENOMINAN:",
-                opciones: [
-                    "A) ERITROCITOS",
-                    "B) NEUMOCITOS TIPO I",
-                    "C) TROMBOCITOS",
-                    "D) ASTROCITOS",
-                    "E) LEUCOCITOS"
+                q: "LOS ELEMENTOS FIGURADOS DE LA SANGRE ESPECIALIZADOS EN LA DEFENSA ESTRUCTURAL DEL ORGANISMO CONTRA INFECCIONES Y PATÓGENOS SE DENOMINAN:",
+                options: [
+                    "ERITROCITOS",
+                    "NEUMOCITOS TIPO I",
+                    "TROMBOCITOS",
+                    "ASTROCITOS",
+                    "LEUCOCITOS"
                 ],
-                correcta: 4,
-                explicacion: "Los leucocitos o glóbulos blancos son las células sanguíneas encargadas de ejecutar los mecanismos de defensa e inmunidad."
+                correct: 4
             },
             {
-                nivel: "DIFÍCIL",
-                pregunta: "6. EN EL SISTEMA NERVIOSO CENTRAL, ¿EN QUÉ ESTRUCTURA DEL TRONCO ENCEFÁLICO SE LOCALIZAN LOS CENTROS REFLEJOS VITALES ENCARGADOS DE LA REGULACIÓN CARDIOVASCULAR Y LA PRESIÓN ARTERIAL?",
-                opciones: [
-                    "A) EN EL BULBO RAQUÍDEO",
-                    "B) EN EL CEREBELO",
-                    "C) EN EL LÓBULO FRONTAL",
-                    "D) EN EL CUERPO CALLOSO",
-                    "E) EN LA HIPÓFISIS ANTERIOR"
+                q: "EN EL SISTEMA NERVIOSO CENTRAL, ¿EN QUÉ ESTRUCTURA DEL TRONCO ENCEFÁLICO SE LOCALIZAN LOS CENTROS REFLEJOS VITALES ENCARGADOS DE LA REGULACIÓN CARDIOVASCULAR Y LA PRESIÓN ARTERIAL?",
+                options: [
+                    "EN EL BULBO RAQUÍDEO",
+                    "EN EL CEREBELO",
+                    "EN EL LÓBULO FRONTAL",
+                    "EN EL CUERPO CALLOSO",
+                    "EN LA HIPÓFISIS ANTERIOR"
                 ],
-                correcta: 0,
-                explicacion: "El bulbo raquídeo (o médula oblonga) en el tronco encefálico contiene los centros reguladores autónomos esenciales para el control cardíaco y de la presión vascular."
+                correct: 0
             },
             {
-                nivel: "INTERMEDIO",
-                pregunta: "7. ¿CÓMO SE DENOMINA EL PROCESO FISIOLÓGICO DE DESTRUCCIÓN Y ELIMINACIÓN DE ERITROCITOS VIEJOS O DESTRUCTURADOS QUE TIENE LUGAR EN LA PULPA ROJA DEL BAZO?",
-                opciones: [
-                    "A) HEMATALGESIA",
-                    "B) HEMOCATÉRESIS",
-                    "C) ERITROPOYESIS",
-                    "D) OPSONIZACIÓN",
-                    "E) HEMOSTASIA"
+                q: "¿CÓMO SE DENOMINA EL PROCESO FISIOLÓGICO DE DESTRUCCIÓN Y ELIMINACIÓN DE ERITROCITOS VIEJOS O DESTRUCTURADOS QUE TIENE LUGAR EN LA PULPA ROJA DEL BAZO?",
+                options: [
+                    "HEMATALGESIA",
+                    "HEMOCATÉRESIS",
+                    "ERITROPOYESIS",
+                    "OPSONIZACIÓN",
+                    "HEMOSTASIA"
                 ],
-                correcta: 1,
-                explicacion: "La hemocatéresis es la eliminación y degradación de los glóbulos rojos envejecidos realizada por los macrófagos en la pulpa roja del bazo."
+                correct: 1
             },
             {
-                nivel: "FÁCIL",
-                pregunta: "8. ¿QUÉ HORMONA SECRETADA POR EL RIÑÓN ANTE LA DISMINUCIÓN DE OXÍGENO EN LOS TEJIDOS ESTIMULA LA SÍNTESIS DE NUEVOS ERITROCITOS EN LA MÉDULA ÓSEA ROJA?",
-                opciones: [
-                    "A) LA INSULINA",
-                    "B) LA ANGIOTENSINA",
-                    "C) LA ERITROPOYETINA",
-                    "D) LA VASOPRESINA",
-                    "E) LA TIROXINA"
+                q: "¿QUÉ HORMONA SECRETADA POR EL RIÑÓN ANTE LA DISMINUCIÓN DE OXÍGENO EN LOS TEJIDOS ESTIMULA LA SÍNTESIS DE NUEVOS ERITROCITOS EN LA MÉDULA ÓSEA ROJA?",
+                options: [
+                    "LA INSULINA",
+                    "LA ANGIOTENSINA",
+                    "LA ERITROPOYETINA",
+                    "LA VASOPRESINA",
+                    "LA TIROXINA"
                 ],
-                correcta: 2,
-                explicacion: "La eritropoyetina (EPO) es la hormona renal que estimula la eritropoyesis en la médula ósea roja para mantener la producción adecuada de glóbulos rojos."
+                correct: 2
             },
             {
-                nivel: "DIFÍCIL",
-                pregunta: "9. EN LA FISIOLOGÍA RENAL, LA SANGRE INGRESA AL CORPÚSCULO RENAL PARA SER FILTRADA A TRAVÉS DE UN OVILLO DE CAPILARES DE ALTA PRESIÓN DENOMINADO:",
-                opciones: [
-                    "A) TÚBULO CONTORNEADO DISTAL",
-                    "B) CONDUCTO COLECTOR",
-                    "C) ASA DE HENLE",
-                    "D) GLOMÉRULO RENAL",
-                    "E) URÉTER RETROPERITONEAL"
+                q: "EN LA FISIOLOGÍA RENAL, LA SANGRE INGRESA AL CORPÚSCULO RENAL PARA SER FILTRADA A TRAVÉS DE UN OVILLO DE CAPILARES DE ALTA PRESIÓN DENOMINADO:",
+                options: [
+                    "TÚBULO CONTORNEADO DISTAL",
+                    "CONDUCTO COLECTOR",
+                    "ASA DE HENLE",
+                    "GLOMÉRULO RENAL",
+                    "URÉTER RETROPERITONEAL"
                 ],
-                correcta: 3,
-                explicacion: "El glomérulo renal es la red capilar fenestrada contenida en la cápsula de Bowman donde se ejerce la presión hidrostática para la filtración del plasma."
+                correct: 3
             },
             {
-                nivel: "INTERMEDIO",
-                pregunta: "10. ¿QUÉ COMPONENTES CELULARES O FRAGMENTOS CITOPLASMÁTICOS DE LA SANGRE PARTICIPAN DIRECTAMENTE EN LOS MECANISMOS DE COAGULACIÓN Y HEMOSTASIA PARA EVITAR PÉRDIDAS SANGUÍNEAS?",
-                opciones: [
-                    "A) LOS NEUTRÓFILOS",
-                    "B) LOS MONOCITOS",
-                    "C) LOS LINFOCITOS T CD8⁺",
-                    "D) LOS EOSINÓFILOS",
-                    "E) TROMBOCITOS"
+                q: "¿QUÉ COMPONENTES CELULARES O FRAGMENTOS CITOPLASMÁTICOS DE LA SANGRE PARTICIPAN DIRECTAMENTE EN LOS MECANISMOS DE COAGULACIÓN Y HEMOSTASIA PARA EVITAR PÉRDIDAS SANGUÍNEAS?",
+                options: [
+                    "LOS NEUTRÓFILOS",
+                    "LOS MONOCITOS",
+                    "LOS LINFOCITOS T CD8⁺",
+                    "LOS EOSINÓFILOS",
+                    "TROMBOCITOS"
                 ],
-                correcta: 4,
-                explicacion: "Las plaquetas (o trombocitos) son fragmentos celulares fundamentales en la formación del tapón hemostático y la cascada de coagulación sanguínea."
+                correct: 4
             }
         ];
 
-        // ESTADO Y TEMPORIZADOR
-        let indiceActual = 0;
-        let puntaje = 0;
-        let respondido = false;
-        let tiempoRestante = 60;
-        let timerInterval = null;
+        // --- ESTADO TÁCTICO ---
+        let state = {
+            currentQ: 0,
+            xp: 0,
+            correctCount: 0,
+            timerInterval: null,
+            startTime: 0,
+            timeLimit: 60000,
+            isLocked: false
+        };
 
-        // EFECTOS SINTÉTICOS CON PROTECCIÓN OFFLINE
-        function playSound(type) {
+        const screens = {
+            start: document.getElementById('screen-start'),
+            game: document.getElementById('screen-game'),
+            reward: document.getElementById('screen-reward')
+        };
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            screens[screenName].classList.remove('hidden');
+            screens[screenName].classList.add('flex');
+        }
+
+        async function startGame() {
             try {
-                if (typeof Tone === 'undefined') return;
-                if (Tone.context.state !== 'running') {
-                    Tone.start();
-                }
-
-                if (type === 'correct') {
-                    const synthAcc = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synthAcc.set({
-                        oscillator: { type: "triangle" },
-                        envelope: { attack: 0.005, decay: 0.08, sustain: 0.05, release: 0.3 }
-                    });
-                    
-                    const now = Tone.now();
-                    synthAcc.triggerAttackRelease("C5", "16n", now);
-                    synthAcc.triggerAttackRelease("E5", "16n", now + 0.06);
-                    synthAcc.triggerAttackRelease("G5", "16n", now + 0.12);
-                    synthAcc.triggerAttackRelease("C6", "8n", now + 0.18);
-                } else if (type === 'incorrect') {
-                    const synthErr = new Tone.Synth({
-                        oscillator: { type: "sawtooth" },
-                        envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
-                    }).toDestination();
-
-                    const now = Tone.now();
-                    synthErr.triggerAttackRelease("F3", "16n", now);
-                    synthErr.triggerAttackRelease("C3", "8n", now + 0.08);
-                } else if (type === 'victory') {
-                    const synthVic = new Tone.PolySynth(Tone.Synth).toDestination();
-                    const now = Tone.now();
-                    synthVic.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
-                    synthVic.triggerAttackRelease(["G4", "B4", "D5"], "8n", now + 0.2);
-                    synthVic.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now + 0.4);
+                if (typeof Tone !== 'undefined') {
+                    await Tone.start();
+                    initAudio();
+                    sfx.click();
+                    startAmbientSound();
                 }
             } catch (e) {
-                // Silencioso si falla el audio
+                console.log("Audio bypass activado");
             }
+            switchScreen('game');
+            loadQuestion();
         }
 
-        function iniciarTemporizador() {
-            clearInterval(timerInterval);
-            tiempoRestante = 60;
-            actualizarTimerUI();
-
-            timerInterval = setInterval(() => {
-                tiempoRestante--;
-                actualizarTimerUI();
-
-                if (tiempoRestante <= 0) {
-                    clearInterval(timerInterval);
-                    manejarTiempoAgotado();
-                }
-            }, 1000);
-        }
-
-        function actualizarTimerUI() {
-            const timerEl = document.getElementById('timer-display');
-            if (!timerEl) return;
-            timerEl.textContent = `${tiempoRestante}s`;
-            if (tiempoRestante <= 15) {
-                timerEl.className = "text-lg font-black text-red-600 font-mono animate-pulse";
-            } else {
-                timerEl.className = "text-lg font-black text-amber-600 font-mono";
-            }
-        }
-
-        function manejarTiempoAgotado() {
-            if (respondido) return;
-            respondido = true;
-
-            const q = preguntas[indiceActual];
-            const botones = document.getElementById('options-container').children;
-
-            botones[q.correcta].classList.add('correct-opt');
-            playSound('incorrect');
-
-            for (let btn of botones) {
-                btn.disabled = true;
+        function loadQuestion() {
+            if (state.currentQ >= questions.length) {
+                endGame();
+                return;
             }
 
-            document.getElementById('feedback-title').textContent = ">>> TIEMPO AGOTADO (60s)";
-            document.getElementById('explanation-text').textContent = `Se agotó el tiempo para responder este reactivo. ${q.explicacion}`;
-            document.getElementById('feedback-panel').classList.remove('hidden');
-        }
-
-        function cargarPregunta() {
-            respondido = false;
-            const q = preguntas[indiceActual];
-
-            document.getElementById('question-number').textContent = `PREGUNTA ${String(indiceActual + 1).padStart(2, '0')} / ${preguntas.length}`;
+            state.isLocked = false;
+            const q = questions[state.currentQ];
             
-            const tag = document.getElementById('difficulty-tag');
-            tag.textContent = q.nivel;
-            if (q.nivel === "FÁCIL") {
-                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-extrabold";
-            } else if (q.nivel === "INTERMEDIO") {
-                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-extrabold";
-            } else {
-                tag.className = "px-2.5 py-0.5 rounded-full text-[10px] bg-red-100 text-red-800 font-extrabold";
-            }
+            document.getElementById('question-progress').innerText = `${state.currentQ + 1}/${questions.length}`;
+            const qEl = document.getElementById('question-text');
+            qEl.innerHTML = '';
+            typeWriterEffect(qEl, q.q);
 
-            document.getElementById('progress-bar').style.width = `${((indiceActual) / preguntas.length) * 100}%`;
-            document.getElementById('question-text').textContent = q.pregunta;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
             
-            document.getElementById('feedback-panel').classList.add('hidden');
-            document.getElementById('feedback-title').textContent = ">>> RETROALIMENTACIÓN CÁTEDRA";
-
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-
-            q.opciones.forEach((opcion, index) => {
+            q.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'card-option p-4 rounded-xl text-left text-sm sm:text-base font-extrabold text-slate-800 w-full flex justify-between items-center shadow-sm uppercase';
-                btn.textContent = opcion;
-                btn.onclick = () => seleccionarOpcion(index);
-                optionsContainer.appendChild(btn);
+                btn.className = "option-btn w-full text-left p-3 sm:p-4 text-gray-300 flex items-center space-x-3 text-xs sm:text-sm font-bold";
+                btn.onmouseenter = sfx.hover;
+                btn.onclick = () => handleAnswer(idx, btn);
+                const letter = String.fromCharCode(65 + idx);
+                btn.innerHTML = `<span class="text-[var(--cyan)] min-w-[20px]">[${letter}]</span><span>${opt}</span>`;
+                container.appendChild(btn);
             });
 
-            iniciarTemporizador();
+            startTimer();
         }
 
-        function seleccionarOpcion(indexSeleccionado) {
-            if (respondido) return;
-            respondido = true;
-            clearInterval(timerInterval);
-
-            const q = preguntas[indiceActual];
-            const botones = document.getElementById('options-container').children;
-
-            if (indexSeleccionado === q.correcta) {
-                botones[indexSeleccionado].classList.add('correct-opt');
-                puntaje++;
-                playSound('correct');
-            } else {
-                botones[indexSeleccionado].classList.add('incorrect-opt');
-                botones[q.correcta].classList.add('correct-opt');
-                playSound('incorrect');
+        function typeWriterEffect(element, text, speed = 15) {
+            let i = 0;
+            element.innerHTML = '<span class="cursor-blink">_</span>';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML = text.substring(0, i+1) + '<span class="cursor-blink">_</span>';
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML = text;
+                }
             }
-
-            for (let btn of botones) {
-                btn.disabled = true;
-            }
-
-            document.getElementById('score-display').textContent = `${String(puntaje).padStart(2, '0')} / ${preguntas.length}`;
-            document.getElementById('explanation-text').textContent = q.explicacion;
-            document.getElementById('feedback-panel').classList.remove('hidden');
+            type();
         }
 
-        function siguientePregunta() {
-            clearInterval(timerInterval);
-            indiceActual++;
-            if (indiceActual < preguntas.length) {
-                cargarPregunta();
-            } else {
-                finalizarEvaluacion();
-            }
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.startTime = Date.now();
+            const bar = document.getElementById('timer-bar');
+            const txt = document.getElementById('timer-text');
+            bar.classList.remove('timer-danger');
+
+            state.timerInterval = setInterval(() => {
+                if (state.isLocked) {
+                    clearInterval(state.timerInterval);
+                    return;
+                }
+
+                const elapsed = Date.now() - state.startTime;
+                const remainingMs = state.timeLimit - elapsed;
+
+                if (remainingMs <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleTimeout();
+                    return;
+                }
+
+                const remainingSecs = (remainingMs / 1000).toFixed(1);
+                const percent = (remainingMs / state.timeLimit) * 100;
+                
+                txt.innerText = `T-MINUS: ${remainingSecs}s`;
+                bar.style.width = `${percent}%`;
+
+                if (remainingMs < 10000) {
+                    txt.classList.replace('text-[var(--cyan)]', 'text-[var(--danger)]');
+                    bar.classList.add('timer-danger');
+                } else {
+                    txt.classList.replace('text-[var(--danger)]', 'text-[var(--cyan)]');
+                    bar.classList.remove('timer-danger');
+                }
+            }, 50);
         }
 
-        function finalizarEvaluacion() {
-            clearInterval(timerInterval);
-            document.getElementById('quiz-container').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('hidden');
-            document.getElementById('results-screen').classList.add('flex');
+        function handleAnswer(selectedIndex, btnElement) {
+            if (state.isLocked) return;
+            state.isLocked = true;
+            clearInterval(state.timerInterval);
 
-            const porcentaje = Math.round((puntaje / preguntas.length) * 100);
+            const elapsed = Date.now() - state.startTime;
+            const q = questions[state.currentQ];
+            const isCorrect = selectedIndex === q.correct;
             
-            document.getElementById('final-score').textContent = `${puntaje} / ${preguntas.length}`;
-            document.getElementById('final-percent').textContent = `${porcentaje}%`;
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correct) b.classList.add('option-correct');
+            });
 
-            if (porcentaje >= 70) {
-                document.getElementById('results-title').textContent = "RETO SUPERADO";
-                document.getElementById('results-subtitle').textContent = "Excelente desempeño en el dominio conceptual del Sistema Circulatorio.";
-                document.getElementById('badge-icon').textContent = "🏆";
-                playSound('victory');
+            if (isCorrect) {
+                sfx.correct();
+                state.correctCount++;
+                
+                let earnedXp = 0;
+                if (elapsed <= 5000) {
+                    earnedXp = 100;
+                } else {
+                    const decayFactor = (elapsed - 5000) / 55000;
+                    earnedXp = Math.floor(100 - (decayFactor * 80));
+                }
+                
+                state.xp += earnedXp;
+                document.getElementById('header-xp').innerText = state.xp;
+                showFeedback(`>_ INTERCEPTACIÓN CORRECTA: +${earnedXp} XP`, true);
             } else {
-                document.getElementById('results-title').textContent = "RETO FINALIZADO";
-                document.getElementById('results-subtitle').textContent = "Buen intento. Revisa los conceptos explicados para afianzar tu preparación.";
-                document.getElementById('badge-icon').textContent = "🫀";
+                sfx.error();
+                btnElement.classList.add('option-incorrect');
+                showFeedback(`>_ FALLO CRÍTICO: 0 XP`, false);
             }
+
+            setTimeout(nextQuestion, 1500);
         }
 
-        function reiniciarEvaluacion() {
-            indiceActual = 0;
-            puntaje = 0;
-            document.getElementById('score-display').textContent = `00 / ${preguntas.length}`;
-            document.getElementById('results-screen').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('flex');
-            document.getElementById('quiz-container').classList.remove('hidden');
-            cargarPregunta();
+        function handleTimeout() {
+            state.isLocked = true;
+            sfx.timeout();
+            
+            const txt = document.getElementById('timer-text');
+            const bar = document.getElementById('timer-bar');
+            txt.innerText = `T-MINUS: 0.0s`;
+            bar.style.width = `0%`;
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            const correctIdx = questions[state.currentQ].correct;
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === correctIdx) b.classList.add('option-correct');
+            });
+
+            showFeedback(`>_ TIEMPO AGOTADO: 0 XP`, false);
+            setTimeout(nextQuestion, 1500);
         }
 
-        // EJECUCIÓN INMEDIATA Y ROBUSTA
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', cargarPregunta);
-        } else {
-            cargarPregunta();
+        function showFeedback(msg, isSuccess) {
+            const el = document.getElementById('feedback-msg');
+            el.innerText = msg;
+            
+            if(isSuccess) {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--success)] bg-black/95 border-y border-[var(--success)] shadow-[0_0_20px_rgba(0,255,0,0.2)]';
+            } else {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--danger)] bg-black/95 border-y border-[var(--danger)] shadow-[0_0_20px_rgba(255,0,64,0.2)]';
+            }
+            
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 1400);
+        }
+
+        function nextQuestion() {
+            state.currentQ++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            stopAmbientSound();
+            switchScreen('reward');
+            
+            let currentXpDisplay = 0;
+            const targetXp = state.xp;
+            const xpEl = document.getElementById('final-xp');
+            
+            const interval = setInterval(() => {
+                currentXpDisplay += Math.ceil(targetXp / 20) || 1;
+                if(currentXpDisplay >= targetXp) {
+                    currentXpDisplay = targetXp;
+                    clearInterval(interval);
+                    xpEl.innerText = targetXp;
+                    evaluateResult(targetXp);
+                } else {
+                    xpEl.innerText = currentXpDisplay;
+                }
+            }, 50);
+
+            document.getElementById('final-accuracy').innerText = `${state.correctCount}/${questions.length}`;
+        }
+
+        function evaluateResult(finalXp) {
+            const container = document.getElementById('result-action-container');
+            
+            if (finalXp >= 700) {
+                sfx.victory();
+                container.classList.add('border-[var(--cyan)]', 'shadow-[0_0_20px_rgba(0,242,255,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--cyan)] mb-2 uppercase tracking-widest">> PROTOCOLO DESENCRIPTADO</p>
+                    <p class="text-xs text-gray-300 mb-4 font-bold">Rendimiento táctico superior detectado. Acceso a beneficios autorizado.</p>
+                    
+                    <div class="bg-[#112240] p-3 text-center mb-4">
+                        <p class="text-lg sm:text-xl font-bold text-white tracking-widest">KREBS-CIRCULATORIO-VIP</p>
+                    </div>
+
+                    <a href="https://wa.me/51941071347?text=Hola%2C%20he%20superado%20el%20reto%20de%20Sistema%20Circulatorio%20con%20el%20c%C3%B3digo%20KREBS-CIRCULATORIO-VIP" 
+                       target="_blank" 
+                       class="btn-tactical neon-border-cyan px-4 py-3 text-[var(--cyan)] text-xs sm:text-sm font-bold block text-center w-full bg-[#112240]/50 hover:bg-[#112240]">
+                        [ RECLAMAR DESCUENTO POR WHATSAPP ]
+                    </a>
+                `;
+            } else {
+                sfx.defeat();
+                container.classList.add('border-[var(--danger)]', 'shadow-[0_0_20px_rgba(255,0,64,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--danger)] mb-3 uppercase tracking-widest">> MÉTRICAS INACEPTABLES</p>
+                    <p class="text-xs text-gray-300 mb-6 leading-relaxed font-bold">Puntaje insuficiente (Requiere 700 XP). Entrena tu velocidad y precisión.</p>
+                    
+                    <button onclick="location.reload()" 
+                            class="border border-[var(--danger)] shadow-[0_0_15px_rgba(255,0,64,0.3)] px-4 py-3 text-[var(--danger)] text-xs sm:text-sm font-bold block w-full text-center hover:bg-[var(--danger)] hover:text-white transition-colors uppercase tracking-widest">
+                        > REINICIAR SISTEMA
+                    </button>
+                `;
+            }
         }
     </script>
 </body>
