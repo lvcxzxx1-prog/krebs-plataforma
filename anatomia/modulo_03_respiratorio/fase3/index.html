@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Fase 3: Efecto Krebs - Aparato Respiratorio</title>
+    <title>HIJOS DE KREBS /// APARATO RESPIRATORIO - FASE 03 (ÉLITE)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuente Space Mono -->
+    <!-- Fuente de consola: Space Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para efectos de sonido -->
+    <!-- Tone.js para la síntesis de audio y ambiente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     
     <style>
         :root {
             --cyan: #00F2FF;
-            --magenta: #FF00E5;
-            --dark: #050505;
+            --magenta: #FF00FF;
+            --dark: #050A15;
+            --darker: #02050A;
             --danger: #FF0040;
             --success: #00FF00;
             --elite: #FFD700;
@@ -23,11 +24,14 @@
 
         body {
             font-family: 'Space Mono', monospace;
-            background-color: var(--dark);
+            background-color: var(--darker);
             color: #ffffff;
-            overflow-x: hidden;
+            overflow: hidden;
+            user-select: none;
+            text-transform: uppercase;
         }
 
+        /* Scanlines CRT */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -35,358 +39,635 @@
                 to bottom,
                 rgba(255,255,255,0),
                 rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.25) 50%,
-                rgba(0,0,0,0.25)
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
             );
             background-size: 100% 4px;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 999;
         }
 
-        .neon-border-elite { border: 1px solid var(--elite); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .option-btn {
-            background: rgba(34, 34, 17, 0.4);
-            border: 1px solid #332211;
+        /* Estilos Neón Élite */
+        .neon-border-elite { 
+            border: 1px solid var(--elite); 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3), inset 0 0 10px rgba(255, 215, 0, 0.1); 
+        }
+        .neon-text-elite { text-shadow: 0 0 8px var(--elite); color: var(--elite); }
+        .neon-text-magenta { text-shadow: 0 0 5px var(--magenta); color: var(--magenta); }
+
+        /* Botones holográficos */
+        .btn-tactical {
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
         }
-        .option-btn:hover {
+        .btn-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-tactical:hover::before { left: 100%; }
+        .btn-tactical:hover { 
+            background-color: rgba(255, 215, 0, 0.1); 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); 
+        }
+
+        /* Opciones de respuesta */
+        .option-btn { 
+            border: 1px solid #332211; 
+            background: rgba(34, 34, 17, 0.4);
+            transition: all 0.2s; 
+        }
+        .option-btn:hover:not(:disabled) {
             border-color: var(--elite);
-            background: rgba(255, 215, 0, 0.1);
-            transform: translateX(5px);
+            background-color: rgba(255, 215, 0, 0.1);
+            padding-left: 1.5rem;
         }
-        .option-btn.selected-correct {
-            background: rgba(0, 255, 0, 0.2) !important;
-            border-color: var(--success) !important;
-            color: var(--success);
+        .option-correct { 
+            border-color: var(--success) !important; 
+            background-color: rgba(0, 255, 0, 0.15) !important; 
+            color: var(--success); 
         }
-        .option-btn.selected-incorrect {
-            background: rgba(255, 0, 64, 0.2) !important;
-            border-color: var(--danger) !important;
-            color: var(--danger);
+        .option-incorrect { 
+            border-color: var(--danger) !important; 
+            background-color: rgba(255, 0, 64, 0.15) !important; 
+            color: var(--danger); 
+            opacity: 0.8; 
+        }
+
+        /* Barra de Tiempo */
+        #timer-bar { transition: width 0.1s linear, background-color 0.3s; }
+        .timer-danger { 
+            background-color: var(--danger) !important; 
+            box-shadow: 0 0 15px var(--danger); 
         }
 
         .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+<body class="h-screen w-full flex flex-col items-center justify-center p-2 sm:p-8">
 
     <div class="scanlines"></div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main id="app-container" class="w-full max-w-2xl bg-[#050502] neon-border-elite p-6 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl fade-in">
+    <main class="w-full max-w-4xl h-full sm:h-[95vh] bg-[var(--dark)] border border-[#332211] sm:rounded-sm flex flex-col relative z-10 neon-border-elite overflow-hidden p-4 sm:p-8 shadow-2xl">
         
         <!-- Cabecera -->
-        <header class="flex justify-between items-center border-b border-[#332211] pb-4">
-            <div>
-                <h1 class="text-xs sm:text-sm font-bold tracking-widest text-gray-400">HIJOS DE KREBS /// <span class="text-[var(--elite)]">RESPIRATORIO: EFECTO KREBS ⚡</span></h1>
-                <p id="progress-indicator" class="text-xs text-[var(--elite)] mt-1">> INTERCEPCIÓN 1 / 10 (NIVEL ÉLITE)</p>
+        <header class="flex justify-between items-center border-b border-[#332211] pb-3 mb-4">
+            <div class="flex items-center space-x-3">
+                <a href="../central_operaciones/index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--elite)] transition-colors font-semibold mr-2">
+                    ← VOLVER A CENTRAL DE OPERACIONES
+                </a>
+                <div class="w-3 h-3 bg-[var(--elite)] rounded-full animate-pulse shadow-[0_0_8px_#FFD700]"></div>
+                <h1 class="text-xs sm:text-base font-bold tracking-widest text-gray-400">
+                    HIJOS DE KREBS <span class="text-[var(--elite)]">///</span> M_RESPIRATORIO_FASE_3_ELITE
+                </h1>
             </div>
-            <div class="text-right">
-                <p class="text-xs text-gray-400">XP TOTAL</p>
-                <p id="score-display" class="text-lg sm:text-xl font-bold text-[var(--elite)]">0</p>
+            <div class="text-xs sm:text-sm text-gray-500 font-bold">
+                XP TOTAL: <span id="header-xp" class="text-[var(--elite)]">0</span>
             </div>
         </header>
 
-        <!-- Barra de Tiempo y Estado -->
-        <div class="flex justify-between items-center text-xs text-gray-400 font-bold">
-            <span id="timer-text">> TIEMPO RESTANTE: <span class="text-[var(--elite)]">60s</span></span>
-            <span class="text-[var(--elite)]">PROTOCOLO DE MÁXIMA EXIGENCIA</span>
-        </div>
-        <div class="w-full bg-gray-900 h-1.5 rounded overflow-hidden border border-[#332211]">
-            <div id="timer-bar" class="bg-[var(--elite)] h-full w-full transition-all duration-1000"></div>
-        </div>
-
-        <!-- Pantalla de Pregunta -->
-        <div id="quiz-screen" class="space-y-6">
-            <h2 id="question-text" class="text-sm sm:text-base font-bold text-gray-200 leading-relaxed">
-                Desplegando casos clínicos avanzados...
-            </h2>
-
-            <div id="options-container" class="grid grid-cols-1 gap-3">
-                <!-- Opciones inyectadas por JS -->
+        <!-- PANTALLA 1: INICIO -->
+        <section id="screen-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div class="space-y-3">
+                <h2 class="text-2xl sm:text-4xl font-bold neon-text-elite">>_ EFECTO KREBS (ÉLITE)</h2>
+                <p class="neon-text-magenta text-xs sm:text-sm font-bold tracking-widest">FISIOLOGÍA RESPIRATORIA AVANZADA</p>
             </div>
-        </div>
-
-        <!-- Pantalla Final (Resultado) -->
-        <div id="result-screen" class="hidden text-center space-y-6 py-8">
-            <div id="result-icon" class="w-16 h-16 mx-auto flex items-center justify-center border-2 rounded-full text-2xl font-bold"></div>
-            <h2 id="result-title" class="text-xl sm:text-2xl font-bold tracking-wider"></h2>
-            <p id="result-desc" class="text-xs sm:text-sm text-gray-300 max-w-md mx-auto leading-relaxed"></p>
             
-            <div id="action-container" class="pt-4 flex flex-col gap-3">
-                <!-- Botón dinámico -->
+            <div class="p-4 sm:p-6 border border-[#332211] bg-black/60 text-left max-w-lg w-full text-xs sm:text-sm text-gray-400 space-y-3 shadow-inner">
+                <p class="text-[var(--elite)] mb-2 font-bold">> PARÁMETROS DE LA MISIÓN ÉLITE:</p>
+                <p>• 10 Interceptaciones de Alta Complejidad.</p>
+                <p>• <span class="text-white font-bold">60 Segundos</span> por bloque.</p>
+                <p>• <span class="text-[var(--cyan)]">XP Máximo:</span> 500 XP.</p>
+                <p class="mt-4 pt-4 border-t border-[#332211] text-[var(--danger)] font-bold text-center">
+                    BARRERA DE CORTE: 350 XP (7/10 ACIERTOS) PARA CERTIFICACIÓN TOTAL.
+                </p>
             </div>
-        </div>
 
+            <button onclick="startGame()" class="btn-tactical neon-border-elite px-8 py-4 text-[var(--elite)] font-bold text-base sm:text-lg w-full max-w-lg mt-4">
+                [ INICIAR PROTOCOLO ÉLITE ]
+            </button>
+        </section>
+
+        <!-- PANTALLA 2: JUEGO -->
+        <section id="screen-game" class="flex-1 flex-col hidden relative">
+            
+            <!-- Timer -->
+            <div class="w-full bg-black h-2 mb-2 rounded-sm overflow-hidden border border-[#332211]">
+                <div id="timer-bar" class="h-full bg-[var(--elite)] w-full shadow-[0_0_10px_#FFD700]"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold mb-4">
+                <span id="timer-text" class="text-[var(--elite)] tracking-widest">T-MINUS: 60.0s</span>
+                <span class="text-gray-500">BLOQUE: <span id="question-progress" class="text-white">1/10</span></span>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="mb-4 h-auto min-h-[80px]">
+                <p class="text-[var(--cyan)] text-[10px] sm:text-xs mb-1 font-bold">> INTERCEPTACIÓN ÉLITE:</p>
+                <h3 id="question-text" class="text-sm sm:text-lg font-bold leading-relaxed text-white"></h3>
+            </div>
+
+            <!-- 5 Alternativas -->
+            <div id="options-container" class="space-y-2 sm:space-y-3 flex-1 flex flex-col justify-start overflow-y-auto pb-4">
+                <!-- Inyectado por JS -->
+            </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedback-msg" class="absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-base sm:text-2xl hidden z-20 w-full text-center"></div>
+        </section>
+
+        <!-- PANTALLA 3: RESULTADOS -->
+        <section id="screen-reward" class="flex-1 flex-col items-center justify-center text-center hidden">
+            <h2 id="results-title" class="text-2xl sm:text-3xl font-bold neon-text-elite mb-6">SIMULACIÓN ÉLITE FINALIZADA</h2>
+            
+            <div class="flex flex-row gap-4 w-full max-w-md mx-auto mb-8">
+                <div class="flex-1 p-4 bg-black border border-[#332211] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">XP TOTAL</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-[var(--elite)]" id="final-xp">0</p>
+                </div>
+                <div class="flex-1 p-4 bg-black border border-[#332211] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">ACIERTOS</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white" id="final-accuracy">0/10</p>
+                </div>
+            </div>
+
+            <div id="result-action-container" class="w-full max-w-md mx-auto p-4 sm:p-6 bg-black border">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
     </main>
 
     <script>
-        // --- BASE DE DATOS: APARATO RESPIRATORIO (FASE 3: EFECTO KREBS - DIFÍCILES) ---
-        const questions = [
-            {
-                question: "UN RECIÉN NACIDO PREMATURO PRESENTA DIFICULTAD RESPIRATORIA AGUDA CARACTERIZADA POR EL COLAPSO ALVEOLAR MASIVO. DESDE LA PERSPECTIVA HISTOFISIOLÓGICA PULMONAR, ¿QUÉ ALTERACIÓN CELULAR ESPECÍFICA EXPLICA ESTE CUADRO CLÍNICO?",
-                options: [
-                    "A) LA INCAPACIDAD DE LOS NEUMOCITOS TIPO I PARA REALIZAR LA DIFUSIÓN SIMPLE DE OXÍGENO A TRAVÉS DE LA MEMBRANA.",
-                    "B) LA DEFICIENTE SÍNTESIS DE SURFACTANTE POR PARTE DE LOS NEUMOCITOS TIPO II, LO QUE ELEVA LA TENSIÓN SUPERFICIAL ALVEOLAR.",
-                    "C) LA HIPERPLASIA DE LAS CÉLULAS CALICIFORMES QUE BLOQUEA EL PASO DE AIRE EN LOS BRONQUIOLOS TERMINALES.",
-                    "D) LA DESTRUCCIÓN AUTOINMUNE DE LOS ANILLOS DE CARTÍLAGO HIALINO EN LA TRÁQUEA Y LOS BRONQUIOS PRINCIPALES.",
-                    "E) LA PARÁLISIS DEL EPITELIO CILIADO QUE IMPIDE LA ELIMINACIÓN DEL MOCO HACIA LA NASOFARINGE."
-                ],
-                correct: 1
-            },
-            {
-                question: "DURANTE EL EJERCICIO FÍSICO DE ALTA INTENSIDAD, LA PRODUCCIÓN METABÓLICA DE CO₂ EN LOS MÚSCULOS AUMENTA SIGNIFICATIVAMENTE. ¿QUÉ MECANISMO ERITROCITARIO Y ENZIMÁTICO ESENCIAL PERMITE EVITAR LA ACIDOSIS EXTENSA Y FACILITAR EL TRANSPORTE SISTÉMICO DE ESTE GAS HACIA LOS PULMONES?",
-                options: [
-                    "A) LA UNIÓN IRREVERSIBLE DEL DIÓXIDO DE CARBONO CON LA HEMOGLOBINA PARA FORMAR OXIHEMOGLOBINA.",
-                    "B) LA ACCIÓN DE LA ANHIDRASA CARBÓNICA QUE CATALIZA LA CONVERSIÓN DE CO₂ EN BICARBONATO (HCO₃⁻) DENTRO DEL ERITROCITO.",
-                    "C) LA DIFUSIÓN ACTIVA DEL DIÓXIDO DE CARBONO A TRAVÉS DE LA MEMBRANA ALVEOLOCAPILAR MEDIANTE ATP.",
-                    "D) LA SÍNTESIS ACELERADA DE SURFACTANTE POR LOS NEUMOCITOS TIPO I EN LOS ALVÉOLOS PULMONARES.",
-                    "E) LA RETENCIÓN VOLUNTARIA DE AIRE EN LA ZONA CONDUCTORA PARA DISMINUIR LA PRESIÓN PARCIAL DE CO₂."
-                ],
-                correct: 1
-            },
-            {
-                question: "UN PACIENTE INGIERE ACCIDENTALMENTE UN CUERPO EXTRAÑO PEQUEÑO EL CUAL LOGRA SOBREPASAR LA LARINGE Y LA CARINA TRAQUEAL. ANATÓMICAMENTE, ¿EN QUÉ ESTRUCTURA Y PULMÓN ES MÁS PROBABLE QUE SE ALOJE DICHO OBJETO Y POR QUÉ RAZÓN ANATÓMICA ESPECÍFICA?",
-                options: [
-                    "A) EN EL BRONQUIO PRINCIPAL DERECHO, DEBIDO A QUE ES MÁS VERTICAL, ANCHO Y CORTO QUE EL IZQUIERDO.",
-                    "B) EN EL BRONQUIO PRINCIPAL IZQUIERDO, DEBIDO A QUE EL PULMÓN IZQUIERDO POSEE TRES LÓBULOS ANATÓMICOS.",
-                    "C) EN EL BRONQUIOLO RESPIRATORIO DERECHO, PORQUE CARECE POR COMPLETO DE MÚSCULO LISO Y CILIAR.",
-                    "D) EN LA LARINGOFARINGE IZQUIERDA, PORQUE LA EPIGLOTIS PERMANECE ABIERTA CONTINUAMENTE.",
-                    "E) EN LOS ALVÉOLOS PULMONARES IZQUIERDOS, DEBIDO A LA AUSENCIA DE ANILLOS CARTILAGINOSOS EN FORMA DE 'C'."
-                ],
-                correct: 0
-            },
-            {
-                question: "UN INDIVIDUO EXPERIMENTA UN CUADRO DE CRISIS ASMÁTICA CARACTERIZADO POR LA CONTRACCIÓN SOSTENIDA DEL MÚSCULO LISO EN LAS VÍAS AÉREAS PEQUEÑAS. ¿EN QUÉ SEGMENTO ANATÓMICO ESPECÍFICO DEL ÁRBOL RESPIRATORIO SE PRODUCE ESTA MAYOR RESISTENCIA AL FLUJO DE AIRE DEBIDO A LA AUSENCIA DE CARTÍLAGO?",
-                options: [
-                    "A) EN LA TRÁQUEA MEMBRANOSA.",
-                    "B) EN LOS BRONQUIOS LOBARES Y SEGMENTARIOS.",
-                    "C) EN LOS BRONQUIOLOS.",
-                    "D) EN LAS FOSAS NASALES SUPERIORES.",
-                    "E) EN LOS ANILLOS CARTILAGINOSOS LARÍNGEOS."
-                ],
-                correct: 2
-            },
-            {
-                question: "SI SE PRODUCE UNA PERFORACIÓN EN LA PARED TORÁCICA QUE INGRESA A LA CAVIDAD PLEURAL, ¿QUÉ SUCEDE CON LA MECÁNICA VENTILATORIA Y LA PRESIÓN INTRATORÁCICA?",
-                options: [
-                    "A) LA PRESIÓN INTRATORÁCICA SE HACE MÁS NEGATIVA, PROVOCANDO UNA EXPANSIÓN EXCESIVA DEL ALVÉOLO.",
-                    "B) SE PIERDE EL GRADIENTE DE PRESIÓN NEGATIVA INTRATORÁCICA, PROVOCANDO EL COLAPSO DEL PULMÓN Y LA IMPOSIBILIDAD DE VENTILAR.",
-                    "C) AUMENTA EXCESIVAMENTE LA PRODUCCIÓN DE SURFACTANTE POR LOS NEUMOCITOS TIPO II EN LAS FOSAS NASALES.",
-                    "D) EL MÚSCULO DIAFRAGMA SE CONTRAE DE FORMA PERMANENTE IMPIDIENDO LA ESPIRACIÓN.",
-                    "E) LA ENZIMA ANHIDRASA CARBÓNICA SE INACTIVA POR COMPLETO EN EL PLASMA SANGUÍNEO."
-                ],
-                correct: 1
-            },
-            {
-                question: "UN ATLETA SE SOMETE A UN ENTRENAMIENTO INTENSO DE ALTA EXIGENCIA FÍSICA. A DIFERENCIA DE LA RESPIRACIÓN TRANQUILA, ¿QUÉ MECANISMO FISIOLÓGICO ADICIONAL ACTÚA DURANTE LA ESPIRACIÓN FORZADA EN ESTE SUJETO?",
-                options: [
-                    "A) LA EXCLUSIVA RELAJACIÓN PASIVA DEL DIAFRAGMA Y EL RETROCESO ELÁSTICO PULMONAR.",
-                    "B) LA CONTRACCIÓN ACTIVA DE MÚSCULOS ACCESORIOS PARA DISMINUIR RÁPIDAMENTE EL VOLUMEN TORÁCICO.",
-                    "C) LA PARÁLISIS TEMPORAL DEL EPITELIO CILIADO TRAQUEAL PARA RETENER OXÍGENO.",
-                    "D) EL INCREMENTO EN LA DIFUSIÓN ACTIVA DE CO₂ A TRAVÉS DE LOS BRONQUIOLOS TERMINALES.",
-                    "E) EL CIERRE COMPLETO DE LA EPIGLOTIS PARA AUMENTAR LA TENSIÓN SUPERFICIAL ALVEOLAR."
-                ],
-                correct: 1
-            },
-            {
-                question: "EVALUANDO EL PROCESO DE ACONDICIONAMIENTO DEL AIRE INSPIRADO EN UN ENTORNO CON AIRE FRÍO Y SECO, ¿CÓMO COOPERAN ESTRUCTURALMENTE LAS FOSAS NASALES Y SU MUCOSA PARA EVITAR EL DAÑO EN LOS ALVÉOLOS PULMONARES?",
-                options: [
-                    "A) LOS CORNETES GENERAN TURBULENCIA MIENTRAS EL MOCO Y LOS CILIOS HUMIDIFICAN, FILTRAN Y CALIENTAN EL AIRE ANTES DE LLEGAR A LA LARINGE.",
-                    "B) LOS NEUMOCITOS TIPO I SINTETIZAN LISOZIMA PARA ELEVAR LA TEMPERATURA DEL AIRE A NIVEL ALVEOLAR.",
-                    "C) LA ANHIDRASA CARBÓNICA OLFATORIA NEUTRALIZA LA PRESIÓN ATMOSFÉRICA DEL AIRE FRÍO.",
-                    "D) EL MÚSCULO LISO OLFATORIO SE CONTRAE PARA IMPEDIR EL PASO DE AIRE HACIA LA FARINGE.",
-                    "E) LOS BRONQUIOLOS RESPIRATORIOS RETIENEN EL AIRE FRÍO MEDIANTE ANILLOS DE CARTÍLAGO HIALINO."
-                ],
-                correct: 0
-            },
-            {
-                question: "EN UN INDIVIDUO CON HIPERVENTILACIÓN SEVERA, SE EXPULSA EXCESIVO DIÓXIDO DE CARBONO (CO₂) POR VÍA ALVEOLAR. ¿QUÉ REACCIÓN ENZIMÁTICA Y CONSECUENCIA ÁCIDO-BASE SANGUÍNEA SE DESENCADENA SEGÚN LA FISIOLOGÍA RESPIRATORIA?",
-                options: [
-                    "A) SE INCREMENTA LA FORMACIÓN DE H₂CO₃ Y DISMINUYE EL pH SANGUÍNEO HASTA LA ACIDOSIS.",
-                    "B) LA ANHIDRASA CARBÓNICA DESPLAZA LA REACCIÓN HACIA LA DISOCIACIÓN DEL BICARBONATO PARA REPONER EL CO₂ PERDIDO, ALTERANDO EL EQUILIBRIO ÁCIDO-BASE SANGUÍNEO.",
-                    "C) LOS NEUMOCITOS TIPO II DEJAN DE PRODUCIR SURFACTANTE, PROVOCANDO LA ACUMULACIÓN DE BICARBONATO EN EL PLASMA.",
-                    "D) EL O₂ COMPITE CON EL BICARBONATO HASTA INHIBIR LA FUNCIÓN DEL MÚSCULO DIAFRAGMA.",
-                    "E) SE BLOQUEA EL INTERCAMBIO GASEOSO EN LA ZONA CONDUCTORA DE LA TRÁQUEA Y LOS BRONQUIOS."
-                ],
-                correct: 1
-            },
-            {
-                question: "RESPECTO A LA HEMATOSIS, ¿QUÉ CARACTERÍSTICA ESTRUCTURAL DE LA MEMBRANA RESPIRATORIA ES INDISPENSABLE PARA QUE EL O₂ PASE RÁPIDAMENTE DEL ALVÉOLO A LA SANGRE Y EL CO₂ EN SENTIDO INVERSO?",
-                options: [
-                    "A) UN GROSOR ELEVADO DE CARTÍLAGO HIALINO EN CADA PARED ALVEOLAR.",
-                    "B) UNA EXTREMADA DELGADEZ DE LA MEMBRANA ALVEOLOCAPILAR UNIDA A UN AMPLIO RED DE CAPILARES Y A LOS GRADIENTES DE PRESIÓN PARCIAL.",
-                    "C) LA PRESENCIA DE CILIOS MÓVILES EN LA SUPERFICIE INTERNA DE LOS NEUMOCITOS TIPO I.",
-                    "D) EL TRANSPORTE ACTIVO DE OXÍGENO MEDIADO POR ENZIMAS ANHIDRASAS CARBÓNICAS MEMBRANALES.",
-                    "E) LA CONTRACCIÓN RÍTMICA DEL MÚSCULO LISO ALVEOLAR DURANTE LA ESPIRACIÓN TRANQUILA."
-                ],
-                correct: 1
-            },
-            {
-                question: "UN PACIENTE PRESENTA UNA ENFERMEDAD PULMONAR QUE AFECTA ESPECÍFICAMENTE A LOS NEUMOCITOS TIPO I. ¿CUÁL SERÁ LA CONSECUENCIA FISIOLÓGICA DIRECTA EN LA FUNCIÓN PULMONAR DE ESTE INDIVIDUO?",
-                options: [
-                    "A) LA IMPOSIBILIDAD DE SINTETIZAR SURFACTANTE PULMONAR Y EL COLAPSO ALVEOLAR INMEDIATO.",
-                    "B) LA ALTERACIÓN ESTRUCTURAL DE LA SUPERFICIE EPITELIAL ALVEOLAR DONDE OCURRE EL INTERCAMBIO GASEOSO.",
-                    "C) LA PARÁLISIS COMPLETA DEL MÚSCULO DIAFRAGMA DURANTE LA INSPIRACIÓN FORZADA.",
-                    "D) LA PÉRDIDA DE LOS ANILLOS CARTILAGINOSOS EN FORMA DE 'C' DE LA TRÁQUEA.",
-                    "E) LA INCAPACIDAD DE LA FARINGE PARA DEGLUTIR EL BOLO ALIMENTICIO."
-                ],
-                correct: 1
-            }
-        ];
-
-        let currentQuestion = 0;
-        let score = 0;
-        let timeLeft = 60;
-        let timerInterval;
-        let audioInit = false;
+        // --- MOTOR DE AUDIO INMERSIVO (Tone.js) ---
         let synth;
+        let ambientPad;
+        let ambientLoop;
+        let audioInit = false;
 
         function initAudio() {
             if (!audioInit) {
                 synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                synth.volume.value = -12;
+                synth.volume.value = -10;
+
+                ambientPad = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                }).toDestination();
+                ambientPad.volume.value = -26;
+
+                const arpSynth = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                arpSynth.volume.value = -32;
+
+                const filter = new Tone.Filter(800, "lowpass").toDestination();
+                arpSynth.connect(filter);
+
+                const arpNotes = ["C3", "G3", "D#4", "A#3", "G3", "C4"];
+                let step = 0;
+
+                ambientLoop = new Tone.Loop(time => {
+                    arpSynth.triggerAttackRelease(arpNotes[step % arpNotes.length], "16n", time);
+                    step++;
+                }, "8n");
+
                 audioInit = true;
             }
         }
 
+        function startAmbientSound() {
+            if (!audioInit) return;
+            try {
+                Tone.Transport.bpm.value = 90;
+                Tone.Transport.start();
+                ambientPad.triggerAttack(["C3", "G3", "A#3", "D#4"]);
+                ambientLoop.start(0);
+            } catch (e) {}
+        }
+
+        function stopAmbientSound() {
+            try {
+                if (ambientPad) {
+                    ambientPad.triggerRelease(["C3", "G3", "A#3", "D#4"]);
+                }
+                if (ambientLoop) {
+                    ambientLoop.stop();
+                    Tone.Transport.stop();
+                }
+            } catch (e) {}
+        }
+
         const sfx = {
+            hover: () => { if(audioInit) synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.04); },
             click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
-            success: () => { if(audioInit) synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); },
-            error: () => { if(audioInit) synth.triggerAttackRelease(["C3", "F#2"], "4n"); }
+            correct: () => { 
+                if(audioInit) {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("E5", "16n", now);
+                    synth.triggerAttackRelease("G#5", "16n", now + 0.06);
+                    synth.triggerAttackRelease("B5", "16n", now + 0.12);
+                    synth.triggerAttackRelease("E6", "8n", now + 0.18);
+                }
+            },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["D#3", "A2"], "8n"); },
+            timeout: () => { if(audioInit) synth.triggerAttackRelease(["G2", "C2"], "4n"); },
+            victory: () => { if(audioInit) {
+                stopAmbientSound();
+                const now = Tone.now();
+                synth.triggerAttackRelease("E4", "16n", now);
+                synth.triggerAttackRelease("G#4", "16n", now + 0.12);
+                synth.triggerAttackRelease("B4", "8n", now + 0.24);
+                synth.triggerAttackRelease("E5", "4n", now + 0.36);
+            }},
+            defeat: () => { if(audioInit) {
+                stopAmbientSound();
+                synth.triggerAttackRelease(["G3", "D#3", "C3"], "2n");
+            }}
         };
 
-        function startTimer() {
-            timeLeft = 60;
-            document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--elite)]">${timeLeft}s</span>`;
-            document.getElementById('timer-bar').style.width = '100%';
-            
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--elite)]">${timeLeft}s</span>`;
-                let percentage = (timeLeft / 60) * 100;
-                document.getElementById('timer-bar').style.width = percentage + '%';
+        // --- MATRIZ DE PREGUNTAS (Aparato Respiratorio - Fase 3: Élite) ---
+        const preguntas = [
+            {
+                pregunta: "21. DURANTE EL TRANSPORTE DE OXÍGENO, ¿CÓMO AFECTA UN DESCENSO DEL pH SANGUÍNEO (EFECTO BOHR) A LA AFINIDAD DE LA HEMOGLOBINA POR EL OXÍGENO EN LOS TAPIZES TISULARES METABÓLICAMENTE ACTIVOS?",
+                opciones: [
+                    "A) AUMENTA LA AFINIDAD FACILITANDO LA CAPTACIÓN PULMONAR",
+                    "B) DISMINUYE LA AFINIDAD DE LA HEMOGLOBINA, FAVORECIENDO LA LIBERACIÓN DE O₂ HACIA LOS TEJIDOS",
+                    "C) BLOQUEA LA FORMACIÓN DE BICARBONATO PLASMÁTICO",
+                    "D) TRANSFORMA LA HEMOGLOBINA EN MIOGLOBINA MUSCULAR",
+                    "E) ANULA COMPLETAMENTE EL TRANSPORTE DE CO₂"
+                ],
+                correcta: 1,
+                explicacion: "EL EFECTO BOHR ESTABLECE QUE UN MENOR pH (ACIDEZ POR AUMENTO DE H⁺ Y CO₂) REDUCE LA AFINIDAD DE LA HEMOGLOBINA POR EL OXÍGENO, LIBERÁNDOLO EFICIENTEMENTE EN LOS TEJIDOS ACTIVOS."
+            },
+            {
+                pregunta: "22. ¿CÓMO SE EXPLICA EL EFECTO HALDANE EN LOS PULMONES RESPECTO AL TRANSPORTE DE GASES RESPIRATORIOS?",
+                opciones: [
+                    "A) LA OXIHEMOGLOBINA EN LOS ALVÉOLOS FACILITA LA LIBERACIÓN DE CO₂ DESDE LA SANGRE HACIA EL ALVÉOLO",
+                    "B) EL CO₂ DISMINUYE LA TEMPERATURA CORPORAL BASAL",
+                    "C) EL OXÍGENO SE COMBINA CON EL SURFACTANTE PARA FORMAR GLUCOSA",
+                    "D) EL AUMENTO DE BEMOGLOBINA BLOQUEA LA TOS",
+                    "E) EL MONÓXIDO DE CARBONO DESPLAZA AL NITRÓGENO"
+                ],
+                correcta: 0,
+                explicacion: "EL EFECTO HALDANE INDICA QUE LA OXYGENACIÓN DE LA HEMOGLOBINA EN LOS PULMONES DISMINUYE SU AFINIDAD POR EL CO₂, FACILITANDO SU EXPULSIÓN GASEOSA."
+            },
+            {
+                pregunta: "23. ¿QUÉ OCURRE CON LA PRESIÓN INTRAPLEURAL DURANTE EL CICLO RESPIRATORIO NORMAL EN REPOSO?",
+                opciones: [
+                    "A) SE MANTIENE SIEMPRE POSITIVA RESPECTO A LA ATMÓSFERA",
+                    "B) ES LIGERAMENTE NEGATIVA Y SE HACE AÚN MÁS NEGATIVA DURANTE LA INSPIRACIÓN",
+                    "C) VARÍA IGUAL QUE LA PRESIÓN ALVEOLAR",
+                    "D) SE ANULA POR COMPLETO EN LA ESPIRACIÓN FORZADA",
+                    "E) DEPENDE EXCLUSIVAMENTE DEL VOLUMEN RESIDUAL"
+                ],
+                correcta: 1,
+                explicacion: "LA PRESIÓN INTRAPLEURAL ES NEGATIVA PARA MANTENER LOS PULMONES EXPANDIDOS; DURANTE LA INSPIRACIÓN SE EXPANDE EL TÓRAX Y SE HACE AÚN MÁS NEGATIVA."
+            },
+            {
+                pregunta: "24. ¿CUÁL ES LA CAUSA FISIOLÓGICA PRINCIPAL DE LA HIPOXIA EN ALTURAS ELEVADAS (COMO LA PUNA O ANDAHUAYLAS/CUSCO ALTO)?",
+                opciones: [
+                    "A) EL AUMENTO DE LA PRESIÓN BAROMÉTRICA TOTAL",
+                    "B) LA CAÍDA DE LA PRESIÓN PARCIAL DE OXÍGENO (PIO₂) EN EL AIRE ATMOSFÉRICO",
+                    "C) EL BLOQUEO DE LOS NEUMOCITOS TIPO II",
+                    "D) LA SATURACIÓN DE LA ANHIDRASA CARBÓNICA",
+                    "E) EL EXCESO DE SURFACTANTE PULMONAR"
+                ],
+                correcta: 1,
+                explicacion: "A MAYOR ALTITUD, LA PRESIÓN ATMOSFÉRICA TOTAL DISMINUYE, REDUCIENDO LA PRESIÓN PARCIAL DE OXÍGENO E DIFICULTANDO SU DIFUSIÓN ALVÉOLAR."
+            },
+            {
+                pregunta: "25. ¿QUÉ ENZIMA CLAVE EN EL INTERIOR DE LOS ERITROCITOS CATALIZA LA CONVERSIÓN REVERSIBLE DE CO₂ Y H₂O EN ÁCIDO CARBÓNICO?",
+                opciones: [
+                    "A) RUBISCO",
+                    "B) ANHIDRASA CARBÓNICA",
+                    "C) CATALASA",
+                    "D) ATP SINTASA",
+                    "E) ENTEROCINASA"
+                ],
+                correcta: 1,
+                explicacion: "LA ANHIDRASA CARBÓNICA PERMITE LA RÁPIDA HIDRATACIÓN DEL CO₂ A ÁCIDO CARBÓNICO EN LOS GLÓBULOS ROJOS PARA SU TRANSPORTE."
+            },
+            {
+                pregunta: "26. ¿QUÉ REPRESENTA LA CAPACIDAD VITAL PULMONAR EN UNA ESPIROMETRÍA CLÍNICA?",
+                opciones: [
+                    "A) EL AIRE QUE QUEDA EN LOS PULMONES TRAS UNA ESPIRACIÓN MÁXIMA",
+                    "B) LA SUMA DEL VOLUMEN CORRIENTE, RESERVA INSPIRATORIA Y RESERVA ESPIRATORIA",
+                    "C) EL VOLUMEN TOTAL INHALADO EN UN MINUTO",
+                    "D) EL AIRE RESIDUAL NO EXPULSABLE",
+                    "E) LA VELOCIDAD DE DIFUSIÓN DE HEMOSIDERINA"
+                ],
+                correcta: 1,
+                explicacion: "LA CAPACIDAD VITAL ES EL MÁXIMO VOLUMEN DE AIRE QUE PUEDE EXPULSARSE DE LOS PULMONES TRAS UNA INSPIRACIÓN MÁXIMA."
+            },
+            {
+                pregunta: "27. ¿CÓMO SE DEFINE LA COMPLIANZA (DISTENSIBILIDAD) PULMONAR Y QUÉ FACTOR LA ALTERA NEGATIVAMENTE SI DISMINUYE?",
+                opciones: [
+                    "A) CAMBIO DE VOLUMEN POR CAMBIO DE PRESIÓN; EL DÉFICIT DE SURFACTANTE LA REDUCE",
+                    "B) RESISTENCIA AL FLUJO DE AIRE; SE REDUCE POR BRONCODILATACIÓN",
+                    "C) VELOCIDAD DE HEMATOSIS; SE ALTERA POR FIEBRE",
+                    "D) CONCENTRACIÓN DE BICARBONATO; SE ALTERA POR DIETA",
+                    "E) CAPACIDAD DE DIFUSIÓN DEL CO₂; SE ALTERA POR ALTITUD"
+                ],
+                correcta: 0,
+                explicacion: "LA COMPLIANZA MIDE LA ELASTICIDAD O FACILIDAD DE EXPANSIÓN PULMONAR; LA FALTA DE SURFACTANTE AUMENTA LA TENSIÓN SUPERFICIAL, REDUCIENDO LA COMPLIANZA."
+            },
+            {
+                pregunta: "28. ¿QUÉ ESTRUCTURA NERVIOSA EN EL TRONCO ENCEFÁLICO CONTROLA EL RITMO RESPIRATORIO AUTOMÁTICO BÁSICO?",
+                opciones: [
+                    "A) EL CEREBELO",
+                    "B) EL BULBO RAQUÍDEO Y LA PONTE (PUENTE)",
+                    "C) EL HIPOTÁLAMO ANTERIOR",
+                    "D) LA MÉDULA ESPINAL LUMBAR",
+                    "E) EL CUERPO CALLOSO"
+                ],
+                correcta: 1,
+                explicacion: "EL CENTRO RESPIRATORIO ESTÁ UBICADO EN EL BULBO RAQUÍDEO Y LA PUENTE (CENTRO PNEUMOTÁXICO Y APNÉUSTICO)."
+            },
+            {
+                pregunta: "29. ¿QUÉ OCURRE CON LA CURVA DE DISOCIACIÓN DE LA OXIHEMOGLOBINA ANTE UN AUMENTO DE LA TEMPERATURA O DEL 2,3-DPG?",
+                opciones: [
+                    "A) SE DESVÍA HACIA LA IZQUIERDA (MAYOR AFINIDAD)",
+                    "B) SE DESVÍA HACIA LA DERECHA (MENOR AFINIDAD, FAVORECIENDO LA LIBERACIÓN DE O₂)",
+                    "C) SE ANULA COMPLETAMENTE",
+                    "D) SE CONVIERTE EN UNA LÍNEA RECTA",
+                    "E) NO SUFRE NINGUNA MODIFICACIÓN"
+                ],
+                correcta: 1,
+                explicacion: "EL AUMENTO DE TEMPERATURA, CO₂, H⁺ O 2,3-DPG desvía la curva hacia la **derecha**, reduciendo la afinidad de la hemoglobina para entregar más oxígeno a los tejidos."
+            }
+        ];
 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    handleAnswer(-1);
+        // --- ESTADO TÁCTICO ---
+        let state = {
+            currentQ: 0,
+            xp: 0,
+            correctCount: 0,
+            timerInterval: null,
+            startTime: 0,
+            timeLimit: 60000,
+            isLocked: false
+        };
+
+        const screens = {
+            start: document.getElementById('screen-start'),
+            game: document.getElementById('screen-game'),
+            reward: document.getElementById('screen-reward')
+        };
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            screens[screenName].classList.remove('hidden');
+            screens[screenName].classList.add('flex');
+        }
+
+        async function startGame() {
+            try {
+                if (typeof Tone !== 'undefined') {
+                    await Tone.start();
+                    initAudio();
+                    sfx.click();
+                    startAmbientSound();
                 }
-            }, 1000);
+            } catch (e) {
+                console.log("Audio bypass activado");
+            }
+            switchScreen('game');
+            loadQuestion();
         }
 
         function loadQuestion() {
-            if (currentQuestion >= questions.length) {
-                endQuiz();
+            if (state.currentQ >= preguntas.length) {
+                endGame();
                 return;
             }
 
-            initAudio();
-            startTimer();
+            state.isLocked = false;
+            const q = preguntas[state.currentQ];
+            
+            document.getElementById('question-progress').innerText = `${state.currentQ + 1}/${preguntas.length}`;
+            const qEl = document.getElementById('question-text');
+            qEl.innerHTML = '';
+            typeWriterEffect(qEl, q.pregunta);
 
-            const q = questions[currentQuestion];
-            document.getElementById('progress-indicator').innerText = `> INTERCEPCIÓN ${currentQuestion + 1} / ${questions.length} (NIVEL ÉLITE)`;
-            document.getElementById('question-text').innerText = q.question;
-
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-
-            q.options.forEach((opt, index) => {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.opciones.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-btn w-full p-4 text-left text-xs sm:text-sm font-bold text-gray-200 rounded flex justify-between items-center';
-                btn.innerHTML = `<span>${opt}</span><span class="text-xs opacity-50">></span>`;
-                btn.onclick = () => {
-                    clearInterval(timerInterval);
-                    handleAnswer(index, btn);
-                };
-                optionsContainer.appendChild(btn);
+                btn.className = "option-btn w-full text-left p-3 sm:p-4 text-gray-300 flex items-center space-x-3 text-xs sm:text-sm font-bold uppercase";
+                btn.onmouseenter = sfx.hover;
+                btn.onclick = () => handleAnswer(idx, btn);
+                const letter = String.fromCharCode(65 + idx);
+                
+                const cleanOpt = opt.replace(/^[A-E]\)\s*/, '');
+
+                btn.innerHTML = `<span class="text-[var(--elite)] min-w-[20px]">[${letter}]</span><span>${cleanOpt}</span>`;
+                container.appendChild(btn);
             });
+
+            startTimer();
+        }
+
+        function typeWriterEffect(element, text, speed = 15) {
+            let i = 0;
+            element.innerHTML = '<span class="cursor-blink">_</span>';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML = text.substring(0, i+1) + '<span class="cursor-blink">_</span>';
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML = text;
+                }
+            }
+            type();
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.startTime = Date.now();
+            const bar = document.getElementById('timer-bar');
+            const txt = document.getElementById('timer-text');
+            bar.classList.remove('timer-danger');
+
+            state.timerInterval = setInterval(() => {
+                if (state.isLocked) {
+                    clearInterval(state.timerInterval);
+                    return;
+                }
+
+                const elapsed = Date.now() - state.startTime;
+                const remainingMs = state.timeLimit - elapsed;
+
+                if (remainingMs <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleTimeout();
+                    return;
+                }
+
+                const remainingSecs = (remainingMs / 1000).toFixed(1);
+                const percent = (remainingMs / state.timeLimit) * 100;
+                
+                txt.innerText = `T-MINUS: ${remainingSecs}s`;
+                bar.style.width = `${percent}%`;
+
+                if (remainingMs < 10000) {
+                    txt.classList.replace('text-[var(--elite)]', 'text-[var(--danger)]');
+                    bar.classList.add('timer-danger');
+                } else {
+                    txt.classList.replace('text-[var(--danger)]', 'text-[var(--elite)]');
+                    bar.classList.remove('timer-danger');
+                }
+            }, 50);
         }
 
         function handleAnswer(selectedIndex, btnElement) {
-            sfx.click();
-            const q = questions[currentQuestion];
+            if (state.isLocked) return;
+            state.isLocked = true;
+            clearInterval(state.timerInterval);
+
+            const q = preguntas[state.currentQ];
+            const isCorrect = selectedIndex === q.correcta;
+            
             const allBtns = document.querySelectorAll('.option-btn');
-            
-            allBtns.forEach(b => b.disabled = true);
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correcta) b.classList.add('option-correct');
+            });
 
-            if (selectedIndex === q.correct) {
-                if(btnElement) btnElement.classList.add('selected-correct');
-                sfx.success();
-                let earnedXP = 150 + (timeLeft * 3); // Más XP por ser nivel élite
-                score += earnedXP;
+            if (isCorrect) {
+                sfx.correct();
+                state.correctCount++;
+                
+                let earnedXp = 50; 
+                state.xp += earnedXp;
+                document.getElementById('header-xp').innerText = state.xp;
+                showFeedback(`>_ INTERCEPTACIÓN CORRECTA: +${earnedXp} XP`, true);
             } else {
-                if(btnElement) btnElement.classList.add('selected-incorrect');
-                if(allBtns[q.correct]) allBtns[q.correct].classList.add('selected-correct');
                 sfx.error();
+                btnElement.classList.add('option-incorrect');
+                showFeedback(`>_ FALLO CRÍTICO: 0 XP`, false);
             }
 
-            document.getElementById('score-display').innerText = score;
-
-            setTimeout(() => {
-                currentQuestion++;
-                loadQuestion();
-            }, 1200);
+            setTimeout(nextQuestion, 1800);
         }
 
-        function endQuiz() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('timer-text').parentElement.classList.add('hidden');
-            document.getElementById('timer-bar').parentElement.classList.add('hidden');
+        function handleTimeout() {
+            state.isLocked = true;
+            sfx.timeout();
             
-            const resultScreen = document.getElementById('result-screen');
-            resultScreen.classList.remove('hidden');
+            const txt = document.getElementById('timer-text');
+            const bar = document.getElementById('timer-bar');
+            txt.innerText = `T-MINUS: 0.0s`;
+            bar.style.width = `0%`;
 
-            const resultIcon = document.getElementById('result-icon');
-            const resultTitle = document.getElementById('result-title');
-            const resultDesc = document.getElementById('result-desc');
-            const actionContainer = document.getElementById('action-container');
+            const allBtns = document.querySelectorAll('.option-btn');
+            const correctIdx = preguntas[state.currentQ].correcta;
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === correctIdx) b.classList.add('option-correct');
+            });
 
-            // Barrera de supervivencia élite: 800 XP
-            if (score >= 800) {
-                // GUARDAR PROGRESO FINAL DEL MÓDULO RESPIRATORIO
-                localStorage.setItem('krebs_fase3_respiratorio_ok', 'true');
+            showFeedback(`>_ TIEMPO AGOTADO: 0 XP`, false);
+            setTimeout(nextQuestion, 1800);
+        }
 
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--elite)] rounded-full text-2xl font-bold text-[var(--elite)] shadow-[0_0_20px_#FFD700]";
-                resultIcon.innerText = "⚡";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--elite)]";
-                resultTitle.innerText = ">> EFECTO KREBS DOMINADO";
-                resultDesc.innerHTML = `¡Nivel Élite superado con éxito! Puntuación final: <span class="text-[var(--elite)] font-bold">${score} XP</span>. Has completado el 100% del Módulo de Aparato Respiratorio y desbloqueado el beneficio máximo de descuento.`;
+        function showFeedback(msg, isSuccess) {
+            const el = document.getElementById('feedback-msg');
+            el.innerText = msg;
+            
+            if(isSuccess) {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--success)] bg-black/95 border-y border-[var(--success)] shadow-[0_0_20px_rgba(0,255,0,0.2)]';
+            } else {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--danger)] bg-black/95 border-y border-[var(--danger)] shadow-[0_0_20px_rgba(255,0,64,0.2)]';
+            }
+            
+            el.classList.add('block');
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            }, 1600);
+        }
+
+        function nextQuestion() {
+            state.currentQ++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            stopAmbientSound();
+            switchScreen('reward');
+            
+            let currentXpDisplay = 0;
+            const targetXp = state.xp;
+            const xpEl = document.getElementById('final-xp');
+            
+            const interval = setInterval(() => {
+                currentXpDisplay += Math.ceil(targetXp / 20) || 1;
+                if(currentXpDisplay >= targetXp) {
+                    currentXpDisplay = targetXp;
+                    clearInterval(interval);
+                    xpEl.innerText = targetXp;
+                    evaluateResult(targetXp);
+                } else {
+                    xpEl.innerText = currentXpDisplay;
+                }
+            }, 50);
+
+            document.getElementById('final-accuracy').innerText = `${state.correctCount}/${preguntas.length}`;
+        }
+
+        function evaluateResult(finalXp) {
+            const container = document.getElementById('result-action-container');
+            const passed = state.correctCount >= 7; 
+            
+            if (passed) {
+                localStorage.setItem('krebs_respiratorio_completado', 'true');
                 
-                actionContainer.innerHTML = `
-                    <a href="https://wa.me/51941071347?text=Hola,%20Maestro%20Antonio.%20Completé%20el%20100%25%20del%20Módulo%20de%20Aparato%20Respiratorio%20(Efecto%20Krebs)%20con%20${score}%20XP.%20Vengo%20a%20reclamar%20mi%20descuento%20máximo%20del%2030%25%20para%20el%20Pase%20Táctico." target="_blank" class="block w-full border border-[var(--elite)] bg-[var(--elite)] text-black font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-transparent hover:text-[var(--elite)] transition-colors">
-                        [ RECLAMAR 30% DE DESCUENTO CON EL MAESTRO ANTONIO ]
-                    </a>
-                    <a href="index.html" class="block w-full border border-gray-600 bg-transparent text-gray-300 font-bold py-3 text-center text-xs uppercase tracking-widest hover:border-gray-400 transition-colors">
-                        [ VOLVER A LA CENTRAL DE OPERACIONES ]
+                sfx.victory();
+                document.getElementById('results-title').textContent = "MÓDULO RESPIRATORIO DOMINADO";
+                container.classList.add('border-[var(--elite)]', 'shadow-[0_0_20px_rgba(255,215,0,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--elite)] mb-2 uppercase tracking-widest">> PROTOCOLO ÉLITE CERTIFICADO</p>
+                    <p class="text-xs text-gray-300 mb-4 font-bold">¡Has completado el 100% del Módulo de Aparato Respiratorio con éxito!</p>
+                    
+                    <a href="../central_operaciones/index.html" 
+                       class="btn-tactical neon-border-elite px-4 py-3 text-[var(--elite)] text-xs sm:text-sm font-bold block text-center w-full bg-[#332211]/50 hover:bg-[#332211]">
+                        [ VOLVER A CENTRAL DE OPERACIONES ]
                     </a>
                 `;
             } else {
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--danger)] rounded-full text-2xl font-bold text-[var(--danger)] shadow-[0_0_15px_#FF0040]";
-                resultIcon.innerText = "✕";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--danger)]";
-                resultTitle.innerText = ">>BRECHA ÉLITE DETECTADA";
-                resultDesc.innerHTML = `Tu puntaje final fue de <span class="text-[var(--danger)] font-bold">${score} XP</span>. El Efecto Krebs exige un puntaje mínimo de 800 XP para certificar la maestría en el módulo.`;
-                
-                actionContainer.innerHTML = `
-                    <button onclick="location.reload()" class="w-full border border-[var(--elite)] bg-transparent text-[var(--elite)] font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-[var(--elite)] hover:text-black transition-colors">
-                        [ REINTENTAR PROTOCOLO ÉLITE ]
+                sfx.defeat();
+                document.getElementById('results-title').textContent = "EVALUACIÓN INSUFICIENTE";
+                container.classList.add('border-[var(--danger)]', 'shadow-[0_0_20px_rgba(255,0,64,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--danger)] mb-3 uppercase tracking-widest">> PUNTAJE INSUFICIENTE</p>
+                    <p class="text-xs text-gray-300 mb-6 leading-relaxed font-bold">Se requiere un mínimo de 7/10 aciertos (350 XP) para certificar el nivel élite.</p>
+                    
+                    <button onclick="location.reload()" 
+                            class="border border-[var(--danger)] shadow-[0_0_15px_rgba(255,0,64,0.3)] px-4 py-3 text-[var(--danger)] text-xs sm:text-sm font-bold block w-full text-center hover:bg-[var(--danger)] hover:text-white transition-colors uppercase tracking-widest mb-2">
+                        > REINTENTAR MISIÓN
                     </button>
-                    <a href="index.html" class="block w-full border border-gray-600 bg-transparent text-gray-300 font-bold py-3 text-center text-xs uppercase tracking-widest hover:border-gray-400 transition-colors">
-                        [ VOLVER A LA CENTRAL DE OPERACIONES ]
+                    <a href="../central_operaciones/index.html" 
+                       class="border border-gray-700 px-4 py-3 text-gray-300 text-xs sm:text-sm font-bold block w-full text-center hover:bg-gray-800 transition-colors uppercase tracking-widest">
+                        > VOLVER A CENTRAL DE OPERACIONES
                     </a>
                 `;
             }
         }
-
-        window.addEventListener('click', () => {
-            initAudio();
-        }, { once: true });
-
-        loadQuestion();
     </script>
 </body>
 </html>

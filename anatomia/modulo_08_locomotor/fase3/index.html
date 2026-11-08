@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Sistema Locomotor - Efecto Krebs</title>
-
+    <title>HIJOS DE KREBS /// SISTEMA LOCOMOTOR - FASE 03</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Chakra Petch -->
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para Audio Sintético -->
+    <!-- Fuente de consola: Space Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Tone.js para la síntesis de audio y ambiente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
+    
     <style>
         :root {
             --cyan: #00F2FF;
-            --magenta: #FF00E5;
-            --dark: #030712;
-            --success: #00FF66;
-            --danger: #FF0055;
+            --magenta: #FF00FF;
+            --dark: #050A15;
+            --darker: #02050A;
+            --danger: #FF0040;
+            --success: #00FF00;
             --warning: #FFB700;
         }
 
         body {
-            font-family: 'Chakra Petch', sans-serif;
-            background-color: var(--dark);
+            font-family: 'Space Mono', monospace;
+            background-color: var(--darker);
             color: #ffffff;
-            overflow-x: hidden;
+            overflow: hidden;
             user-select: none;
+            text-transform: uppercase;
         }
 
+        /* Scanlines CRT */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -37,148 +39,264 @@
                 to bottom,
                 rgba(255,255,255,0),
                 rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.3) 50%,
-                rgba(0,0,0,0.3)
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
             );
             background-size: 100% 4px;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 999;
         }
 
-        .neon-border-magenta {
-            border: 1px solid var(--magenta);
-            box-shadow: 0 0 15px rgba(255, 0, 229, 0.25);
-        }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .btn-option {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid #1f2937;
-            transition: all 0.15s ease-in-out;
+        /* Estilos Neón */
+        .neon-border-magenta { 
+            border: 1px solid var(--magenta); 
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3), inset 0 0 10px rgba(255, 0, 255, 0.1); 
+        }
+        .neon-text-magenta { text-shadow: 0 0 5px var(--magenta); color: var(--magenta); }
+        .neon-text-cyan { text-shadow: 0 0 5px var(--cyan); color: var(--cyan); }
+
+        /* Botones holográficos */
+        .btn-tactical {
+            transition: all 0.2s ease;
             text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .btn-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-tactical:hover::before { left: 100%; }
+        .btn-tactical:hover { 
+            background-color: rgba(255, 0, 255, 0.1); 
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5); 
         }
 
-        .btn-option:hover:not(:disabled) {
+        /* Opciones de respuesta */
+        .option-btn { 
+            border: 1px solid #112240; 
+            background: rgba(17, 34, 64, 0.4);
+            transition: all 0.2s; 
+        }
+        .option-btn:hover:not(:disabled) {
             border-color: var(--magenta);
-            background: rgba(255, 0, 229, 0.1);
-            transform: translateX(4px);
+            background-color: rgba(255, 0, 255, 0.1);
+            padding-left: 1.5rem;
+        }
+        .option-correct { 
+            border-color: var(--success) !important; 
+            background-color: rgba(0, 255, 0, 0.15) !important; 
+            color: var(--success); 
+        }
+        .option-incorrect { 
+            border-color: var(--danger) !important; 
+            background-color: rgba(255, 0, 64, 0.15) !important; 
+            color: var(--danger); 
+            opacity: 0.8; 
         }
 
-        .correct-opt {
-            border-color: var(--success) !important;
-            background: rgba(0, 255, 102, 0.15) !important;
-            color: var(--success) !important;
-            font-weight: 800 !important;
+        /* Barra de Tiempo */
+        #timer-bar { transition: width 0.1s linear, background-color 0.3s; }
+        .timer-danger { 
+            background-color: var(--danger) !important; 
+            box-shadow: 0 0 15px var(--danger); 
         }
 
-        .incorrect-opt {
-            border-color: var(--danger) !important;
-            background: rgba(255, 0, 85, 0.15) !important;
-            color: var(--danger) !important;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center justify-center p-3 sm:p-6">
+<body class="h-screen w-full flex flex-col items-center justify-center p-2 sm:p-8">
 
     <div class="scanlines"></div>
 
-    <main class="w-full max-w-4xl bg-[#0b132b] neon-border-magenta rounded-lg p-5 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl">
+    <main class="w-full max-w-4xl h-full sm:h-[95vh] bg-[var(--dark)] border border-[#112240] sm:rounded-sm flex flex-col relative z-10 neon-border-magenta overflow-hidden p-4 sm:p-8 shadow-2xl">
         
-        <!-- ENCABEZADO TÁCTICO -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-3">
-            <div>
-                <a href="../index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--magenta)] transition-colors mb-1 font-semibold">
+        <!-- Cabecera -->
+        <header class="flex justify-between items-center border-b border-[#112240] pb-3 mb-4">
+            <div class="flex items-center space-x-3">
+                <a href="../central_operaciones/index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--magenta)] transition-colors font-semibold mr-2">
                     ← VOLVER A CENTRAL DE OPERACIONES
                 </a>
-                <h1 class="text-xl sm:text-2xl font-bold tracking-wider text-[var(--magenta)] uppercase">
-                    FASE 03 /// EFECTO KREBS: CASOS CLÍNICOS ÉLITE
+                <div class="w-3 h-3 bg-[var(--magenta)] rounded-full animate-pulse shadow-[0_0_8px_#FF00FF]"></div>
+                <h1 class="text-xs sm:text-base font-bold tracking-widest text-gray-400">
+                    HIJOS DE KREBS <span class="text-[var(--magenta)]">///</span> M08_LOCOMOTOR_FASE_3
                 </h1>
-                <p class="text-xs text-gray-400 uppercase">MÓDULO: SISTEMA LOCOMOTOR // EVALUACIÓN DE ALTA EXIGENCIA (NIVEL ÉLITE)</p>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <div class="bg-[#111d4a] px-3 py-2 rounded border border-gray-700 text-center">
-                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">TIEMPO</span>
-                    <span id="timer-display" class="text-base font-bold text-[var(--warning)] font-mono">60s</span>
-                </div>
-
-                <div class="bg-[#111d4a] px-4 py-2 rounded border border-gray-700 text-right">
-                    <span class="block text-[9px] text-gray-400 uppercase tracking-widest">ACIERTOS</span>
-                    <span id="score-display" class="text-base font-bold text-[var(--success)]">00 / 10</span>
-                </div>
+            <div class="text-xs sm:text-sm text-gray-500 font-bold">
+                XP TOTAL: <span id="header-xp" class="text-[var(--magenta)]">0</span>
             </div>
         </header>
 
-        <!-- BARRA DE PROGRESO -->
-        <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-semibold">
-                <span id="question-number" class="text-[var(--magenta)] uppercase">PREGUNTA 01 / 10</span>
-                <span id="difficulty-tag" class="px-2 py-0.5 rounded text-[10px] bg-purple-950 text-purple-400 border border-purple-700 uppercase font-bold">DIFÍCIL / ÉLITE</span>
+        <!-- PANTALLA 1: INICIO -->
+        <section id="screen-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div class="space-y-3">
+                <h2 class="text-2xl sm:text-4xl font-bold neon-text-magenta">>_ EFECTO KREBS</h2>
+                <p class="neon-text-cyan text-xs sm:text-sm font-bold tracking-widest">CASOS CLÍNICOS ÉLITE - SISTEMA LOCOMOTOR</p>
             </div>
-            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
-                <div id="progress-bar" class="bg-[var(--magenta)] h-full w-0 transition-all duration-300"></div>
-            </div>
-        </div>
-
-        <!-- TARJETA DE PREGUNTA -->
-        <section id="quiz-container" class="space-y-6">
-            <div class="bg-[#1c2541] p-5 rounded-lg border border-gray-800 shadow-inner">
-                <h2 id="question-text" class="text-base sm:text-lg font-bold text-gray-100 leading-relaxed uppercase">
-                    CARGANDO REACTIVO EVALUATIVO...
-                </h2>
+            
+            <div class="p-4 sm:p-6 border border-[#112240] bg-black/60 text-left max-w-lg w-full text-xs sm:text-sm text-gray-400 space-y-3 shadow-inner">
+                <p class="text-[var(--magenta)] mb-2 font-bold">> PARÁMETROS DE LA MISIÓN:</p>
+                <p>• 10 Interceptaciones (5 Alternativas).</p>
+                <p>• <span class="text-white font-bold">60 Segundos</span> por bloque.</p>
+                <p>• <span class="text-[var(--cyan)]">XP Máximo:</span> 500 XP.</p>
+                <p class="mt-4 pt-4 border-t border-[#112240] text-[var(--danger)] font-bold text-center">
+                    BARRERA DE CORTE: 350 XP (7/10 ACIERTOS) PARA DOMINIO TOTAL.
+                </p>
             </div>
 
-            <div id="options-container" class="grid grid-cols-1 gap-3"></div>
-
-            <div id="feedback-panel" class="hidden bg-[#0d1b2a] border-l-4 border-[var(--magenta)] p-4 rounded text-sm space-y-3">
-                <div>
-                    <span id="feedback-title" class="text-xs font-bold uppercase tracking-widest text-[var(--magenta)] block mb-1">>>> RETROALIMENTACIÓN TÁCTICA</span>
-                    <p id="explanation-text" class="text-gray-300 leading-normal font-medium"></p>
-                </div>
-                <button id="next-btn" onclick="siguientePregunta()" class="w-full sm:w-auto px-6 py-2.5 bg-[var(--magenta)] text-white font-bold text-sm tracking-wider uppercase rounded hover:bg-white hover:text-black transition-colors">
-                    Siguiente Reactivo →
-                </button>
-            </div>
+            <button onclick="startGame()" class="btn-tactical neon-border-magenta px-8 py-4 text-[var(--magenta)] font-bold text-base sm:text-lg w-full max-w-lg mt-4">
+                [ INICIAR MISIÓN ]
+            </button>
         </section>
 
-        <!-- PANTALLA FINAL DE RESULTADOS -->
-        <section id="results-screen" class="hidden flex-col items-center justify-center space-y-6 py-8 text-center">
-            <div id="badge-icon" class="text-6xl">⚡</div>
-            <div>
-                <h2 id="results-title" class="text-2xl font-bold text-[var(--magenta)] uppercase">MÓDULO FINALIZADO</h2>
-                <p id="results-subtitle" class="text-sm text-gray-400 mt-1">Has completado los tres niveles del Sistema Locomotor.</p>
+        <!-- PANTALLA 2: JUEGO -->
+        <section id="screen-game" class="flex-1 flex-col hidden relative">
+            
+            <!-- Timer -->
+            <div class="w-full bg-black h-2 mb-2 rounded-sm overflow-hidden border border-[#112240]">
+                <div id="timer-bar" class="h-full bg-[var(--magenta)] w-full shadow-[0_0_10px_#FF00FF]"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold mb-4">
+                <span id="timer-text" class="text-[var(--magenta)] tracking-widest">T-MINUS: 60.0s</span>
+                <span class="text-gray-500">BLOQUE: <span id="question-progress" class="text-white">1/10</span></span>
             </div>
 
-            <div class="bg-[#1c2541] p-6 rounded-lg border border-gray-800 max-w-sm w-full space-y-3">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Aciertos Totales:</span>
-                    <span id="final-score" class="font-bold text-white">0 / 10</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Efectividad Operativa:</span>
-                    <span id="final-percent" class="font-bold text-[var(--magenta)]">0%</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Módulo Sistema Locomotor:</span>
-                    <span id="unlock-status" class="font-bold text-[var(--success)] font-semibold">100% DOMINADO</span>
-                </div>
+            <!-- Pregunta -->
+            <div class="mb-4 h-auto min-h-[80px]">
+                <p class="text-[var(--cyan)] text-[10px] sm:text-xs mb-1 font-bold">> INTERCEPTACIÓN DE DATOS:</p>
+                <h3 id="question-text" class="text-sm sm:text-lg font-bold leading-relaxed text-white"></h3>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
-                <a href="../index.html" class="flex-1 py-3 bg-[var(--magenta)] text-white font-bold text-xs uppercase tracking-wider rounded text-center hover:bg-white hover:text-black transition-colors">
-                    Volver a Central
-                </a>
-                <button onclick="reiniciarEvaluacion()" class="flex-1 py-3 bg-gray-800 border border-gray-700 text-gray-200 font-bold text-xs uppercase tracking-wider rounded hover:bg-gray-700 transition-colors">
-                    Reintentar Fase
-                </button>
+            <!-- 5 Alternativas -->
+            <div id="options-container" class="space-y-2 sm:space-y-3 flex-1 flex flex-col justify-start overflow-y-auto pb-4">
+                <!-- Inyectado por JS -->
             </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedback-msg" class="absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-base sm:text-2xl hidden z-20 w-full text-center"></div>
         </section>
 
+        <!-- PANTALLA 3: RESULTADOS -->
+        <section id="screen-reward" class="flex-1 flex-col items-center justify-center text-center hidden">
+            <h2 id="results-title" class="text-2xl sm:text-3xl font-bold neon-text-magenta mb-6">SIMULACIÓN FINALIZADA</h2>
+            
+            <div class="flex flex-row gap-4 w-full max-w-md mx-auto mb-8">
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">XP TOTAL</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-[var(--magenta)]" id="final-xp">0</p>
+                </div>
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">ACIERTOS</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white" id="final-accuracy">0/10</p>
+                </div>
+            </div>
+
+            <div id="result-action-container" class="w-full max-w-md mx-auto p-4 sm:p-6 bg-black border">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
     </main>
 
     <script>
+        // --- MOTOR DE AUDIO INMERSIVO (Tone.js) ---
+        let synth;
+        let ambientPad;
+        let ambientLoop;
+        let audioInit = false;
+
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -10;
+
+                ambientPad = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                }).toDestination();
+                ambientPad.volume.value = -26;
+
+                const arpSynth = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                arpSynth.volume.value = -32;
+
+                const filter = new Tone.Filter(800, "lowpass").toDestination();
+                arpSynth.connect(filter);
+
+                const arpNotes = ["C3", "G3", "D#4", "A#3", "G3", "C4"];
+                let step = 0;
+
+                ambientLoop = new Tone.Loop(time => {
+                    arpSynth.triggerAttackRelease(arpNotes[step % arpNotes.length], "16n", time);
+                    step++;
+                }, "8n");
+
+                audioInit = true;
+            }
+        }
+
+        function startAmbientSound() {
+            if (!audioInit) return;
+            try {
+                Tone.Transport.bpm.value = 90;
+                Tone.Transport.start();
+                ambientPad.triggerAttack(["C3", "G3", "A#3", "D#4"]);
+                ambientLoop.start(0);
+            } catch (e) {}
+        }
+
+        function stopAmbientSound() {
+            try {
+                if (ambientPad) {
+                    ambientPad.triggerRelease(["C3", "G3", "A#3", "D#4"]);
+                }
+                if (ambientLoop) {
+                    ambientLoop.stop();
+                    Tone.Transport.stop();
+                }
+            } catch (e) {}
+        }
+
+        const sfx = {
+            hover: () => { if(audioInit) synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.04); },
+            click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
+            correct: () => { 
+                if(audioInit) {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("A5", "16n", now);
+                    synth.triggerAttackRelease("C#6", "16n", now + 0.06);
+                    synth.triggerAttackRelease("E6", "16n", now + 0.12);
+                    synth.triggerAttackRelease("A6", "8n", now + 0.18);
+                }
+            },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["D#3", "A2"], "8n"); },
+            timeout: () => { if(audioInit) synth.triggerAttackRelease(["G2", "C2"], "4n"); },
+            victory: () => { if(audioInit) {
+                stopAmbientSound();
+                const now = Tone.now();
+                synth.triggerAttackRelease("A4", "16n", now);
+                synth.triggerAttackRelease("C#5", "16n", now + 0.12);
+                synth.triggerAttackRelease("E5", "8n", now + 0.24);
+                synth.triggerAttackRelease("A5", "4n", now + 0.36);
+            }},
+            defeat: () => { if(audioInit) {
+                stopAmbientSound();
+                synth.triggerAttackRelease(["G3", "D#3", "C3"], "2n");
+            }}
+        };
+
+        // --- MATRIZ DE PREGUNTAS (Sistema Locomotor - Fase 3: Élite / Casos Clínicos) ---
         const preguntas = [
             {
-                nivel: "DIFÍCIL",
                 pregunta: "1. UN PACIENTE PRESENTA UNA LESIÓN QUE AFECTA ESPECÍFICAMENTE A LA CINTURA PÉLVICA Y A LOS HUESOS DE LOS MIEMBROS INFERIORES. DESDE EL PUNTO DE VISTA DE LA DIVISIÓN ANATÓMICA DEL SISTEMA ESQUELÉTICO, ¿QUÉ SUBDIVISIÓN DEL ESQUELETO SE ENCUENTRA COMPROMETIDA Y QUÉ FUNCIÓN FISIOMECÁNICA SE VERÁ PRINCIPALMENTE ALTERADA?",
                 opciones: [
                     "A) EL ESQUELETO APENDICULAR; SE AFECTARÁ LA LOCOMOCIÓN, EL SOPORTE DEL PESO CORPORAL Y EL DESPLAZAMIENTO",
@@ -188,10 +306,9 @@
                     "E) EL SISTEMA AUTÓNOMO; SE BLOQUEARÁ LA SÍNTESIS DE LÍQUIDO SINOVIAL"
                 ],
                 correcta: 0,
-                explicacion: "La cintura pélvica y los miembros inferiores pertenecen al esqueleto apendicular, cuya función es la locomoción y la transferencia de cargas."
+                explicacion: "LA CINTURA PÉLVICA Y LOS MIEMBROS INFERIORES PERTENECEN AL ESQUELETO APENDICULAR, CUYA FUNCIÓN ES LA LOCOMOCIÓN Y LA TRANSFERENCIA DE CARGAS CORPORALES."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "2. DURANTE EL EXAMEN FÍSICO DE UN PACIENTE SE DIAGNOSTICA UNA INFLAMACIÓN AGUDA EN LA MEMBRANA SINOVIAL DE LA ARTICULACIÓN DE LA RODILLA (SINOVITIS). ¿CÓMO IMPACTARÁ ESTA ALTERACIÓN EN LA DINÁMICA ARTICULAR Y EN LA LUBRICACIÓN SEGÚN LA HISTOFISIOLOGÍA ARTICULAR?",
                 opciones: [
                     "A) DISMINUIRÁ LA CONTRACCIÓN DE LAS UNIDADES MOTORAS DEL ESQUELETO AXIAL",
@@ -201,10 +318,9 @@
                     "E) SE DESTRUIRÁN LOS FILAMENTOS DE MIOSINA EN LAS VÉRTEBRAS LUMBARES"
                 ],
                 correcta: 1,
-                explicacion: "La inflamación de la membrana sinovial altera la secreción de líquido sinovial, incrementando el rozamiento entre los cartílagos articulares."
+                explicacion: "LA INFLAMACIÓN DE LA MEMBRANA SINOVIAL ALTERA LA SECRECIÓN Y COMPOSICIÓN DEL LÍQUIDO SINOVIAL, INCREMENTANDO EL ROZAMIENTO ENTRE LOS CARTÍLAGOS ARTICULARES."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "3. UN ATLETA DE ALTO RENDIMIENTO EXPERIMENTA FATIGA MUSCULAR EXTREMA ASOCIADA A LA AGOTACIÓN DE ATP Y AL BLOQUEO DE LA RECAPTACIÓN DE CALCIO EN EL RETÍCULO SARCOPLÁSMICO. FISIOLÓGICAMENTE, ¿CÓMO AFECTA LA AUSENCIA DE ATP AL MECANISMO DE DESLIZAMIENTO ENTRE LA ACTINA Y LA MIOSINA?",
                 opciones: [
                     "A) ACELERA LA SÍNTESIS DE LÍQUIDO SINOVIAL EN LAS ARTICULACIONES CARTILAGINOSAS",
@@ -214,10 +330,9 @@
                     "E) INHIBE LA PROPAGACIÓN DEL IMPULSO EN LOS NODOS DE RANVIER"
                 ],
                 correcta: 2,
-                explicacion: "El ATP es necesario tanto para aportar energía en el deslizamiento como para desacoplar la cabeza de miosina de la actina; su agotamiento impide el relajamiento."
+                explicacion: "EL ATP ES NECESARIO TANTO PARA APORTAR ENERGÍA EN EL DESLIZAMIENTO COMO PARA DESACOPLAR LA CABEZA DE MIOSINA DE LA ACTINA; SU AGOTAMIENTO IMPIDE LA RELAJACIÓN."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "4. UN TRAUMATISMO SEVERO A NIVEL DE LA CAJA TORÁCICA OCASIONA FRACTURAS EN MÚLTIPLES COSTILLAS Y EN EL ESTERNÓN. CONSIDERANDO LA INTEGRIDAD DEL ESQUELETO AXIAL, ¿QUÉ ESTRUCTURAS Y ÓRGANOS VITALES QUEDAN EN RIESGO DIRECTO DE LESIÓN MECÁNICA?",
                 opciones: [
                     "A) EL ENCÉFALO Y LOS HUESECILLOS AUDITIVOS",
@@ -227,10 +342,9 @@
                     "E) LOS TÚBULOS SEMINÍFEROS Y EL EPIDÍDIMO"
                 ],
                 correcta: 3,
-                explicacion: "El esqueleto axial torácico (esternón y costillas) protege de impactos mecánicos a los órganos vitales torácicos como el corazón y los pulmones."
+                explicacion: "EL ESQUELETO AXIAL TORÁCICO (ESTERNÓN Y COSTILLAS) PROTEGE DE IMPACTOS MECÁNICOS DIRECTOS A LOS ÓRGANOS VITALES TORÁCICOS COMO EL CORAZÓN Y LOS PULMONES."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "5. SI SE PRODUCE UNA ENFERMEDAD AUTOINMUNE QUE DESTRUYE SELECTIVAMENTE EL CARTÍLAGO ARTICULAR EN LAS ARTICULACIONES SINOVIALES (ARTRITIS REUMATOIDE), ¿QUÉ CAMBIO ESTRUCTURAL Y FUNCIONAL OCURRIRÁ EN LA SUPERFICIE ÓSEA DE CONTACTO?",
                 opciones: [
                     "A) SE ELEVARÁ LA SÍNTESIS DE SURFACTANTE PULMONAR POR LOS NEUMOCITOS TIPO II",
@@ -240,10 +354,9 @@
                     "E) SE PERDERÁ EL AMORTIGUADOR PROTECTOR Y EL ROCE DIRECTO ÓSEO GENERARÁ DOLOR Y LIMITACIÓN EN EL RANGO DE MOVIMIENTO"
                 ],
                 correcta: 4,
-                explicacion: "El cartílago articular recubre los extremos óseos para evitar el contacto directo; su destrucción provoca fricción ósea, dolor y rigidez."
+                explicacion: "EL CARTÍLAGO ARTICULAR RECUBRE LOS EXTREMOS ÓSEOS PARA EVITAR LA FRICCIÓN DIRECTA; SU DESTRUCCIÓN PROVOCA ROCE ÓSEO, DOLOR SEVERO Y RIGIDEZ ARTICULAR."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "6. UN INDIVIDUO SUFRE UNA LESIÓN MEDULAR A NIVEL CERVICAL QUE BLOQUEA LA TRANSMISIÓN DE SEÑALES MOTORAS EFERENTES DESDE EL ENCÉFALO HACIA LAS UNIDADES MOTORAS DE LOS MIEMBROS INFERIORES. ¿CUÁL ES LA CONSECUENCIA EN LA FUNCIÓN CONJUNTA DEL MOVIMIENTO?",
                 opciones: [
                     "A) LOS MÚSCULOS NO RECIBIRÁN ACTIVACIÓN NERVIOSA, IMPIDIENDO LA GENERACIÓN DE TENSIÓN Y ANULANDO LA ACCIÓN DE LOS HUESOS COMO PALANCAS",
@@ -253,10 +366,9 @@
                     "E) SE PERDERÁ LA CAPACIDAD DE SINTETIZAR ATP EN LAS MITOCONDRIAS"
                 ],
                 correcta: 0,
-                explicacion: "El movimiento coordinado exige que el sistema nervioso envíe la orden motora; sin esta estimulación, el músculo no genera tensión ni mueve las palancas óseas."
+                explicacion: "EL MOVIMIENTO COORDINADO EXIGE ACTIVACIÓN NERVIOSA MOTOR; SIN ESTA ESTIMULACIÓN, EL MÚSCULO NO GENERA TENSIÓN NI PUEDE MOVER LAS PALANCAS ÓSEAS."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "7. EN EL ANÁLISIS HISTOLÓGICO Y METABÓLICO DEL TEJIDO ÓSEO, SE CONSTATA QUE LA PARATHORMONA (PTH) ESTIMULA LA RESORCIÓN ÓSEA PARA ELEVAR EL CALCIO SANGUÍNEO. ¿CÓMO AFECTA ESTE PROCESO ENDOCRINO A LA FUNCIÓN DE RESERVA DEL ESQUELETO?",
                 opciones: [
                     "A) DESTRUYE LOS FILAMENTOS DE ACTINA Y MIOSINA EN LOS TENDONES",
@@ -266,10 +378,9 @@
                     "E) ESTIMULA LA SECRECIÓN DE MOCO ALCALINO POR LAS GLÁNDULAS DE COWPER"
                 ],
                 correcta: 1,
-                explicacion: "El hueso funciona como reservorio dinámico mineral; ante requerimientos metabólicos, la PTH promueve la liberación de calcio y fósforo hacia la sangre."
+                explicacion: "EL HUESO FUNCIONA COMO UN RESERVORIO MINERAL DINÁMICO; ANTE REQUERIMIENTOS METABÓLICOS, LA PTH PROMUEVE LA LIBERACIÓN DE CALCIO Y FÓSFORO HACIA LA SANGRE."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "8. UN PACIENTE PRESENTA UNA FRACTURA A NIVEL DE LA SEGUNDA VÉRTEBRA CERVICAL (C2 O AXIS). CONSIDERANDO LA ANATOMÍA DE LA COLUMNA VERTEBRAL Y SU RELACIÓN CON EL SISTEMA NERVIOSO, ¿QUÉ RIESGO ANATÓMICO PRINCIPAL SE CORRE EN ESTA LESIÓN?",
                 opciones: [
                     "A) LA IMPOSIBILIDAD DE REABSORBER GLUCOSA EN EL TÚBULO PROXIMAL",
@@ -279,10 +390,9 @@
                     "E) LA INCAPACIDAD DE SINTETIZAR INSULINA EN LOS ISLOTES PANCREÁTICOS"
                 ],
                 correcta: 2,
-                explicacion: "La columna vertebral cervical protege el segmento superior de la médula espinal; una fractura en C2 puede comprimir la médula amenazando la función motora y respiratoria."
+                explicacion: "LA COLUMNA VERTEBRAL CERVICAL PROTEGE LA MÉDULA ESPINAL ALTA; UNA FRACTURA EN C2 PUEDE COMPRIMIR LA MÉDULA AMENAZANDO LA FUNCIÓN MOTORA Y RESPIRATORIA."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "9. EVALUANDO EL MECANISMO DE CONTROL MUSCULAR, ¿QUÉ ROL CUMPLE LA PROPIOCEPCIÓN MEDIADA POR RECEPTORES SENSORIALES EN LOS MÚSCULOS Y TENDONES JUNTO CON EL CEREBELO DURANTE LA MARCHA?",
                 opciones: [
                     "A) DEGRADAR LAS PROTEÍNAS DE MIOSINA PARA EVITAR LA HIPERGLUCEMIA",
@@ -292,10 +402,9 @@
                     "E) AUMENTAR LA TENSIÓN SUPERFICIAL EN LOS ALVÉOLOS PULMONARES"
                 ],
                 correcta: 2,
-                explicacion: "La propiocepción informa al SNC sobre el estado de contracción muscular y posición articular, permitiendo al cerebelo ajustar finamente el equilibrio y movimiento."
+                explicacion: "LA PROPIOCEPCIÓN INFORMA AL SISTEMA NERVIOSO CENTRAL SOBRE LA TENSIÓN MUSCULAR Y POSICIÓN ARTICULAR, PERMITIENDO AL CEREBELO AJUSTAR EL EQUILIBRIO Y MOVIMIENTO."
             },
             {
-                nivel: "DIFÍCIL",
                 pregunta: "10. EN LA CLASIFICACIÓN DE LAS COSTILLAS EN LA CAJA TORÁCICA, LOS PARES DE COSTILLAS 11 Y 12 SE DENOMINAN FLOTANTES PORQUE:",
                 opciones: [
                     "A) SE ARTICULAN DIRECTAMENTE CON LA CINTURA ESCAPULAR Y EL HILIO",
@@ -305,205 +414,271 @@
                     "E) SE FUSIONAN CON EL HUESO HIOIDES EN EL CUELLO"
                 ],
                 correcta: 3,
-                explicacion: "Las costillas flotantes (pares 11 y 12) no poseen unión anterior al esternón ni a otros cartílagos, quedando con sus extremos libres en la pared abdominal."
+                explicacion: "LAS COSTILLAS FLOTANTES (PARES 11 Y 12) NO POSEEN UNIÓN ANTERIOR DIRECTA O INDIRECTA AL ESTERNÓN, QUEDANDO LIBRES EN LA PARED ABDOMINAL LATERAL."
             }
         ];
 
-        let indiceActual = 0;
-        let puntaje = 0;
-        let respondido = false;
-        let tiempoRestante = 60;
-        let timerInterval = null;
+        // --- ESTADO TÁCTICO ---
+        let state = {
+            currentQ: 0,
+            xp: 0,
+            correctCount: 0,
+            timerInterval: null,
+            startTime: 0,
+            timeLimit: 60000,
+            isLocked: false
+        };
 
-        function playSound(type) {
+        const screens = {
+            start: document.getElementById('screen-start'),
+            game: document.getElementById('screen-game'),
+            reward: document.getElementById('screen-reward')
+        };
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            screens[screenName].classList.remove('hidden');
+            screens[screenName].classList.add('flex');
+        }
+
+        async function startGame() {
             try {
-                if (typeof Tone === 'undefined') return;
-                if (Tone.context.state !== 'running') {
-                    Tone.start();
+                if (typeof Tone !== 'undefined') {
+                    await Tone.start();
+                    initAudio();
+                    sfx.click();
+                    startAmbientSound();
                 }
-
-                if (type === 'correct') {
-                    const synthAcc = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synthAcc.set({
-                        oscillator: { type: "triangle" },
-                        envelope: { attack: 0.005, decay: 0.08, sustain: 0.05, release: 0.3 }
-                    });
-                    
-                    const now = Tone.now();
-                    synthAcc.triggerAttackRelease("A5", "16n", now);
-                    synthAcc.triggerAttackRelease("C#6", "16n", now + 0.06);
-                    synthAcc.triggerAttackRelease("E6", "16n", now + 0.12);
-                    synthAcc.triggerAttackRelease("A6", "8n", now + 0.18);
-                } else if (type === 'incorrect') {
-                    const synthErr = new Tone.Synth({
-                        oscillator: { type: "sawtooth" },
-                        envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
-                    }).toDestination();
-
-                    const now = Tone.now();
-                    synthErr.triggerAttackRelease("F3", "16n", now);
-                    synthErr.triggerAttackRelease("C3", "8n", now + 0.08);
-                } else if (type === 'victory') {
-                    const synthVic = new Tone.PolySynth(Tone.Synth).toDestination();
-                    const now = Tone.now();
-                    synthVic.triggerAttackRelease(["A4", "C#5", "E5"], "8n", now);
-                    synthVic.triggerAttackRelease(["E5", "G#5", "B5"], "8n", now + 0.2);
-                    synthVic.triggerAttackRelease(["A5", "C#6", "E6", "A6"], "4n", now + 0.4);
-                }
-            } catch (e) {}
-        }
-
-        function iniciarTemporizador() {
-            clearInterval(timerInterval);
-            tiempoRestante = 60;
-            actualizarTimerUI();
-
-            timerInterval = setInterval(() => {
-                tiempoRestante--;
-                actualizarTimerUI();
-
-                if (tiempoRestante <= 0) {
-                    clearInterval(timerInterval);
-                    manejarTiempoAgotado();
-                }
-            }, 1000);
-        }
-
-        function actualizarTimerUI() {
-            const timerEl = document.getElementById('timer-display');
-            if (!timerEl) return;
-            timerEl.textContent = `${tiempoRestante}s`;
-            if (tiempoRestante <= 15) {
-                timerEl.className = "text-base font-bold text-[var(--danger)] font-mono animate-pulse";
-            } else {
-                timerEl.className = "text-base font-bold text-[var(--warning)] font-mono";
+            } catch (e) {
+                console.log("Audio bypass activado");
             }
+            switchScreen('game');
+            loadQuestion();
         }
 
-        function manejarTiempoAgotado() {
-            if (respondido) return;
-            respondido = true;
-
-            const q = preguntas[indiceActual];
-            const botones = document.getElementById('options-container').children;
-
-            botones[q.correcta].classList.add('correct-opt');
-            playSound('incorrect');
-
-            for (let btn of botones) {
-                btn.disabled = true;
+        function loadQuestion() {
+            if (state.currentQ >= preguntas.length) {
+                endGame();
+                return;
             }
 
-            document.getElementById('feedback-title').textContent = ">>> TIEMPO AGOTADO SECTORIAL (60s)";
-            document.getElementById('explanation-text').textContent = `Se agotó el tiempo para responder este reactivo clínico. ${q.explicacion}`;
-            document.getElementById('feedback-panel').classList.remove('hidden');
-        }
-
-        function cargarPregunta() {
-            respondido = false;
-            const q = preguntas[indiceActual];
-
-            document.getElementById('question-number').textContent = `PREGUNTA ${String(indiceActual + 1).padStart(2, '0')} / ${preguntas.length}`;
-            document.getElementById('progress-bar').style.width = `${((indiceActual) / preguntas.length) * 100}%`;
-            document.getElementById('question-text').textContent = q.pregunta;
+            state.isLocked = false;
+            const q = preguntas[state.currentQ];
             
-            document.getElementById('feedback-panel').classList.add('hidden');
-            document.getElementById('feedback-title').textContent = ">>> RETROALIMENTACIÓN TÁCTICA";
+            document.getElementById('question-progress').innerText = `${state.currentQ + 1}/${preguntas.length}`;
+            const qEl = document.getElementById('question-text');
+            qEl.innerHTML = '';
+            typeWriterEffect(qEl, q.pregunta);
 
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-
-            q.opciones.forEach((opcion, index) => {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.opciones.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'btn-option p-3.5 rounded text-left text-sm font-semibold text-gray-200 w-full flex justify-between items-center uppercase';
-                btn.textContent = opcion;
-                btn.onclick = () => seleccionarOpcion(index);
-                optionsContainer.appendChild(btn);
+                btn.className = "option-btn w-full text-left p-3 sm:p-4 text-gray-300 flex items-center space-x-3 text-xs sm:text-sm font-bold uppercase";
+                btn.onmouseenter = sfx.hover;
+                btn.onclick = () => handleAnswer(idx, btn);
+                const letter = String.fromCharCode(65 + idx);
+                
+                const cleanOpt = opt.replace(/^[A-E]\)\s*/, '');
+
+                btn.innerHTML = `<span class="text-[var(--magenta)] min-w-[20px]">[${letter}]</span><span>${cleanOpt}</span>`;
+                container.appendChild(btn);
             });
 
-            iniciarTemporizador();
+            startTimer();
         }
 
-        function seleccionarOpcion(indexSeleccionado) {
-            if (respondido) return;
-            respondido = true;
-            clearInterval(timerInterval);
-
-            const q = preguntas[indiceActual];
-            const botones = document.getElementById('options-container').children;
-
-            if (indexSeleccionado === q.correcta) {
-                botones[indexSeleccionado].classList.add('correct-opt');
-                puntaje++;
-                playSound('correct');
-            } else {
-                botones[indexSeleccionado].classList.add('incorrect-opt');
-                botones[q.correcta].classList.add('correct-opt');
-                playSound('incorrect');
+        function typeWriterEffect(element, text, speed = 15) {
+            let i = 0;
+            element.innerHTML = '<span class="cursor-blink">_</span>';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML = text.substring(0, i+1) + '<span class="cursor-blink">_</span>';
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML = text;
+                }
             }
-
-            for (let btn of botones) {
-                btn.disabled = true;
-            }
-
-            document.getElementById('score-display').textContent = `${String(puntaje).padStart(2, '0')} / ${preguntas.length}`;
-            document.getElementById('explanation-text').textContent = q.explicacion;
-            document.getElementById('feedback-panel').classList.remove('hidden');
+            type();
         }
 
-        function siguientePregunta() {
-            clearInterval(timerInterval);
-            indiceActual++;
-            if (indiceActual < preguntas.length) {
-                cargarPregunta();
-            } else {
-                finalizarEvaluacion();
-            }
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.startTime = Date.now();
+            const bar = document.getElementById('timer-bar');
+            const txt = document.getElementById('timer-text');
+            bar.classList.remove('timer-danger');
+
+            state.timerInterval = setInterval(() => {
+                if (state.isLocked) {
+                    clearInterval(state.timerInterval);
+                    return;
+                }
+
+                const elapsed = Date.now() - state.startTime;
+                const remainingMs = state.timeLimit - elapsed;
+
+                if (remainingMs <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleTimeout();
+                    return;
+                }
+
+                const remainingSecs = (remainingMs / 1000).toFixed(1);
+                const percent = (remainingMs / state.timeLimit) * 100;
+                
+                txt.innerText = `T-MINUS: ${remainingSecs}s`;
+                bar.style.width = `${percent}%`;
+
+                if (remainingMs < 10000) {
+                    txt.classList.replace('text-[var(--magenta)]', 'text-[var(--danger)]');
+                    bar.classList.add('timer-danger');
+                } else {
+                    txt.classList.replace('text-[var(--danger)]', 'text-[var(--magenta)]');
+                    bar.classList.remove('timer-danger');
+                }
+            }, 50);
         }
 
-        function finalizarEvaluacion() {
-            clearInterval(timerInterval);
-            document.getElementById('quiz-container').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('hidden');
-            document.getElementById('results-screen').classList.add('flex');
+        function handleAnswer(selectedIndex, btnElement) {
+            if (state.isLocked) return;
+            state.isLocked = true;
+            clearInterval(state.timerInterval);
 
-            const porcentaje = Math.round((puntaje / preguntas.length) * 100);
+            const q = preguntas[state.currentQ];
+            const isCorrect = selectedIndex === q.correcta;
             
-            document.getElementById('final-score').textContent = `${puntaje} / ${preguntas.length}`;
-            document.getElementById('final-percent').textContent = `${porcentaje}%`;
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correcta) b.classList.add('option-correct');
+            });
 
-            const unlockStatus = document.getElementById('unlock-status');
-            
-            if (porcentaje >= 70) {
-                unlockStatus.textContent = "100% DOMINADO ✔";
-                unlockStatus.className = "font-bold text-[var(--success)]";
-                document.getElementById('results-title').textContent = "MÓDULO COMPLETO CON ÉXITO";
-                document.getElementById('results-subtitle').textContent = "Has demostrado dominio total en la evaluación del Sistema Locomotor.";
-                document.getElementById('badge-icon').textContent = "🏆";
-                playSound('victory');
+            if (isCorrect) {
+                sfx.correct();
+                state.correctCount++;
+                
+                let earnedXp = 50; 
+                state.xp += earnedXp;
+                document.getElementById('header-xp').innerText = state.xp;
+                showFeedback(`>_ INTERCEPTACIÓN CORRECTA: +${earnedXp} XP`, true);
             } else {
-                unlockStatus.textContent = "INCOMPLETO (Mínimo 7/10)";
-                unlockStatus.className = "font-bold text-[var(--danger)]";
-                document.getElementById('results-title').textContent = "REPASO NECESARIO";
-                document.getElementById('results-subtitle').textContent = "Se requiere al menos 7 aciertos para certificar el Nivel Élite.";
-                document.getElementById('badge-icon').textContent = "⚠️";
+                sfx.error();
+                btnElement.classList.add('option-incorrect');
+                showFeedback(`>_ FALLO CRÍTICO: 0 XP`, false);
             }
+
+            setTimeout(nextQuestion, 1800);
         }
 
-        function reiniciarEvaluacion() {
-            indiceActual = 0;
-            puntaje = 0;
-            document.getElementById('score-display').textContent = `00 / ${preguntas.length}`;
-            document.getElementById('results-screen').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('flex');
-            document.getElementById('quiz-container').classList.remove('hidden');
-            cargarPregunta();
+        function handleTimeout() {
+            state.isLocked = true;
+            sfx.timeout();
+            
+            const txt = document.getElementById('timer-text');
+            const bar = document.getElementById('timer-bar');
+            txt.innerText = `T-MINUS: 0.0s`;
+            bar.style.width = `0%`;
+
+            const allBtns = document.querySelectorAll('.option-btn');
+            const correctIdx = preguntas[state.currentQ].correcta;
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === correctIdx) b.classList.add('option-correct');
+            });
+
+            showFeedback(`>_ TIEMPO AGOTADO: 0 XP`, false);
+            setTimeout(nextQuestion, 1800);
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', cargarPregunta);
-        } else {
-            cargarPregunta();
+        function showFeedback(msg, isSuccess) {
+            const el = document.getElementById('feedback-msg');
+            el.innerText = msg;
+            
+            if(isSuccess) {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--success)] bg-black/95 border-y border-[var(--success)] shadow-[0_0_20px_rgba(0,255,0,0.2)]';
+            } else {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--danger)] bg-black/95 border-y border-[var(--danger)] shadow-[0_0_20px_rgba(255,0,64,0.2)]';
+            }
+            
+            el.classList.add('block');
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            }, 1600);
+        }
+
+        function nextQuestion() {
+            state.currentQ++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            stopAmbientSound();
+            switchScreen('reward');
+            
+            let currentXpDisplay = 0;
+            const targetXp = state.xp;
+            const xpEl = document.getElementById('final-xp');
+            
+            const interval = setInterval(() => {
+                currentXpDisplay += Math.ceil(targetXp / 20) || 1;
+                if(currentXpDisplay >= targetXp) {
+                    currentXpDisplay = targetXp;
+                    clearInterval(interval);
+                    xpEl.innerText = targetXp;
+                    evaluateResult(targetXp);
+                } else {
+                    xpEl.innerText = currentXpDisplay;
+                }
+            }, 50);
+
+            document.getElementById('final-accuracy').innerText = `${state.correctCount}/${preguntas.length}`;
+        }
+
+        function evaluateResult(finalXp) {
+            const container = document.getElementById('result-action-container');
+            const passed = state.correctCount >= 7; 
+            
+            if (passed) {
+                localStorage.setItem('krebs_locomotor_fase3_superada', 'true');
+                
+                sfx.victory();
+                document.getElementById('results-title').textContent = "MÓDULO LOCOMOTOR DOMINADO";
+                container.classList.add('border-[var(--magenta)]', 'shadow-[0_0_20px_rgba(255,0,255,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--magenta)] mb-2 uppercase tracking-widest">> PROTOCOLO ÉLITE DOMINADO</p>
+                    <p class="text-xs text-gray-300 mb-4 font-bold">¡Has completado el 100% del Módulo de Sistema Locomotor con éxito!</p>
+                    
+                    <a href="../central_operaciones/index.html" 
+                       class="btn-tactical neon-border-magenta px-4 py-3 text-[var(--magenta)] text-xs sm:text-sm font-bold block text-center w-full bg-[#112240]/50 hover:bg-[#112240]">
+                        [ VOLVER A CENTRAL DE OPERACIONES ]
+                    </a>
+                `;
+            } else {
+                sfx.defeat();
+                document.getElementById('results-title').textContent = "EVALUACIÓN INSUFICIENTE";
+                container.classList.add('border-[var(--danger)]', 'shadow-[0_0_20px_rgba(255,0,64,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--danger)] mb-3 uppercase tracking-widest">> PUNTAJE INSUFICIENTE</p>
+                    <p class="text-xs text-gray-300 mb-6 leading-relaxed font-bold">Se requiere un mínimo de 7/10 aciertos (350 XP) para dominar el protocolo élite.</p>
+                    
+                    <button onclick="location.reload()" 
+                            class="border border-[var(--danger)] shadow-[0_0_15px_rgba(255,0,64,0.3)] px-4 py-3 text-[var(--danger)] text-xs sm:text-sm font-bold block w-full text-center hover:bg-[var(--danger)] hover:text-white transition-colors uppercase tracking-widest mb-2">
+                        > REINTENTAR MISIÓN
+                    </button>
+                    <a href="../central_operaciones/index.html" 
+                       class="border border-gray-700 px-4 py-3 text-gray-300 text-xs sm:text-sm font-bold block w-full text-center hover:bg-gray-800 transition-colors uppercase tracking-widest">
+                        > VOLVER A CENTRAL DE OPERACIONES
+                    </a>
+                `;
+            }
         }
     </script>
 </body>

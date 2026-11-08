@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs | Fase 1: Cepa Cero - Aparato Respiratorio</title>
+    <title>HIJOS DE KREBS /// APARATO RESPIRATORIO - FASE 01</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuente Space Mono -->
+    <!-- Fuente de consola: Space Mono -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para efectos de sonido -->
+    <!-- Tone.js para la síntesis de audio y ambiente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     
     <style>
         :root {
             --cyan: #00F2FF;
-            --magenta: #FF00E5;
-            --dark: #050505;
+            --magenta: #FF00FF;
+            --dark: #050A15;
+            --darker: #02050A;
             --danger: #FF0040;
             --success: #00FF00;
+            --warning: #FFB700;
         }
 
         body {
             font-family: 'Space Mono', monospace;
-            background-color: var(--dark);
+            background-color: var(--darker);
             color: #ffffff;
-            overflow-x: hidden;
+            overflow: hidden;
+            user-select: none;
+            text-transform: uppercase;
         }
 
+        /* Scanlines CRT */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -34,352 +39,651 @@
                 to bottom,
                 rgba(255,255,255,0),
                 rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.25) 50%,
-                rgba(0,0,0,0.25)
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
             );
             background-size: 100% 4px;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 999;
         }
 
-        .neon-border-cyan { border: 1px solid var(--cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .option-btn {
-            background: rgba(17, 34, 64, 0.4);
-            border: 1px solid #112240;
+        /* Estilos Neón */
+        .neon-border-cyan { 
+            border: 1px solid var(--cyan); 
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3), inset 0 0 10px rgba(0, 242, 255, 0.1); 
+        }
+        .neon-text-cyan { text-shadow: 0 0 5px var(--cyan); color: var(--cyan); }
+        .neon-text-magenta { text-shadow: 0 0 5px var(--magenta); color: var(--magenta); }
+
+        /* Botones holográficos */
+        .btn-tactical {
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
         }
-        .option-btn:hover {
+        .btn-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-tactical:hover::before { left: 100%; }
+        .btn-tactical:hover { 
+            background-color: rgba(0, 242, 255, 0.1); 
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.5); 
+        }
+
+        /* Opciones de respuesta */
+        .option-btn { 
+            border: 1px solid #112240; 
+            background: rgba(17, 34, 64, 0.4);
+            transition: all 0.2s; 
+        }
+        .option-btn:hover:not(:disabled) {
             border-color: var(--cyan);
-            background: rgba(0, 242, 255, 0.1);
-            transform: translateX(5px);
+            background-color: rgba(0, 242, 255, 0.1);
+            padding-left: 1.5rem;
         }
-        .option-btn.selected-correct {
-            background: rgba(0, 255, 0, 0.2) !important;
-            border-color: var(--success) !important;
-            color: var(--success);
+        .option-correct { 
+            border-color: var(--success) !important; 
+            background-color: rgba(0, 255, 0, 0.15) !important; 
+            color: var(--success); 
         }
-        .option-btn.selected-incorrect {
-            background: rgba(255, 0, 64, 0.2) !important;
-            border-color: var(--danger) !important;
-            color: var(--danger);
+        .option-incorrect { 
+            border-color: var(--danger) !important; 
+            background-color: rgba(255, 0, 64, 0.15) !important; 
+            color: var(--danger); 
+            opacity: 0.8; 
+        }
+
+        /* Barra de Tiempo */
+        #timer-bar { transition: width 0.1s linear, background-color 0.3s; }
+        .timer-danger { 
+            background-color: var(--danger) !important; 
+            box-shadow: 0 0 15px var(--danger); 
         }
 
         .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+<body class="h-screen w-full flex flex-col items-center justify-center p-2 sm:p-8">
 
     <div class="scanlines"></div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main id="app-container" class="w-full max-w-2xl bg-[#02050A] neon-border-cyan p-6 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl fade-in">
+    <main class="w-full max-w-4xl h-full sm:h-[95vh] bg-[var(--dark)] border border-[#112240] sm:rounded-sm flex flex-col relative z-10 neon-border-cyan overflow-hidden p-4 sm:p-8 shadow-2xl">
         
         <!-- Cabecera -->
-        <header class="flex justify-between items-center border-b border-[#112240] pb-4">
-            <div>
-                <h1 class="text-xs sm:text-sm font-bold tracking-widest text-gray-400">HIJOS DE KREBS /// <span class="text-[var(--success)]">RESPIRATORIO: CEPA CERO 🦠</span></h1>
-                <p id="progress-indicator" class="text-xs text-[var(--cyan)] mt-1">> INTERCEPCIÓN 1 / 10</p>
+        <header class="flex justify-between items-center border-b border-[#112240] pb-3 mb-4">
+            <div class="flex items-center space-x-3">
+                <a href="../central_operaciones/index.html" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors font-semibold mr-2">
+                    ← VOLVER A CENTRAL DE OPERACIONES
+                </a>
+                <div class="w-3 h-3 bg-[var(--cyan)] rounded-full animate-pulse shadow-[0_0_8px_#00F2FF]"></div>
+                <h1 class="text-xs sm:text-base font-bold tracking-widest text-gray-400">
+                    HIJOS DE KREBS <span class="text-[var(--cyan)]">///</span> M_RESPIRATORIO_FASE_1
+                </h1>
             </div>
-            <div class="text-right">
-                <p class="text-xs text-gray-400">XP TOTAL</p>
-                <p id="score-display" class="text-lg sm:text-xl font-bold text-[var(--cyan)]">0</p>
+            <div class="text-xs sm:text-sm text-gray-500 font-bold">
+                XP TOTAL: <span id="header-xp" class="text-[var(--cyan)]">0</span>
             </div>
         </header>
 
-        <!-- Barra de Tiempo y Estado -->
-        <div class="flex justify-between items-center text-xs text-gray-400 font-bold">
-            <span id="timer-text">> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">60s</span></span>
-            <span class="text-[var(--success)]">FILTRACIÓN ACTIVA</span>
-        </div>
-        <div class="w-full bg-gray-900 h-1.5 rounded overflow-hidden border border-[#112240]">
-            <div id="timer-bar" class="bg-[var(--success)] h-full w-full transition-all duration-1000"></div>
-        </div>
-
-        <!-- Pantalla de Pregunta -->
-        <div id="quiz-screen" class="space-y-6">
-            <h2 id="question-text" class="text-sm sm:text-base font-bold text-gray-200 leading-relaxed">
-                Cargando vector respiratorio...
-            </h2>
-
-            <div id="options-container" class="grid grid-cols-1 gap-3">
-                <!-- Opciones inyectadas por JS -->
+        <!-- PANTALLA 1: INICIO -->
+        <section id="screen-start" class="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div class="space-y-3">
+                <h2 class="text-2xl sm:text-4xl font-bold neon-text-cyan">>_ VENTILACIÓN Y VÍAS AÉREAS</h2>
+                <p class="neon-text-magenta text-xs sm:text-sm font-bold tracking-widest">APARATO RESPIRATORIO - NIVEL FÁCIL</p>
             </div>
-        </div>
-
-        <!-- Pantalla Final (Resultado) -->
-        <div id="result-screen" class="hidden text-center space-y-6 py-8">
-            <div id="result-icon" class="w-16 h-16 mx-auto flex items-center justify-center border-2 rounded-full text-2xl font-bold"></div>
-            <h2 id="result-title" class="text-xl sm:text-2xl font-bold tracking-wider"></h2>
-            <p id="result-desc" class="text-xs sm:text-sm text-gray-300 max-w-md mx-auto leading-relaxed"></p>
             
-            <div id="action-container" class="pt-4 flex flex-col gap-3">
-                <!-- Botón dinámico -->
+            <div class="p-4 sm:p-6 border border-[#112240] bg-black/60 text-left max-w-lg w-full text-xs sm:text-sm text-gray-400 space-y-3 shadow-inner">
+                <p class="text-[var(--cyan)] mb-2 font-bold">> PARÁMETROS DE LA MISIÓN:</p>
+                <p>• 10 Interceptaciones (5 Alternativas).</p>
+                <p>• <span class="text-white font-bold">60 Segundos</span> por bloque.</p>
+                <p>• <span class="text-[var(--magenta)]">XP Máximo:</span> 500 XP.</p>
+                <p class="mt-4 pt-4 border-t border-[#112240] text-[var(--danger)] font-bold text-center">
+                    BARRERA DE CORTE: 350 XP (7/10 ACIERTOS) PARA DESBLOQUEAR FASE 2.
+                </p>
             </div>
-        </div>
 
+            <button onclick="startGame()" class="btn-tactical neon-border-cyan px-8 py-4 text-[var(--cyan)] font-bold text-base sm:text-lg w-full max-w-lg mt-4">
+                [ INICIAR MISIÓN ]
+            </button>
+        </section>
+
+        <!-- PANTALLA 2: JUEGO -->
+        <section id="screen-game" class="flex-1 flex-col hidden relative">
+            
+            <!-- Timer -->
+            <div class="w-full bg-black h-2 mb-2 rounded-sm overflow-hidden border border-[#112240]">
+                <div id="timer-bar" class="h-full bg-[var(--cyan)] w-full shadow-[0_0_10px_#00F2FF]"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold mb-4">
+                <span id="timer-text" class="text-[var(--cyan)] tracking-widest">T-MINUS: 60.0s</span>
+                <span class="text-gray-500">BLOQUE: <span id="question-progress" class="text-white">1/10</span></span>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="mb-4 h-auto min-h-[80px]">
+                <p class="text-[var(--magenta)] text-[10px] sm:text-xs mb-1 font-bold">> INTERCEPTACIÓN DE DATOS:</p>
+                <h3 id="question-text" class="text-sm sm:text-lg font-bold leading-relaxed text-white"></h3>
+            </div>
+
+            <!-- 5 Alternativas -->
+            <div id="options-container" class="space-y-2 sm:space-y-3 flex-1 flex flex-col justify-start overflow-y-auto pb-4">
+                <!-- Inyectado por JS -->
+            </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedback-msg" class="absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-base sm:text-2xl hidden z-20 w-full text-center"></div>
+        </section>
+
+        <!-- PANTALLA 3: RESULTADOS -->
+        <section id="screen-reward" class="flex-1 flex-col items-center justify-center text-center hidden">
+            <h2 id="results-title" class="text-2xl sm:text-3xl font-bold neon-text-cyan mb-6">SIMULACIÓN FINALIZADA</h2>
+            
+            <div class="flex flex-row gap-4 w-full max-w-md mx-auto mb-8">
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">XP TOTAL</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-[var(--cyan)]" id="final-xp">0</p>
+                </div>
+                <div class="flex-1 p-4 bg-black border border-[#112240] flex flex-col items-center justify-center">
+                    <p class="text-[10px] sm:text-xs text-gray-500 mb-1">ACIERTOS</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white" id="final-accuracy">0/10</p>
+                </div>
+            </div>
+
+            <div id="result-action-container" class="w-full max-w-md mx-auto p-4 sm:p-6 bg-black border">
+                <!-- Inyectado por JS -->
+            </div>
+        </section>
     </main>
 
     <script>
-        // --- BASE DE DATOS: APARATO RESPIRATORIO (FASE 1) ---
-        const questions = [
-            {
-                question: "¿CUÁL ES LA PRINCIPAL VÍA DE ENTRADA DEL AIRE AL APARATO RESPIRATORIO, DONDE LOS CORNETES, EL MOCO Y LOS CILIOS FAVORECEN SU FILTRACIÓN, HUMIDIFICACIÓN Y CALENTAMIENTO?",
-                options: [
-                    "A) LA FARINGE",
-                    "B) LAS FOSAS NASALES",
-                    "C) LA LARINGE",
-                    "D) LA TRÁQUEA",
-                    "E) LOS BRONQUIOS"
-                ],
-                correct: 1
-            },
-            {
-                question: "¿QUÉ CONDUCTO MUSCULOMEMBRANOSO ES COMPARTIDO POR LOS SISTEMAS RESPIRATORIO Y DIGESTIVO?",
-                options: [
-                    "A) LA TRÁQUEA",
-                    "B) EL ESÓFAGO",
-                    "C) LA FARINGE",
-                    "D) LA LARINGE",
-                    "E) EL BRONQUIO"
-                ],
-                correct: 2
-            },
-            {
-                question: "¿QUÉ ESTRUCTURA CARTILAGINOSA CONTIENE LOS PLIEGUES VOCALES QUE PERMITEN LA FONACIÓN Y PROTEGE LA VÍA RESPIRATORIA DURANTE LA DEGLUCIÓN?",
-                options: [
-                    "A) LA FARINGE",
-                    "B) LA TRÁQUEA",
-                    "C) EL BRONQUIOLO",
-                    "D) LA LARINGE",
-                    "E) EL ALVÉOLO"
-                ],
-                correct: 3
-            },
-            {
-                question: "EL CONDUCTO RESPIRATORIO SOSTENIDO POR ANILLOS DE CARTÍLAGO HIALINO EN FORMA DE 'C' Y REVESTIDO POR UN EPITELIO CILIADO SE DENOMINA:",
-                options: [
-                    "A) BRONQUIOLO",
-                    "B) TRÁQUEA",
-                    "C) FARINGE",
-                    "D) ALVÉOLO",
-                    "E) PLEURA"
-                ],
-                correct: 1
-            },
-            {
-                question: "¿CUÁL ES LA SECUENCIA ANATÓMICA CORRECTA DEL RECORRIDO DEL AIRE DESDE EL EXTERIOR HASTA LLEGAR A LOS ALVÉOLOS PULMONARES?",
-                options: [
-                    "A) FOSAS NASALES → LARINGE → FARINGE → TRÁQUEA → BRONQUIOS → BRONQUIOLOS → ALVÉOLOS",
-                    "B) FOSAS NASALES → FARINGE → LARINGE → TRÁQUEA → BRONQUIOS → BRONQUIOLOS → ALVÉOLOS",
-                    "C) FOSAS NASALES → TRÁQUEA → FARINGE → LARINGE → BRONQUIOLOS → BRONQUIOS → ALVÉOLOS",
-                    "D) FOSAS NASALES → FARINGE → LARINGE → BRONQUIOS → TRÁQUEA → BRONQUIOLOS → ALVÉOLOS",
-                    "E) FOSAS NASALES → LARINGE → TRÁQUEA → FARINGE → BRONQUIOLOS → BRONQUIOS → ALVÉOLOS"
-                ],
-                correct: 1
-            },
-            {
-                question: "RESPECTO A LA LOBULACIÓN ANATÓMICA DE LOS PULMONES, EL PULMÓN DERECHO Y EL PULMÓN IZQUIERDO POSEEN, RESPECTIVAMENTE:",
-                options: [
-                    "A) DOS LÓBULOS Y TRES LÓBULOS",
-                    "B) TRES LÓBULOS Y TRES LÓBULOS",
-                    "C) TRES LÓBULOS Y DOS LÓBULOS",
-                    "D) DOS LÓBULOS Y DOS LÓBULOS",
-                    "E) UN LÓBULO Y DOS LÓBULOS"
-                ],
-                correct: 2
-            },
-            {
-                question: "¿QUÉ SUSTANCIA, SINTETIZADA POR LOS NEUMOCITOS TIPO II, REDUCE LA TENSIÓN SUPERFICIAL ALVEOLAR Y EVITA EL COLAPSO DE LOS ALVÉOLOS PULMONARES?",
-                options: [
-                    "A) HEMOGLOBINA",
-                    "B) ANHIDRASA CARBÓNICA",
-                    "C) SURFACTANTE",
-                    "D) BICARBONATO",
-                    "E) MOCO"
-                ],
-                correct: 2
-            },
-            {
-                question: "DURANTE LA INSPIRACIÓN TRANQUILA O NORMAL, EL PRINCIPAL MÚSCULO RESPIRATORIO SE CONTRAE Y DESCIENDE. ¿CUÁL ES DICHO MÚSCULO?",
-                options: [
-                    "A) INTERCOSTAL INTERNO",
-                    "B) DIAFRAGMA",
-                    "C) PECTORAL MAYOR",
-                    "D) RECTO ABDOMINAL",
-                    "E) ESCALENO"
-                ],
-                correct: 1
-            },
-            {
-                question: "¿CUÁL ES LA FORMA PREDOMINANTE O PRINCIPAL EN LA QUE SE TRANSPORTA EL DIÓXIDO DE CARBONO (CO₂) EN EL TORRENTE SANGUÍNEO HUMANO?",
-                options: [
-                    "A) DISUELTO LIBREMENTE EN EL PLASMA",
-                    "B) UNIDO DIRECTAMENTE A LOS NEUMOCITOS TIPO I",
-                    "C) COMO BICARBONATO (HCO₃⁻)",
-                    "D) COMO CARBOXIHEMOGLOBINA",
-                    "E) COMO OXIHEMOGLOBINA"
-                ],
-                correct: 2
-            },
-            {
-                question: "¿QUÉ ESTRUCTURAS DE LA VÍA AÉREA MARCAN EL INICIO FORMAL DE LA ZONA RESPIRATORIA O DE INTERCAMBIO GASEOSO?",
-                options: [
-                    "A) LOS BRONQUIOS PRINCIPALES",
-                    "B) LOS BRONQUIOS SEGMENTARIOS",
-                    "C) LAS FOSAS NASALES",
-                    "D) LOS BRONQUIOLOS RESPIRATORIOS",
-                    "E) LOS ANILLOS TRAQUEALES"
-                ],
-                correct: 3
-            }
-        ];
-
-        let currentQuestion = 0;
-        let score = 0;
-        let timeLeft = 60;
-        let timerInterval;
-        let audioInit = false;
+        // --- MOTOR DE AUDIO INMERSIVO (Tone.js) ---
         let synth;
+        let ambientPad;
+        let ambientLoop;
+        let audioInit = false;
 
         function initAudio() {
             if (!audioInit) {
                 synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                synth.volume.value = -12;
+                synth.volume.value = -10;
+
+                ambientPad = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                }).toDestination();
+                ambientPad.volume.value = -26;
+
+                const arpSynth = new Tone.Synth({
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                arpSynth.volume.value = -32;
+
+                const filter = new Tone.Filter(800, "lowpass").toDestination();
+                arpSynth.connect(filter);
+
+                const arpNotes = ["C3", "G3", "D#4", "A#3", "G3", "C4"];
+                let step = 0;
+
+                ambientLoop = new Tone.Loop(time => {
+                    arpSynth.triggerAttackRelease(arpNotes[step % arpNotes.length], "16n", time);
+                    step++;
+                }, "8n");
+
                 audioInit = true;
             }
         }
 
+        function startAmbientSound() {
+            if (!audioInit) return;
+            try {
+                Tone.Transport.bpm.value = 90;
+                Tone.Transport.start();
+                ambientPad.triggerAttack(["C3", "G3", "A#3", "D#4"]);
+                ambientLoop.start(0);
+            } catch (e) {}
+        }
+
+        function stopAmbientSound() {
+            try {
+                if (ambientPad) {
+                    ambientPad.triggerRelease(["C3", "G3", "A#3", "D#4"]);
+                }
+                if (ambientLoop) {
+                    ambientLoop.stop();
+                    Tone.Transport.stop();
+                }
+            } catch (e) {}
+        }
+
         const sfx = {
+            hover: () => { if(audioInit) synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.04); },
             click: () => { if(audioInit) synth.triggerAttackRelease("C6", "32n"); },
-            success: () => { if(audioInit) synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n"); },
-            error: () => { if(audioInit) synth.triggerAttackRelease(["C3", "F#2"], "4n"); }
+            correct: () => { 
+                if(audioInit) {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.06);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.12);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.18);
+                }
+            },
+            error: () => { if(audioInit) synth.triggerAttackRelease(["D#3", "A2"], "8n"); },
+            timeout: () => { if(audioInit) synth.triggerAttackRelease(["G2", "C2"], "4n"); },
+            victory: () => { if(audioInit) {
+                stopAmbientSound();
+                const now = Tone.now();
+                synth.triggerAttackRelease("C4", "16n", now);
+                synth.triggerAttackRelease("G4", "16n", now + 0.12);
+                synth.triggerAttackRelease("C5", "8n", now + 0.24);
+                synth.triggerAttackRelease("E5", "4n", now + 0.36);
+            }},
+            defeat: () => { if(audioInit) {
+                stopAmbientSound();
+                synth.triggerAttackRelease(["G3", "D#3", "C3"], "2n");
+            }}
         };
 
-        function startTimer() {
-            timeLeft = 60;
-            document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
-            document.getElementById('timer-bar').style.width = '100%';
-            
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer-text').innerHTML = `> TIEMPO RESTANTE: <span class="text-[var(--cyan)]">${timeLeft}s</span>`;
-                let percentage = (timeLeft / 60) * 100;
-                document.getElementById('timer-bar').style.width = percentage + '%';
+        // --- MATRIZ DE PREGUNTAS (Aparato Respiratorio - Fase 1) ---
+        const preguntas = [
+            {
+                pregunta: "1. ¿CUÁL ES LA ESTRUCTURA ANATÓMICA QUE ACTÚA COMO VÁLVULA EVITANDO EL PASO DE ALIMENTOS HACIA LA VÍA AÉREA DURANTE LA DEGLUCIÓN?",
+                opciones: [
+                    "A) LA UVULA",
+                    "B) LA EPIGLOTIS",
+                    "C) EL CARTÍLAGO TIROIDES",
+                    "D) LAS CUERDAS VOCALES",
+                    "E) LA GLOTIS"
+                ],
+                correcta: 1,
+                explicacion: "LA EPIGLOTIS ES UN CARTÍLAGO ELASTICO QUE CIERRA LA LARINGE DURANTE LA DEGLUCIÓN PARA IMPEDIR EL PASO DE ALIMENTOS A LA VÍA RESPIRATORIA."
+            },
+            {
+                pregunta: "2. ¿CÓMO SE DENOMINA LA MEMBRANA SEROSA DE DOBLE CAPA QUE RECUBRE LOS PULMONES Y LA CAVIDAD TORÁCICA?",
+                opciones: [
+                    "A) PERICARDIO",
+                    "B) PERITONEO",
+                    "C) PLEURA",
+                    "D) MENINGE",
+                    "E) ENDOTELIO"
+                ],
+                correcta: 2,
+                explicacion: "LA PLEURA (VISCERAL Y PARIETAL) ES LA MEMBRANA SEROSA QUE ENVUELVE LOS PULMONES Y FACILITA SU DESPLAZAMIENTO DURANTE LA RESPIRACIÓN."
+            },
+            {
+                pregunta: "3. ¿CUÁL ES LA UNIDAD ANATÓMICA Y FUNCIONAL ENCARGADA DEL INTERCAMBIO GASEOSO (HEMATOSIS) EN LOS PULMONES?",
+                opciones: [
+                    "A) EL BRONQUIOLO TERMINAL",
+                    "B) EL ALVÉOLO PULMONAR",
+                    "C) LA TRÁQUEA",
+                    "D) EL SACO PLEURAL",
+                    "E) EL LOBULILLO SECUNDARIO"
+                ],
+                correcta: 1,
+                explicacion: "LOS ALVÉOLOS PULMONARES SON LAS ESTRUCTURAS EN FORMA DE SACO DONDE SE REALIZA DIRECTAMENTE LA HEMATOSIS CON LOS CAPILARES."
+            },
+            {
+                pregunta: "4. ¿CUÁL ES EL PRINCIPAL MÚSCULO RESPIRATORIO RESPONSABLE DE LA INSPIRACIÓN EN CONDICIONES BASALES?",
+                opciones: [
+                    "A) LOS INTERCOSTALES EXTERNOS",
+                    "B) EL DIAFRAGMA",
+                    "C) EL ESTERNOCLEIDOMASTOIDEO",
+                    "D) LOS RECTOS ABDOMINALES",
+                    "E) EL ESCALENO"
+                ],
+                correcta: 1,
+                explicacion: "EL DIAFRAGMA ES EL MÚSCULO PRINCIPAL DE LA RESPIRACIÓN; AL CONTRAERSE Y DESCENDER, AUMENTA EL VOLUMEN TORÁCICO E INDUCE LA INSPIRACIÓN."
+            },
+            {
+                pregunta: "5. ¿QUÉ CÉLULAS ALVEOLARES SON LAS ENCARGADAS DE SECRETAR EL SURFACTANTE PULMONAR, SUSTANCIA QUE DISMINUYE LA TENSIÓN SUPERFICIAL?",
+                opciones: [
+                    "A) NEUMOCITOS TIPO I",
+                    "B) NEUMOCITOS TIPO II",
+                    "C) MACRÓFAGOS ALVEOLARES",
+                    "D) CÉLULAS CALICIFORMES",
+                    "E) CÉLULAS CILIADAS"
+                ],
+                correcta: 1,
+                explicacion: "LOS NEUMOCITOS TIPO II SINTETIZAN Y SECRETAN EL SURFACTANTE PULMONAR, EVITANDO EL COLAPSO ALVEOLAR AL FINAL DE LA ESPIRACIÓN."
+            },
+            {
+                pregunta: "6. ¿EN QUÉ ZONA DE LAS VÍAS RESPIRATORIAS SE ENCUENTRAN LAS CUERDAS VOCALES VERD。, RESPONSABLES DE LA FONACIÓN?",
+                opciones: [
+                    "A) FARINGE",
+                    "B) LARINGE",
+                    "C) TRÁQUEA",
+                    "D) BRONQUIOS",
+                    "E) FOSAS NASALES"
+                ],
+                correcta: 1,
+                explicacion: "LA LARINGE ALBERGA LAS CUERDAS VOCALES VERDADERAS, CUYA VIBRACIÓN AL PASO DEL AIRE GENERA LA VOZ."
+            },
+            {
+                pregunta: "7. ¿CÓMO SE DENOMINA EL VOLUMEN DE AIRE QUE ENTRA Y SALE DE LOS PULMONES EN CADA RESPIRACIÓN NORMAL EN REPOSO?",
+                opciones: [
+                    "A) VOLUMEN DE RESERVA INSPIRATORIA",
+                    "B) VOLUMEN RESIDUAL",
+                    "C) VOLUMEN CORRIENTE (O TIDAL)",
+                    "D) CAPACIDAD VITAL",
+                    "E) VOLUMEN DE RESERVA ESPIRATORIA"
+                ],
+                correcta: 2,
+                explicacion: "EL VOLUMEN CORRIENTE (O TIDAL) CORRESPONDE AL AIRE MOBILIZADO EN CADA CICLO RESPIRATORIO NORMAL (APROXIMADAMENTE 500 ML)."
+            },
+            {
+                pregunta: "8. ¿CUÁL ES EL PRINCIPAL ESTÍMULO QUÍMICO QUE REGULA Y EXCITA EL CENTRO RESPIRATORIO BULBAR PARA MODIFICAR EL RITMO VENTILATORIO?",
+                opciones: [
+                    "A) EL AUMENTO DE LA PRESIÓN PARCIAL DE OXÍGENO",
+                    "B) EL INCREMENTO DE LA CONCENTRACIÓN DE CO₂ Y H⁺ EN SANGRE Y LCR",
+                    "C) LA DISMINUCIÓN TOTAL DE LA GLUCOSA",
+                    "D) EL EXCESO DE NITROGENO ALVEOLAR",
+                    "E) LA CAÍDA DE LA TEMPERATURA CORPORAL"
+                ],
+                correcta: 1,
+                explicacion: "LOS QUIMIORRECEPTORES CENTRALES Y PERIFÉRICOS SON ALTAMENTE SENSIBLES AL AUMENTO DE CO₂ (HIPERCAPNIA) Y LA ACIDEZ (H⁺)."
+            },
+            {
+                pregunta: "9. ¿QUÉ TIPO DE EPITELIO REVESTE PRINCíPALMENTE LAS VÍAS RESPIRATORIAS ALTAS Y LA TRÁQUEA PARA FILTRAR Y ACONDICIONAR EL AIRE?",
+                opciones: [
+                    "A) EPITELIO PLANO ESTRATIFICADO QUERATINIZADO",
+                    "B) EPITELIO CILÍNDRICO PSEUDOESTRATIFICADO CILIADO CON CÉLULAS CALICIFORMES",
+                    "C) EPITELIO PAVIMENTOSO SIMPLE",
+                    "D) EPITELIO CÚBICO SIMPLE",
+                    "E) EPITELIO DE TRANSICIÓN"
+                ],
+                correcta: 1,
+                explicacion: "EL EPITELIO RESPIRATORIO TÍPICO ES CILÍNDRICO PSEUDOESTRATIFICADO CILIADO CON CÉLULAS CALICIFORMES PRODUCTORAS DE MUCUS."
+            },
+            {
+                pregunta: "10. ¿CÓMO SE TRANSPORTA LA MAYOR PARTE DEL DIÓXIDO DE CARBONO (CO₂) DESDE LOS TEJIDOS HACIA LOS PULMONES EN LA SANGRE?",
+                opciones: [
+                    "A) DISUELTO DIRECTAMENTE EN EL PLASMA",
+                    "B) UNIDO A LA HEMOGLOBINA COMO CARBINOHEMOGLOBINA",
+                    "C) EN FORMA DE ION BICARBONATO (HCO₃⁻) EN EL PLASMA",
+                    "D) COMBINADO CON LOS LEUCOCITOS",
+                    "E) EN FORMA DE ÁCIDO LÁCTICO LIBRE"
+                ],
+                correcta: 2,
+                explicacion: "Aproximadamente el 70% del CO₂ se transporta disuelto como ion bicarbonato (HCO₃⁻) gracias a la acción de la anhidrasa carbónica en los eritrocitos."
+            }
+        ];
 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    handleAnswer(-1);
+        // --- ESTADO TÁCTICO ---
+        let state = {
+            currentQ: 0,
+            xp: 0,
+            correctCount: 0,
+            timerInterval: null,
+            startTime: 0,
+            timeLimit: 60000,
+            isLocked: false
+        };
+
+        const screens = {
+            start: document.getElementById('screen-start'),
+            game: document.getElementById('screen-game'),
+            reward: document.getElementById('screen-reward')
+        };
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            screens[screenName].classList.remove('hidden');
+            screens[screenName].classList.add('flex');
+        }
+
+        async function startGame() {
+            try {
+                if (typeof Tone !== 'undefined') {
+                    await Tone.start();
+                    initAudio();
+                    sfx.click();
+                    startAmbientSound();
                 }
-            }, 1000);
+            } catch (e) {
+                console.log("Audio bypass activado");
+            }
+            switchScreen('game');
+            loadQuestion();
         }
 
         function loadQuestion() {
-            if (currentQuestion >= questions.length) {
-                endQuiz();
+            if (state.currentQ >= preguntas.length) {
+                endGame();
                 return;
             }
 
-            initAudio();
-            startTimer();
+            state.isLocked = false;
+            const q = preguntas[state.currentQ];
+            
+            document.getElementById('question-progress').innerText = `${state.currentQ + 1}/${preguntas.length}`;
+            const qEl = document.getElementById('question-text');
+            qEl.innerHTML = '';
+            typeWriterEffect(qEl, q.pregunta);
 
-            const q = questions[currentQuestion];
-            document.getElementById('progress-indicator').innerText = `> INTERCEPCIÓN ${currentQuestion + 1} / ${questions.length}`;
-            document.getElementById('question-text').innerText = q.question;
-
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-
-            q.options.forEach((opt, index) => {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.opciones.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-btn w-full p-4 text-left text-xs sm:text-sm font-bold text-gray-200 rounded flex justify-between items-center';
-                btn.innerHTML = `<span>${opt}</span><span class="text-xs opacity-50">></span>`;
-                btn.onclick = () => {
-                    clearInterval(timerInterval);
-                    handleAnswer(index, btn);
-                };
-                optionsContainer.appendChild(btn);
+                btn.className = "option-btn w-full text-left p-3 sm:p-4 text-gray-300 flex items-center space-x-3 text-xs sm:text-sm font-bold uppercase";
+                btn.onmouseenter = sfx.hover;
+                btn.onclick = () => handleAnswer(idx, btn);
+                const letter = String.fromCharCode(65 + idx);
+                
+                const cleanOpt = opt.replace(/^[A-E]\)\s*/, '');
+
+                btn.innerHTML = `<span class="text-[var(--cyan)] min-w-[20px]">[${letter}]</span><span>${cleanOpt}</span>`;
+                container.appendChild(btn);
             });
+
+            startTimer();
+        }
+
+        function typeWriterEffect(element, text, speed = 15) {
+            let i = 0;
+            element.innerHTML = '<span class="cursor-blink">_</span>';
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML = text.substring(0, i+1) + '<span class="cursor-blink">_</span>';
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML = text;
+                }
+            }
+            type();
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.startTime = Date.now();
+            const bar = document.getElementById('timer-bar');
+            const txt = document.getElementById('timer-text');
+            bar.classList.remove('timer-danger');
+
+            state.timerInterval = setInterval(() => {
+                if (state.isLocked) {
+                    clearInterval(state.timerInterval);
+                    return;
+                }
+
+                const elapsed = Date.now() - state.startTime;
+                const remainingMs = state.timeLimit - elapsed;
+
+                if (remainingMs <= 0) {
+                    clearInterval(state.timerInterval);
+                    handleTimeout();
+                    return;
+                }
+
+                const remainingSecs = (remainingMs / 1000).toFixed(1);
+                const percent = (remainingMs / state.timeLimit) * 100;
+                
+                txt.innerText = `T-MINUS: ${remainingSecs}s`;
+                bar.style.width = `${percent}%`;
+
+                if (remainingMs < 10000) {
+                    txt.classList.replace('text-[var(--cyan)]', 'text-[var(--danger)]');
+                    bar.classList.add('timer-danger');
+                } else {
+                    txt.classList.replace('text-[var(--danger)]', 'text-[var(--cyan)]');
+                    bar.classList.remove('timer-danger');
+                }
+            }, 50);
         }
 
         function handleAnswer(selectedIndex, btnElement) {
-            sfx.click();
-            const q = questions[currentQuestion];
-            const allBtns = document.querySelectorAll('.option-btn');
-            
-            allBtns.forEach(b => b.disabled = true);
+            if (state.isLocked) return;
+            state.isLocked = true;
+            clearInterval(state.timerInterval);
 
-            if (selectedIndex === q.correct) {
-                if(btnElement) btnElement.classList.add('selected-correct');
-                sfx.success();
-                let earnedXP = 100 + (timeLeft * 2);
-                score += earnedXP;
+            const q = preguntas[state.currentQ];
+            const isCorrect = selectedIndex === q.correcta;
+            
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correcta) b.classList.add('option-correct');
+            });
+
+            if (isCorrect) {
+                sfx.correct();
+                state.correctCount++;
+                
+                let earnedXp = 50; 
+                state.xp += earnedXp;
+                document.getElementById('header-xp').innerText = state.xp;
+                showFeedback(`>_ INTERCEPTACIÓN CORRECTA: +${earnedXp} XP`, true);
             } else {
-                if(btnElement) btnElement.classList.add('selected-incorrect');
-                if(allBtns[q.correct]) allBtns[q.correct].classList.add('selected-correct');
                 sfx.error();
+                btnElement.classList.add('option-incorrect');
+                showFeedback(`>_ FALLO CRÍTICO: 0 XP`, false);
             }
 
-            document.getElementById('score-display').innerText = score;
-
-            setTimeout(() => {
-                currentQuestion++;
-                loadQuestion();
-            }, 1200);
+            setTimeout(nextQuestion, 1800);
         }
 
-        function endQuiz() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('timer-text').parentElement.classList.add('hidden');
-            document.getElementById('timer-bar').parentElement.classList.add('hidden');
+        function handleTimeout() {
+            state.isLocked = true;
+            sfx.timeout();
             
-            const resultScreen = document.getElementById('result-screen');
-            resultScreen.classList.remove('hidden');
+            const txt = document.getElementById('timer-text');
+            const bar = document.getElementById('timer-bar');
+            txt.innerText = `T-MINUS: 0.0s`;
+            bar.style.width = `0%`;
 
-            const resultIcon = document.getElementById('result-icon');
-            const resultTitle = document.getElementById('result-title');
-            const resultDesc = document.getElementById('result-desc');
-            const actionContainer = document.getElementById('action-container');
+            const allBtns = document.querySelectorAll('.option-btn');
+            const correctIdx = preguntas[state.currentQ].correcta;
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === correctIdx) b.classList.add('option-correct');
+            });
 
-            // Barrera de supervivencia: 750 XP
-            if (score >= 750) {
-                // GUARDAR PROGRESO PARA DESBLOQUEAR LA FASE 2
-                localStorage.setItem('krebs_fase1_respiratorio_ok', 'true');
+            showFeedback(`>_ TIEMPO AGOTADO: 0 XP`, false);
+            setTimeout(nextQuestion, 1800);
+        }
 
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--success)] rounded-full text-2xl font-bold text-[var(--success)] shadow-[0_0_15px_#00FF00]";
-                resultIcon.innerText = "✓";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--success)]";
-                resultTitle.innerText = ">> CEPA CERO SUPERADA";
-                resultDesc.innerHTML = `Métricas óptimas alcanzadas (<span class="text-[var(--cyan)] font-bold">${score} XP</span>). El acceso a la <span class="text-[var(--magenta)] font-bold">Fase 2 (Brote Mutante)</span> ha sido habilitado en tu sistema.`;
+        function showFeedback(msg, isSuccess) {
+            const el = document.getElementById('feedback-msg');
+            el.innerText = msg;
+            
+            if(isSuccess) {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--success)] bg-black/95 border-y border-[var(--success)] shadow-[0_0_20px_rgba(0,255,0,0.2)]';
+            } else {
+                el.className = 'absolute inset-0 m-auto h-16 sm:h-20 flex items-center justify-center font-bold text-sm sm:text-2xl z-20 w-full text-center text-[var(--danger)] bg-black/95 border-y border-[var(--danger)] shadow-[0_0_20px_rgba(255,0,64,0.2)]';
+            }
+            
+            el.classList.add('block');
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            }, 1600);
+        }
+
+        function nextQuestion() {
+            state.currentQ++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            stopAmbientSound();
+            switchScreen('reward');
+            
+            let currentXpDisplay = 0;
+            const targetXp = state.xp;
+            const xpEl = document.getElementById('final-xp');
+            
+            const interval = setInterval(() => {
+                currentXpDisplay += Math.ceil(targetXp / 20) || 1;
+                if(currentXpDisplay >= targetXp) {
+                    currentXpDisplay = targetXp;
+                    clearInterval(interval);
+                    xpEl.innerText = targetXp;
+                    evaluateResult(targetXp);
+                } else {
+                    xpEl.innerText = currentXpDisplay;
+                }
+            }, 50);
+
+            document.getElementById('final-accuracy').innerText = `${state.correctCount}/${preguntas.length}`;
+        }
+
+        function evaluateResult(finalXp) {
+            const container = document.getElementById('result-action-container');
+            const passed = state.correctCount >= 7; 
+            
+            if (passed) {
+                localStorage.setItem('krebs_respiratorio_fase2_unlocked', 'true');
                 
-                actionContainer.innerHTML = `
-                    <a href="index.html" class="block w-full border border-[var(--success)] bg-[var(--success)] text-black font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-transparent hover:text-[var(--success)] transition-colors">
-                        [ VOLVER A LA CENTRAL DE OPERACIONES ]
+                sfx.victory();
+                document.getElementById('results-title').textContent = "FASE 01 SUPERADA";
+                container.classList.add('border-[var(--cyan)]', 'shadow-[0_0_20px_rgba(0,242,255,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--cyan)] mb-2 uppercase tracking-widest">> PROTOCOLO DESENCRIPTADO</p>
+                    <p class="text-xs text-gray-300 mb-4 font-bold">¡Acceso a la Fase 2 desbloqueado con éxito en el sistema!</p>
+                    
+                    <a href="../fase2/index.html" 
+                       class="btn-tactical neon-border-cyan px-4 py-3 text-[var(--cyan)] text-xs sm:text-sm font-bold block text-center w-full bg-[#112240]/50 hover:bg-[#112240] mb-2">
+                        [ AVANZAR A FASE 2 ]
+                    </a>
+                    <a href="../central_operaciones/index.html" 
+                       class="btn-tactical neon-border-cyan px-4 py-3 text-[var(--cyan)] text-xs sm:text-sm font-bold block text-center w-full bg-[#112240]/50 hover:bg-[#112240]">
+                        [ VOLVER A CENTRAL DE OPERACIONES ]
                     </a>
                 `;
             } else {
-                resultIcon.className = "w-16 h-16 mx-auto flex items-center justify-center border-2 border-[var(--danger)] rounded-full text-2xl font-bold text-[var(--danger)] shadow-[0_0_15px_#FF0040]";
-                resultIcon.innerText = "✕";
-                resultTitle.className = "text-xl sm:text-2xl font-bold tracking-wider text-[var(--danger)]";
-                resultTitle.innerText = ">> MÉTRICAS INSUFICIENTES";
-                resultDesc.innerHTML = `Tu puntaje final fue de <span class="text-[var(--danger)] font-bold">${score} XP</span>. No alcanzaste el umbral de 750 XP para superar la Cepa Cero del aparato respiratorio.`;
-                
-                actionContainer.innerHTML = `
-                    <button onclick="location.reload()" class="w-full border border-[var(--cyan)] bg-transparent text-[var(--cyan)] font-bold py-4 text-center text-xs uppercase tracking-widest hover:bg-[var(--cyan)] hover:text-black transition-colors">
-                        [ REINTENTAR PROTOCOLO ]
+                sfx.defeat();
+                document.getElementById('results-title').textContent = "EVALUACIÓN INSUFICIENTE";
+                container.classList.add('border-[var(--danger)]', 'shadow-[0_0_20px_rgba(255,0,64,0.15)]');
+                container.innerHTML = `
+                    <p class="text-xs sm:text-sm font-bold text-[var(--danger)] mb-3 uppercase tracking-widest">> PUNTAJE INSUFICIENTE</p>
+                    <p class="text-xs text-gray-300 mb-6 leading-relaxed font-bold">Se requiere un mínimo de 7/10 aciertos (350 XP) para aprobar el protocolo.</p>
+                    
+                    <button onclick="location.reload()" 
+                            class="border border-[var(--danger)] shadow-[0_0_15px_rgba(255,0,64,0.3)] px-4 py-3 text-[var(--danger)] text-xs sm:text-sm font-bold block w-full text-center hover:bg-[var(--danger)] hover:text-white transition-colors uppercase tracking-widest mb-2">
+                        > REINTENTAR MISIÓN
                     </button>
+                    <a href="../central_operaciones/index.html" 
+                       class="border border-gray-700 px-4 py-3 text-gray-300 text-xs sm:text-sm font-bold block w-full text-center hover:bg-gray-800 transition-colors uppercase tracking-widest">
+                        > VOLVER A CENTRAL DE OPERACIONES
+                    </a>
                 `;
             }
         }
-
-        window.addEventListener('click', () => {
-            initAudio();
-        }, { once: true });
-
-        loadQuestion();
     </script>
 </body>
 </html>

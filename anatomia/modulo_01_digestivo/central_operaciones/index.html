@@ -4,80 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hijos de Krebs | MÓDULO 01: APARATO DIGESTIVO</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Chakra Petch -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <!-- Tone.js para Efectos de Audio -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
     <style>
-        :root {
-            --cyan: #00F2FF;
-            --magenta: #FF00E5;
-            --dark: #030712;
-            --success: #00FF66;
-            --danger: #FF0055;
-            --warning: #FFB700;
-        }
-
-        body {
-            font-family: 'Chakra Petch', sans-serif;
-            background-color: var(--dark);
-            color: #ffffff;
-            overflow-x: hidden;
-            user-select: none;
-        }
-
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.3) 50%,
-                rgba(0,0,0,0.3)
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        .neon-box {
-            border: 1px solid var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-        }
-
-        .phase-card {
-            background: rgba(17, 24, 39, 0.8);
-            border: 1px solid #1f2937;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .phase-card.unlocked:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 242, 255, 0.08);
-            transform: translateX(4px);
-        }
-
-        .phase-card.locked {
-            opacity: 0.65;
-            border-style: dashed;
-        }
+        :root { --cyan: #00F2FF; --magenta: #FF00E5; --dark: #030712; --success: #00FF66; --warning: #FFB700; }
+        body { font-family: 'Chakra Petch', sans-serif; background-color: var(--dark); color: #ffffff; user-select: none; }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3)); background-size: 100% 4px; pointer-events: none; z-index: 9999; }
+        .neon-box { border: 1px solid var(--cyan); box-shadow: 0 0 20px rgba(0, 242, 255, 0.15); }
+        .phase-card { background: rgba(17, 24, 39, 0.8); border: 1px solid #1f2937; transition: all 0.2s ease-in-out; }
+        .phase-card.unlocked:hover { border-color: var(--cyan); background: rgba(0, 242, 255, 0.08); transform: translateX(4px); }
+        .phase-card.locked { opacity: 0.65; border-style: dashed; }
     </style>
 </head>
 <body class="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6">
-
     <div class="scanlines"></div>
-
     <main class="w-full max-w-3xl bg-[#0b132b] neon-box rounded-lg p-6 sm:p-8 space-y-6 relative z-10 shadow-2xl">
         
-        <!-- ENCABEZADO Y RETORNO -->
         <header class="flex justify-between items-center border-b border-gray-800 pb-4 gap-3">
             <div>
-                <a href="../../../index.html" class="text-xs text-gray-400 hover:text-[var(--cyan)] font-semibold transition-colors">
+                <a href="../../../boveda.html" class="text-xs text-gray-400 hover:text-[var(--cyan)] font-semibold transition-colors">
                     ← VOLVER A BÓVEDA CIENTÍFICA
                 </a>
                 <h1 class="text-xs text-[var(--magenta)] uppercase tracking-wider mt-2">/// SECTOR CLÍNICO & BIOLÓGICO</h1>
@@ -91,15 +37,11 @@
             </div>
         </header>
 
-        <!-- SUBTÍTULO DE PROGRESIÓN -->
         <div class="space-y-1">
             <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold">> Progresión táctica de amenaza:</p>
         </div>
 
-        <!-- TARJETAS DE FASES -->
         <div class="space-y-3">
-            
-            <!-- FASE 1 (Siempre abierta) -->
             <a href="../fase1/index.html" class="phase-card unlocked p-4 rounded-lg flex justify-between items-center block">
                 <div>
                     <span class="text-xs text-[var(--success)] font-bold uppercase">FASE 1 🦠 (Nivel Básico)</span>
@@ -108,7 +50,6 @@
                 <span class="text-xs font-bold text-[var(--success)]">></span>
             </a>
 
-            <!-- FASE 2 (Bloqueada hasta aprobar Fase 1) -->
             <div id="card-fase2" class="phase-card locked p-4 rounded-lg flex justify-between items-center cursor-pointer" onclick="alertaBloqueo(1)">
                 <div>
                     <span class="text-xs text-[var(--warning)] font-bold uppercase">FASE 2 ☣️ (Nivel Intermedio)</span>
@@ -117,7 +58,6 @@
                 <span id="status-fase2" class="text-[10px] font-bold text-[var(--warning)] uppercase tracking-wider">REQUIERE FASE 1</span>
             </div>
 
-            <!-- FASE 3 (Bloqueada hasta aprobar Fase 2) -->
             <div id="card-fase3" class="phase-card locked p-4 rounded-lg flex justify-between items-center cursor-pointer" onclick="alertaBloqueo(2)">
                 <div>
                     <span class="text-xs text-[var(--magenta)] font-bold uppercase">FASE 3 ⚡ (Nivel Élite)</span>
@@ -125,10 +65,8 @@
                 </div>
                 <span id="status-fase3" class="text-[10px] font-bold text-[var(--magenta)] uppercase tracking-wider">REQUIERE FASE 2</span>
             </div>
-
         </div>
 
-        <!-- PROTOCOLO DE RECOMPENSA & DESCUENTOS -->
         <div class="bg-[#111d4a] p-5 rounded-lg border border-gray-800 space-y-3 shadow-inner">
             <h3 class="text-xs font-bold text-[var(--cyan)] uppercase tracking-wider">> Protocolo de Recompensa & Descuentos</h3>
             <p class="text-xs text-gray-300 leading-relaxed">
@@ -138,7 +76,6 @@
                 <span>💬</span> [ Reclamar Beneficio en WhatsApp ]
             </a>
         </div>
-
     </main>
 
     <script>
@@ -178,7 +115,7 @@
         });
 
         function alertaBloqueo(numFase) {
-            alert(`🔒 ACCESO PROTEGIDO\n\nDebes completar y aprobar la Fase ${numFase} con al menos 7 aciertos para desbloquear este nivel de amenaza.`);
+            alert(`🔒 ACCESO PROTEGIDO\n\nDebes completar y aprobar la Fase ${numFase} para desbloquear este nivel de amenaza.`);
         }
     </script>
 </body>

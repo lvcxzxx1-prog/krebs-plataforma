@@ -3,70 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hijos de Krebs - Reto: Sistema Cardiovascular</title>
+    <title>Hijos de Krebs | Sistema Circulatorio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        :root { --cyan: #00F2FF; --magenta: #FF00FF; --dark: #030712; --darker: #010409; --success: #00FF66; --warning: #FFB700; }
+        body { font-family: 'Space Mono', monospace; background-color: var(--darker); color: #ffffff; user-select: none; }
+        .scanlines { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3)); background-size: 100% 4px; pointer-events: none; z-index: 9999; }
+        .neon-box { border: 1px solid #1f2937; background: rgba(11, 19, 43, 0.7); box-shadow: 0 0 20px rgba(0, 242, 255, 0.05); }
+        .phase-card { border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.8); transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-radius: 0.5rem; cursor: pointer; text-decoration: none; }
+        .phase-card:hover { border-color: var(--cyan); background: rgba(0, 242, 255, 0.05); transform: translateX(4px); }
+        .locked-phase { opacity: 0.5; border-style: dashed; cursor: not-allowed; }
+        .neon-text-cyan { text-shadow: 0 0 8px var(--cyan); color: var(--cyan); }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <a href="../index.html" class="text-emerald-400 hover:text-emerald-300 font-medium text-sm flex items-center space-x-1"><span>← Volver a la Bóveda</span></a>
-                <span class="text-slate-600">|</span>
-                <span class="text-lg font-bold text-slate-200">🧬 Hijos de Krebs</span>
-            </div>
-            <a href="https://wa.me/51941071347?text=Hola%2C%20necesito%20soporte%20con%20el%20reto%20de%20Sistema Cardiovascular" target="_blank" class="text-emerald-400 hover:text-emerald-300 text-sm font-medium">Soporte WhatsApp</a>
-        </div>
-    </header>
+<body class="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6">
+    <div class="scanlines"></div>
 
-    <main class="flex-grow max-w-4xl mx-auto px-4 py-12 w-full">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 mb-8 shadow-xl">
-            <span class="inline-block bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full mb-3">MÓDULO OFICIAL 03 - PREUNIVERSITARIO</span>
-            <h1 class="text-2xl md:text-4xl font-extrabold mb-4">Sistema Cardiovascular</h1>
-            <p class="text-slate-300 text-base md:text-lg mb-6">Anatomía cardíaca, ciclo cardíaco, sistema de conducción eléctrica, circulación mayor y menor, y presión arterial.</p>
-            
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 mb-6">
-                <h3 class="text-lg font-bold text-emerald-400 mb-2">Instrucciones del Reto</h3>
-                <p class="text-slate-400 text-sm mb-4">Completa las fases del cuestionario para registrar tu progreso automático en el sistema.</p>
-                <div class="flex flex-wrap gap-4">
-                    <button onclick="completarFase(1)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition">Marcar Fase 1 Completada 🟢</button>
-                    <button onclick="completarFase(2)" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition">Marcar Fase 2 Completada 🟢</button>
-                </div>
-                <p id="msg-progreso" class="mt-4 text-xs text-slate-400"></p>
+    <main class="w-full max-w-4xl neon-box rounded-lg p-5 sm:p-8 relative z-10 flex flex-col space-y-6 shadow-2xl">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-4 gap-3">
+            <div>
+                <a href="../../../boveda.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="inline-flex items-center text-xs text-gray-400 hover:text-[var(--cyan)] transition-colors mb-2 font-semibold">
+                    ← RETORNAR A BÓVEDA CIENTÍFICA
+                </a>
+                <p class="text-[10px] text-[var(--magenta)] tracking-widest uppercase font-bold">/// ANATOMÍA HUMANA - MÓDULO 02</p>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-wider neon-text-cyan uppercase mt-1">
+                    >_ SISTEMA CIRCULATORIO
+                </h1>
             </div>
-        </div>
+            <div class="bg-[#111d4a] px-4 py-2 rounded border border-gray-700 text-right">
+                <span class="block text-[9px] text-gray-400 uppercase tracking-widest">PROGRESO TÁCTICO</span>
+                <span class="text-xs font-bold text-[var(--success)]">SECUENCIAL ACTIVO</span>
+            </div>
+        </header>
+
+        <section class="space-y-3">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest">> SELECCIONAR NIVEL DE AMENAZA:</h2>
+            <div class="space-y-3" id="phases-container">
+                <a href="../fase1/index.html" onmouseenter="sfx.hover()" onclick="sfx.click()" class="phase-card">
+                    <div>
+                        <span class="text-[10px] text-[var(--success)] font-bold tracking-wider">FASE 1 (NIVEL BÁSICO)</span>
+                        <h3 class="text-sm font-bold text-white uppercase mt-0.5">ANATOMÍA CARDÍACA Y VÁLVULAS</h3>
+                    </div>
+                    <span class="text-xs font-bold text-[var(--cyan)]">ACCEDER →</span>
+                </a>
+
+                <div id="card-fase2" onclick="intentarAccesoFase(2, '../fase2/index.html')" onmouseenter="sfx.hover()" class="phase-card locked-phase">
+                    <div>
+                        <span class="text-[10px] text-[var(--warning)] font-bold tracking-wider" id="txt-fase2">FASE 2 (BLOQUEADA 🔒)</span>
+                        <h3 class="text-sm font-bold text-gray-300 uppercase mt-0.5">CICLO CARDÍACO Y GASTO</h3>
+                    </div>
+                    <span class="text-xs font-bold text-gray-400" id="btn-fase2">REQUIERE FASE 1</span>
+                </div>
+
+                <div id="card-fase3" onclick="intentarAccesoFase(3, '../fase3/index.html')" onmouseenter="sfx.hover()" class="phase-card locked-phase">
+                    <div>
+                        <span class="text-[10px] text-[var(--magenta)] font-bold tracking-wider" id="txt-fase3">FASE 3 (BLOQUEADA 🔒)</span>
+                        <h3 class="text-sm font-bold text-gray-300 uppercase mt-0.5">CIRCULACIÓN MAYOR Y MENOR</h3>
+                    </div>
+                    <span class="text-xs font-bold text-gray-400" id="btn-fase3">REQUIERE FASE 2</span>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
-        <p>&copy; 2026 Hijos de Krebs. Todos los derechos reservados.</p>
-    </footer>
-
     <script>
-        const modKey = 'cardiovascular';
-        function actualizarEstado() {
-            const f1 = localStorage.getItem(`krebs_fase1_${modKey}_ok`);
-            const f2 = localStorage.getItem(`krebs_fase2_${modKey}_ok`);
-            const msg = document.getElementById('msg-progreso');
-            if (f1 && f2) {
-                msg.textContent = '¡Felicidades! Has completado todas las fases de este módulo.';
-                msg.className = 'mt-4 text-xs text-emerald-400 font-semibold';
-            } else if (f1 || f2) {
-                msg.textContent = 'Progreso en curso (Tienes una fase completada).';
-                msg.className = 'mt-4 text-xs text-amber-400 font-semibold';
-            } else {
-                msg.textContent = 'Aún no has registrado progreso en este módulo.';
-                msg.className = 'mt-4 text-xs text-slate-400';
+        let synth;
+        let audioInit = false;
+        function initAudio() {
+            if (!audioInit) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -12;
+                audioInit = true;
+            }
+        }
+        const sfx = {
+            hover: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("G5", "64n", Tone.now(), 0.03); } catch(e) {} },
+            click: async () => { try { if (!audioInit) initAudio(); if (Tone.context.state !== 'running') await Tone.start(); synth.triggerAttackRelease("C6", "32n"); } catch(e) {} }
+        };
+
+        const MODULO_ID = 'circulatorio';
+
+        function verificarProgresoFases() {
+            const fase1Lista = localStorage.getItem(`krebs_${MODULO_ID}_fase1_completada`) === 'true';
+            const fase2Lista = localStorage.getItem(`krebs_${MODULO_ID}_fase2_completada`) === 'true';
+
+            if (fase1Lista) {
+                const card2 = document.getElementById('card-fase2');
+                card2.classList.remove('locked-phase');
+                document.getElementById('txt-fase2').textContent = "FASE 2 (NIVEL INTERMEDIO)";
+                document.getElementById('btn-fase2').textContent = "ACCEDER →";
+                document.getElementById('btn-fase2').className = "text-xs font-bold text-[var(--cyan)]";
+            }
+            if (fase2Lista) {
+                const card3 = document.getElementById('card-fase3');
+                card3.classList.remove('locked-phase');
+                document.getElementById('txt-fase3').textContent = "FASE 3 (NIVEL ÉLITE)";
+                document.getElementById('btn-fase3').textContent = "ACCEDER →";
+                document.getElementById('btn-fase3').className = "text-xs font-bold text-[var(--magenta)]";
             }
         }
 
-        function completarFase(num) {
-            localStorage.setItem(`krebs_fase${num}_${modKey}_ok`, 'true');
-            alert(`¡Fase ${num} registrada correctamente!`);
-            actualizarEstado();
+        function intentarAccesoFase(nivel, url) {
+            const fase1Lista = localStorage.getItem(`krebs_${MODULO_ID}_fase1_completada`) === 'true';
+            const fase2Lista = localStorage.getItem(`krebs_${MODULO_ID}_fase2_completada`) === 'true';
+
+            if (nivel === 2 && fase1Lista) { sfx.click(); window.location.href = url; }
+            else if (nivel === 3 && fase2Lista) { sfx.click(); window.location.href = url; }
+            else { sfx.click(); alert(`Acceso Restringido. Debes superar la Fase ${nivel - 1} primero.`); }
         }
 
-        actualizarEstado();
+        document.addEventListener('DOMContentLoaded', verificarProgresoFases);
+        document.addEventListener('click', () => { if (!audioInit) initAudio(); }, { once: true });
     </script>
 </body>
 </html>
