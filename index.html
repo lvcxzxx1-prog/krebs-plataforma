@@ -57,6 +57,18 @@
         </a>
     </section>
 
+    <!-- BANNER PROMOCIONAL: MÁS DE 450 PREGUNTAS BLOQUEADAS -->
+    <section class="w-full max-w-6xl bg-gradient-to-r from-cyan-950/80 via-blue-950/80 to-slate-950 border-2 border-[var(--cyan)] p-5 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-[0_0_25px_rgba(0,242,255,0.2)] relative z-10">
+        <div class="space-y-1 text-center md:text-left">
+            <span class="inline-block px-2.5 py-0.5 rounded text-[9px] bg-cyan-950 text-[var(--cyan)] border border-[var(--cyan)] font-bold uppercase">✦ ARCHIVOS DE ENTRENAMIENTO EXCLUSIVOS</span>
+            <h2 class="text-base sm:text-lg font-bold text-white uppercase tracking-wide">¿QUIERES DESBLOQUEAR TODO EL POTENCIAL?</h2>
+            <p class="text-xs text-gray-300">Los apartados de Biología y Anatomía ocultan <strong class="text-[var(--cyan)]">más de 450 preguntas de nivel preuniversitario</strong> listas para dominar tus exámenes.</p>
+        </div>
+        <button onclick="solicitarAccesoElite()" onmouseenter="sfx.hover()" class="px-6 py-3.5 bg-[var(--cyan)] text-black font-extrabold text-xs uppercase tracking-wider rounded hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,242,255,0.4)] whitespace-nowrap flex items-center gap-2">
+            <span>⚡ DESBLOQUEAR 450+ PREGUNTAS VÍA WHATSAPP</span>
+        </button>
+    </section>
+
     <!-- CUADRICULA DE CURSOS Y MODULOS (TODOS BLOQUEADOS POR DEFECTO) -->
     <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
         
@@ -165,8 +177,8 @@
         }
 
         function solicitarAccesoElite() {
-            const mensaje = encodeURIComponent("Hola, deseo adquirir el Pase Élite y conocer el nuevo código de acceso para los módulos de Hijos de Krebs.");
-            window.open(`https://wa.me/?text=${mensaje}`, '_blank');
+            const mensaje = encodeURIComponent("Deseo acceder a la bóveda élite de más de 450 preguntas de Hijos de Krebs.");
+            window.open(`https://wa.me/51941071347?text=${mensaje}`, '_blank');
         }
 
         function abrirModulo(url) {
